@@ -48,7 +48,7 @@ export const getInvite = async (inviteId: string): Promise<PlayerInvite | null> 
             claimedByUserId: row.claimed_by_user_id,
             createdAt: row.created_at,
             expiresAt: row.expires_at,
-            playerName: `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+            playerName: [row.first_name, row.last_name].filter((n: string) => n && n !== '-').join(' ').trim(),
             eventName: row.event_name
         };
     } catch (e: any) {

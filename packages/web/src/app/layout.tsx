@@ -24,10 +24,10 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className="min-h-screen bg-gray-100 pb-16">
+            <body className="bg-gray-100">
                 <AuthProvider>
                     <SyncProvider>
-                        <main className="max-w-md mx-auto bg-white min-h-screen">
+                        <main className="max-w-md mx-auto bg-white">
                             {children}
                         </main>
                         <OfflineIndicator />

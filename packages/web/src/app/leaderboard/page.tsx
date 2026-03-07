@@ -82,7 +82,9 @@ export default function LeaderboardPage() {
 
     // Filter Logic
     const filteredMatches = leaderboard.matches.filter(match => {
-        const matchesType = filterType === 'all' || match.segmentType === filterType;
+        const matchesType = filterType === 'all' ||
+            (filterType === 'singles' && match.segmentType.startsWith('singles')) ||
+            match.segmentType === filterType;
         const matchesStatus = statusFilter === 'all' ||
             (statusFilter === 'live' && match.status !== 'completed') ||
             (statusFilter === 'finished' && match.status === 'completed');
@@ -288,7 +290,7 @@ export default function LeaderboardPage() {
                                 <div className="space-y-8 pb-32">
                                     {['singles', 'fourball', 'scramble'].map((type) => {
                                         const typeMatches = filteredMatches
-                                            .filter(m => m.segmentType.toLowerCase() === type)
+                                            .filter(m => type === 'singles' ? m.segmentType.startsWith('singles') : m.segmentType.toLowerCase() === type)
                                             .sort((a, b) => {
                                                 // Sort 'not_started' to the bottom
                                                 const aNotStarted = a.status === 'not_started';

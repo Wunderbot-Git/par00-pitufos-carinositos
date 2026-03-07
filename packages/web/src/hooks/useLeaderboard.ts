@@ -14,10 +14,12 @@ interface Match {
     id: string;
     flightId: string;
     flightName: string;
-    segmentType: 'singles' | 'fourball' | 'scramble';
+    segmentType: 'singles1' | 'singles2' | 'fourball' | 'scramble';
     status: 'not_started' | 'in_progress' | 'completed';
     currentHole: number;
     matchStatus: string; // e.g., "2 UP", "A/S", "1 DN"
+    fourballStatus?: string;
+    scrambleStatus?: string;
     matchWinner: 'red' | 'blue' | null;
     redPlayers: PlayerScore[];
     bluePlayers: PlayerScore[];
@@ -25,6 +27,7 @@ interface Match {
     hcpValues: number[];
     matchProgression: string[]; // Status at each hole
     holeWinners: ('red' | 'blue' | null)[];
+    matchLeaders: ('red' | 'blue' | null)[];
     redTeamStrokes?: number[]; // For scramble
     blueTeamStrokes?: number[];
 }

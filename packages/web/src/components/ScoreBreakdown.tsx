@@ -15,7 +15,7 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
     const Segment = ({ label, type }: { label: string, type: 'singles' | 'fourball' | 'scramble' }) => {
         // Filter out completed matches (only show ongoing/not started in the bar)
         const segmentMatches = (matches || [])
-            .filter(m => m.segmentType === type && m.status !== 'completed')
+            .filter(m => (type === 'singles' ? m.segmentType.startsWith('singles') : m.segmentType === type) && m.status !== 'completed')
             .sort((a, b) => {
                 // Sort by flight/id (default)
                 if (a.status === 'not_started' && b.status !== 'not_started') return 1;

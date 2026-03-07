@@ -259,7 +259,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         <div className="flex bg-slate-100 h-10 border-y border-slate-200 shadow-inner relative z-20">
             <div className="flex-shrink-0 w-32 px-3 sticky left-0 z-30 bg-slate-100 border-r border-slate-200 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                    {flightScore.segmentType === 'singles' ? 'Match Result' : 'Fourball Result'}
+                    {flightScore.segmentType === 'scramble' ? 'Scramble Result' : flightScore.segmentType.startsWith('singles') ? 'Match Result' : 'Bestball Result'}
                 </span>
             </div>
             <div className="flex-1 flex overflow-hidden">
@@ -304,7 +304,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     return (
         <div className="flex flex-col bg-white">
-            <div className="overflow-x-auto pb-4" ref={scrollRef}>
+            <div className="overflow-x-auto overflow-y-hidden pb-4" ref={scrollRef}>
                 <div className="min-w-max">
                     {/* Header Row */}
                     {renderHoleHeaders(visibleHoles)}

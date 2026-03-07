@@ -1,4 +1,4 @@
-// File: /Users/philipphasskamp/Antigravity/ryder-cup-app-2026-main/packages/web/src/app/matches/page.tsx
+// File: /Users/philipphasskamp/Claude Code/ryder-cup-app-2026-main_claude/packages/web/src/app/matches/page.tsx
 import * as entry from '../../../../src/app/matches/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

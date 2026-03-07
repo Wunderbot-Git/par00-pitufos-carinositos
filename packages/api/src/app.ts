@@ -12,6 +12,8 @@ import leaderboardRoutes from './routes/leaderboard';
 import historyRoutes from './routes/history';
 import segmentRoutes from './routes/segments';
 import spectatorRoutes from './routes/spectator';
+import { betRoutes } from './routes/bets';
+import { generalBetRoutes } from './routes/generalBets';
 import { adminRoutes } from './routes/admin';
 import { inviteRoutes } from './routes/invites';
 import errorHandler from './plugins/errorHandler';
@@ -97,6 +99,8 @@ export const buildApp = (): FastifyInstance => {
     app.register(spectatorRoutes);
     app.register(adminRoutes);
     app.register(inviteRoutes);
+    app.register(betRoutes);
+    app.register(generalBetRoutes);
 
     return app;
 };

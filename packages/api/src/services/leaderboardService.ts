@@ -20,7 +20,7 @@ export interface Match {
     id: string;
     flightId: string;
     flightName: string;
-    segmentType: 'singles' | 'fourball' | 'scramble';
+    segmentType: 'singles1' | 'singles2' | 'fourball' | 'scramble';
     status: 'not_started' | 'in_progress' | 'completed';
     currentHole: number;
     matchStatus: string; // e.g., "2 UP", "A/S", "1 DN"
@@ -144,7 +144,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
             .filter((p: any) => p.team === 'red')
             .map((p: any) => ({
                 id: p.id,
-                name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown',
+                name: [p.first_name, p.last_name].filter(n => n && n !== '-').join(' ').trim() || 'Unknown',
                 handicapIndex: parseFloat(p.handicap_index) || 0
             }));
 
@@ -152,7 +152,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
             .filter((p: any) => p.team === 'blue')
             .map((p: any) => ({
                 id: p.id,
-                name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown',
+                name: [p.first_name, p.last_name].filter(n => n && n !== '-').join(' ').trim() || 'Unknown',
                 handicapIndex: parseFloat(p.handicap_index) || 0
             }));
 
@@ -205,7 +205,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
             // -- Helper to process a match result --
             const processMatch = (
                 matchDetails: any,
-                type: 'singles' | 'fourball' | 'scramble',
+                type: 'singles1' | 'singles2' | 'fourball' | 'scramble',
                 idSuffix: string,
                 rPlayers: any[],
                 bPlayers: any[],
@@ -217,7 +217,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
 
                 // Add to totals if started
                 if (matchDetails) {
-                    if (type === 'singles') {
+                    if (type === 'singles1' || type === 'singles2') {
                         segmentScores.singles.red += matchDetails.result.redPoints;
                         segmentScores.singles.blue += matchDetails.result.bluePoints;
                     } else if (type === 'fourball') {
@@ -267,7 +267,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
                 const match: Match = {
                     id: `${flight.id}-${idSuffix}`,
                     flightId: flight.id,
-                    flightName: `Flight ${flight.flight_number}`,
+                    flightName: `Grupo ${flight.flight_number}`,
                     segmentType: type,
                     status: isUnstarted ? 'not_started' : (matchDetails.finalState.isDecided || matchDetails.finalState.holesRemaining === 0 ? 'completed' : (matchDetails.holes.length > 0 ? 'in_progress' : 'not_started')),
                     currentHole: isUnstarted ? 0 : matchDetails.holes.length,
@@ -287,7 +287,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
 
             // Process Singles 1 - Always process
             processMatch(
-                result.singles1, 'singles', 's1',
+                result.singles1, 'singles1', 's1',
                 [redPlayers[0]], [bluePlayers[0]],
                 [flightInput.redPlayer1.frontNineGross],
                 [flightInput.bluePlayer1.frontNineGross]
@@ -295,7 +295,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
 
             // Process Singles 2 - Always process
             processMatch(
-                result.singles2, 'singles', 's2',
+                result.singles2, 'singles2', 's2',
                 [redPlayers[1]], [bluePlayers[1]],
                 [flightInput.redPlayer2.frontNineGross],
                 [flightInput.bluePlayer2.frontNineGross]

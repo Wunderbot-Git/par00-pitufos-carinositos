@@ -310,7 +310,7 @@ export const getFlightScoreboardData = async (flightId: string) => {
 
         return {
             playerId: p.id,
-            playerName: `${p.first_name} ${p.last_name}`.trim(),
+            playerName: [p.first_name, p.last_name].filter((n: string) => n && n !== '-').join(' ').trim(),
             hcp: parseFloat(p.handicap_index) || 0,
             scores,
             singlesStatus: null as string | null,
@@ -324,6 +324,8 @@ export const getFlightScoreboardData = async (flightId: string) => {
 
     // 6. Calculate Match Status & Progression
     let matchStatus = "Not Started";
+    let fourballStatus = "Not Started";
+    let scrambleStatus = "Not Started";
     let segmentType: 'singles' | 'fourball' | 'scramble' = 'fourball';
     const matchProgression = Array(18).fill(null);
     const holeWinners = Array(18).fill(null);
@@ -447,34 +449,48 @@ export const getFlightScoreboardData = async (flightId: string) => {
         const maxHoleScramble = Math.max(0, ...scrambleScores.map(s => s.holeNumber));
         const maxHole = Math.max(maxHoleHole, maxHoleScramble);
 
+        // Always capture fourball status if available
+        if (result.fourball) {
+            fourballStatus = result.fourball.result.finalStatus;
+        }
+        // Always capture scramble status if available
+        if (result.scramble) {
+            scrambleStatus = result.scramble.result.finalStatus;
+        }
+
+        // Always populate BOTH fourball and scramble progression data
+        // (frontend shows both segments with a toggle)
+        if (result.fourball) {
+            result.fourball.holes.forEach(h => {
+                matchProgression[h.holeNumber - 1] = formatMatchStatus(h.matchState);
+                holeWinners[h.holeNumber - 1] = h.winner;
+                matchLeaders[h.holeNumber - 1] = h.matchState.leader;
+            });
+        }
+        if (result.scramble) {
+            result.scramble.holes.forEach(h => {
+                matchProgression[h.holeNumber + 9 - 1] = formatMatchStatus(h.matchState);
+                holeWinners[h.holeNumber + 9 - 1] = h.winner;
+                matchLeaders[h.holeNumber + 9 - 1] = h.matchState.leader;
+            });
+        }
+
         if (maxHole > 9) {
             segmentType = 'scramble';
-            if (result.scramble) {
-                matchStatus = result.scramble.result.finalStatus;
-                result.scramble.holes.forEach(h => {
-                    matchProgression[h.holeNumber + 9 - 1] = formatMatchStatus(h.matchState);
-                    holeWinners[h.holeNumber + 9 - 1] = h.winner;
-                    matchLeaders[h.holeNumber + 9 - 1] = h.matchState.leader;
-                });
-            }
+            matchStatus = scrambleStatus;
         } else {
             segmentType = 'fourball';
-            if (result.fourball) {
-                matchStatus = result.fourball.result.finalStatus;
-                result.fourball.holes.forEach(h => {
-                    matchProgression[h.holeNumber - 1] = formatMatchStatus(h.matchState);
-                    holeWinners[h.holeNumber - 1] = h.winner;
-                    matchLeaders[h.holeNumber - 1] = h.matchState.leader;
-                });
-            }
+            matchStatus = fourballStatus;
         }
     }
 
     return {
         flightId: flight.id,
-        flightName: `Flight ${flight.flight_number}`,
+        flightName: `Grupo ${flight.flight_number}`,
         segmentType,
         matchStatus,
+        fourballStatus,
+        scrambleStatus,
         matchProgression,
         holeWinners,
         matchLeaders,

@@ -8,6 +8,8 @@ interface FlightScore {
     flightName: string;
     segmentType: 'singles' | 'fourball' | 'scramble';
     matchStatus: string;
+    fourballStatus?: string;
+    scrambleStatus?: string;
     currentHole: number;
     redPlayers: {
         playerId: string;

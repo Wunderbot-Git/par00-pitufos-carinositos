@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { usePlayers } from '@/hooks/usePlayers';
@@ -34,6 +35,7 @@ export default function ScoresPage() {
     const { submitBatchScores, isSubmitting: isSaving, error: submitError } = useSubmitScores();
     const [openHole, setOpenHole] = useState<number | null>(null);
     const [lastSavedHole, setLastSavedHole] = useState<number | null>(null);
+    const [activeSegment, setActiveSegment] = useState<'bestball' | 'scramble'>('bestball');
 
     const isLoading = eventsLoading || playersLoading || (flightId ? scoresLoading : false);
 
@@ -46,11 +48,11 @@ export default function ScoresPage() {
     const handleSaveModal = async (scores: Record<string, number | null>) => {
         if (!flightScore || openHole === null || !flightId) return;
 
-        const isScramble = flightScore.segmentType === 'scramble';
+        const isScrambleHole = openHole > 9;
 
         // Convert record to array
         const batch = Object.entries(scores).map(([id, score]) => {
-            if (isScramble) {
+            if (isScrambleHole) {
                 return {
                     team: id === 'red_team' ? 'red' as const : 'blue' as const,
                     hole: openHole,
@@ -78,11 +80,11 @@ export default function ScoresPage() {
         // If failed, modal stays open. Error should be visible.
     };
 
-    // Prepare data for modal
-    const isScramble = flightScore?.segmentType === 'scramble';
+    // Prepare data for modal — determine by hole number, not segmentType
+    const isScrambleModal = openHole !== null && openHole > 9;
 
     const modalPlayers = openHole && flightScore ? (
-        isScramble ? [
+        isScrambleModal ? [
             {
                 playerId: 'red_team',
                 playerName: flightScore.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / '),
@@ -130,8 +132,8 @@ export default function ScoresPage() {
     else if (currentLeader === 'blue') headerBgClass = "bg-blue-700";
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
-            <header className={`${headerBgClass} text-white sticky top-0 z-50 shadow-md transition-colors duration-500`}>
+        <div className="flex flex-col h-[100dvh] bg-gray-50 pb-16 overflow-hidden">
+            <header className={`${headerBgClass} text-white flex-shrink-0 z-50 shadow-md transition-colors duration-500`}>
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-white/20">
@@ -152,16 +154,24 @@ export default function ScoresPage() {
                             </span>
                         </div>
                     </div>
-                    {flightScore && (
-                        <div className="flex-shrink-0 text-right">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        {flightScore && (
                             <span className={`inline-block border px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${currentLeader === 'red' ? 'bg-rose-100 border-rose-200 text-rose-700' :
                                     currentLeader === 'blue' ? 'bg-blue-100 border-blue-200 text-blue-700' :
                                         'bg-slate-100 border-slate-200 text-slate-500'
                                 }`}>
                                 {flightScore.matchStatus || 'LIVE'}
                             </span>
-                        </div>
-                    )}
+                        )}
+                        {eventId && (
+                            <Link href={`/admin/events/${eventId}/players`} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -180,7 +190,7 @@ export default function ScoresPage() {
             )}
 
 
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-hidden">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-team-blue mb-4"></div>
@@ -205,22 +215,42 @@ export default function ScoresPage() {
                     </div>
                 ) : (
                     <div className="animate-in fade-in duration-500">
+                        {/* Segment Toggle */}
+                        <div className="flex gap-2 px-4 pt-3 pb-2">
+                            <button
+                                onClick={() => setActiveSegment('bestball')}
+                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                                    activeSegment === 'bestball'
+                                        ? 'bg-slate-800 text-white shadow-sm'
+                                        : 'bg-slate-200 text-slate-500'
+                                }`}
+                            >
+                                Bestball (1-9)
+                                {flightScore.fourballStatus && flightScore.fourballStatus !== 'Not Started' && (
+                                    <span className="ml-1.5 text-[9px] opacity-70">{flightScore.fourballStatus}</span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setActiveSegment('scramble')}
+                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                                    activeSegment === 'scramble'
+                                        ? 'bg-slate-800 text-white shadow-sm'
+                                        : 'bg-slate-200 text-slate-500'
+                                }`}
+                            >
+                                Scramble (10-18)
+                                {flightScore.scrambleStatus && flightScore.scrambleStatus !== 'Not Started' && (
+                                    <span className="ml-1.5 text-[9px] opacity-70">{flightScore.scrambleStatus}</span>
+                                )}
+                            </button>
+                        </div>
+
                         <ScoreGrid
-                            flightScore={flightScore}
+                            flightScore={{ ...flightScore, segmentType: activeSegment === 'bestball' ? 'fourball' : 'scramble' }}
                             onHoleClick={handleHoleClick}
                             pendingScores={{}}
                             scrollToHole={lastSavedHole}
                         />
-
-                        <div className="p-4 mt-4">
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                <h4 className="text-blue-800 text-xs font-bold uppercase mb-1">Scoring Info</h4>
-                                <p className="text-blue-600 text-[11px] leading-relaxed">
-                                    Tap on any hole column header or score cell to enter scores.
-                                    The card will update automatically.
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 )}
             </main>
