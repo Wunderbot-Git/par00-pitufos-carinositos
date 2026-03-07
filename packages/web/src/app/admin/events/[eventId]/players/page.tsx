@@ -125,6 +125,28 @@ function EditPlayerModal({ player, tees, eventId, onSaved, onClose }: {
                     </div>
                 </div>
 
+                {player.userId && (
+                    <button
+                        onClick={async () => {
+                            if (!confirm('Unlink user account from this player?')) return;
+                            try {
+                                setSaving(true);
+                                const updated = await api.put<Player>(`/events/${eventId}/players/${player.id}`, { userId: null });
+                                onSaved(updated);
+                                onClose();
+                            } catch {
+                                setError('Failed to unclaim player');
+                            } finally {
+                                setSaving(false);
+                            }
+                        }}
+                        className="w-full mt-3 py-2 text-xs font-semibold text-orange-600 bg-orange-50 border border-orange-200 rounded-xl hover:bg-orange-100 transition-colors"
+                        disabled={saving}
+                    >
+                        Unclaim — Remove linked account
+                    </button>
+                )}
+
                 {error && <p className="text-red-500 text-xs mt-3">{error}</p>}
 
                 <div className="flex gap-3 mt-5">

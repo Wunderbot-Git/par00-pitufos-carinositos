@@ -1,28 +1,25 @@
-import Link from 'next/link';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 
 export default function HomePage() {
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isLoading) return;
+        if (user) {
+            router.replace('/score');
+        } else {
+            router.replace('/login');
+        }
+    }, [user, isLoading, router]);
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <h1 className="text-2xl font-bold text-header-navy mb-4">
-                Ryder Cup Par00
-            </h1>
-            <p className="text-gray-600 text-center mb-8">
-                Golf tournament scoring made simple
-            </p>
-            <div className="flex flex-col gap-4 w-full max-w-xs">
-                <Link
-                    href="/login"
-                    className="w-full py-3 px-4 bg-team-blue text-white rounded-lg text-center font-semibold"
-                >
-                    Login
-                </Link>
-                <Link
-                    href="/signup"
-                    className="w-full py-3 px-4 border border-team-blue text-team-blue rounded-lg text-center font-semibold"
-                >
-                    Sign Up
-                </Link>
-            </div>
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
         </div>
     );
 }
