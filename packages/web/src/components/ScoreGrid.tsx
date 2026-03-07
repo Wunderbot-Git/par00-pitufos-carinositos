@@ -158,11 +158,11 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     {player.singlesStatus && (
                         <div className={`
                             mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider
-                            ${player.singlesStatus === 'AS'
+                            ${player.singlesStatus === 'AS' || player.singlesStatus === 'A/S'
                                 ? 'bg-slate-100 text-slate-500'
-                                : (player.singlesStatus.includes('UP') || player.singlesStatus.includes('Won'))
-                                    ? (player.team === 'red' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700')
-                                    : (player.team === 'red' ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700') // Leading/Lost = Opponent Color
+                                : player.team === 'red'
+                                    ? 'bg-rose-100 text-rose-700'
+                                    : 'bg-blue-100 text-blue-700'
                             }
                         `}>
                             {player.singlesStatus}
