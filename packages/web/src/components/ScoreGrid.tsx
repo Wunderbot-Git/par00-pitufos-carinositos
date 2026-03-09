@@ -154,15 +154,15 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     </p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">HCP {player.hcp}</p>
 
-                    {/* Singles Match Status Badge */}
+                    {/* Singles Match Status Badge — only winner gets colored label */}
                     {player.singlesStatus && (
                         <div className={`
                             mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider
-                            ${player.singlesStatus === 'AS' || player.singlesStatus === 'A/S'
-                                ? 'bg-slate-100 text-slate-500'
-                                : player.team === 'red'
+                            ${player.singlesStatus.startsWith('Won')
+                                ? player.team === 'red'
                                     ? 'bg-rose-100 text-rose-700'
                                     : 'bg-blue-100 text-blue-700'
+                                : 'text-slate-400'
                             }
                         `}>
                             {player.singlesStatus}

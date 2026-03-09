@@ -148,9 +148,6 @@ export default function ScoresPage() {
                             <h1 className="text-[13px] font-black uppercase tracking-widest text-white/90 leading-tight">
                                 {activeEvent?.name || 'MATCH PLAY'}
                             </h1>
-                            <span className="text-[9px] font-bold text-blue-200/80 uppercase tracking-widest mt-0.5">
-                                Hole-by-Hole Scoring
-                            </span>
                         </div>
                     </div>
                     {flightScore && (
@@ -268,9 +265,6 @@ export default function ScoresPage() {
                                 }`}
                             >
                                 Hoyos 1-9
-                                {flightScore.fourballStatus && flightScore.fourballStatus !== 'Not Started' && (
-                                    <span className="ml-1.5 text-[9px] opacity-70">{flightScore.fourballStatus}</span>
-                                )}
                             </button>
                             <button
                                 onClick={() => setActiveSegment('scramble')}
@@ -281,9 +275,6 @@ export default function ScoresPage() {
                                 }`}
                             >
                                 Hoyos 10-18
-                                {flightScore.scrambleStatus && flightScore.scrambleStatus !== 'Not Started' && (
-                                    <span className="ml-1.5 text-[9px] opacity-70">{flightScore.scrambleStatus}</span>
-                                )}
                             </button>
                         </div>
 
