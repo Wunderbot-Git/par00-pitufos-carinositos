@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { usePlayers } from '@/hooks/usePlayers';
@@ -154,24 +153,63 @@ export default function ScoresPage() {
                             </span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                        {flightScore && (
-                            <span className={`inline-block border px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm ${currentLeader === 'red' ? 'bg-rose-100 border-rose-200 text-rose-700' :
-                                    currentLeader === 'blue' ? 'bg-blue-100 border-blue-200 text-blue-700' :
-                                        'bg-slate-100 border-slate-200 text-slate-500'
-                                }`}>
-                                {flightScore.matchStatus || 'LIVE'}
-                            </span>
-                        )}
-                        {eventId && (
-                            <Link href={`/admin/events/${eventId}/players`} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </Link>
-                        )}
-                    </div>
+                    {flightScore && (
+                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                            {activeSegment === 'bestball' ? (
+                                <>
+                                    {flightScore.redPlayers[0] && flightScore.bluePlayers[0] && (
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[9px] text-white/70 font-medium truncate max-w-[100px]">
+                                                {flightScore.redPlayers[0].playerName.split(' ')[0]} vs {flightScore.bluePlayers[0].playerName.split(' ')[0]}
+                                            </span>
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                                flightScore.redPlayers[0].singlesResult === 'win' ? 'bg-rose-100 text-rose-700' :
+                                                flightScore.redPlayers[0].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
+                                                'bg-white/20 text-white'
+                                            }`}>
+                                                {flightScore.redPlayers[0].singlesStatus || 'A/S'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {flightScore.redPlayers[1] && flightScore.bluePlayers[1] && (
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[9px] text-white/70 font-medium truncate max-w-[100px]">
+                                                {flightScore.redPlayers[1].playerName.split(' ')[0]} vs {flightScore.bluePlayers[1].playerName.split(' ')[0]}
+                                            </span>
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                                flightScore.redPlayers[1].singlesResult === 'win' ? 'bg-rose-100 text-rose-700' :
+                                                flightScore.redPlayers[1].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
+                                                'bg-white/20 text-white'
+                                            }`}>
+                                                {flightScore.redPlayers[1].singlesStatus || 'A/S'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[9px] text-white/70 font-medium">Bestball</span>
+                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                                            currentLeader === 'red' ? 'bg-rose-100 text-rose-700' :
+                                            currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' :
+                                            'bg-white/20 text-white'
+                                        }`}>
+                                            {flightScore.fourballStatus || 'A/S'}
+                                        </span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] text-white/70 font-medium">Scramble</span>
+                                    <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
+                                        currentLeader === 'red' ? 'bg-rose-100 text-rose-700' :
+                                        currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' :
+                                        'bg-white/20 text-white'
+                                    }`}>
+                                        {flightScore.scrambleStatus || 'A/S'}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </header>
 
@@ -225,7 +263,7 @@ export default function ScoresPage() {
                                         : 'bg-slate-200 text-slate-500'
                                 }`}
                             >
-                                Bestball (1-9)
+                                Hoyos 1-9
                                 {flightScore.fourballStatus && flightScore.fourballStatus !== 'Not Started' && (
                                     <span className="ml-1.5 text-[9px] opacity-70">{flightScore.fourballStatus}</span>
                                 )}
@@ -238,7 +276,7 @@ export default function ScoresPage() {
                                         : 'bg-slate-200 text-slate-500'
                                 }`}
                             >
-                                Scramble (10-18)
+                                Hoyos 10-18
                                 {flightScore.scrambleStatus && flightScore.scrambleStatus !== 'Not Started' && (
                                     <span className="ml-1.5 text-[9px] opacity-70">{flightScore.scrambleStatus}</span>
                                 )}
