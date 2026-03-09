@@ -375,9 +375,8 @@ export const getFlightScoreboardData = async (flightId: string) => {
             if (res.result.winner) {
                 const status = res.result.finalStatus; // e.g. "3&2", "1 UP", "A/S"
                 if (res.result.winner === team) return `Won ${status}`;
-                // "Lost X&Y" is fine, but "Lost X UP" should never exist
-                if (status.includes('UP')) return 'Lost';
-                return `Lost ${status}`;
+                // "Lost X&Y" is fine; for "X UP" show "Lost X DN"
+                return `Lost ${status.replace('UP', 'DN')}`;
             }
 
             // Active match

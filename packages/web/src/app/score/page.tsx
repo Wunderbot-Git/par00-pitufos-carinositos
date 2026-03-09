@@ -167,7 +167,9 @@ export default function ScoresPage() {
                                                 flightScore.redPlayers[0].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
                                                 'bg-white/20 text-white'
                                             }`}>
-                                                {flightScore.redPlayers[0].singlesStatus || 'A/S'}
+                                                {(flightScore.redPlayers[0].singlesResult === 'loss'
+                                                    ? flightScore.bluePlayers[0]?.singlesStatus
+                                                    : flightScore.redPlayers[0].singlesStatus) || 'A/S'}
                                             </span>
                                         </div>
                                     )}
@@ -181,7 +183,9 @@ export default function ScoresPage() {
                                                 flightScore.redPlayers[1].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
                                                 'bg-white/20 text-white'
                                             }`}>
-                                                {flightScore.redPlayers[1].singlesStatus || 'A/S'}
+                                                {(flightScore.redPlayers[1].singlesResult === 'loss'
+                                                    ? flightScore.bluePlayers[1]?.singlesStatus
+                                                    : flightScore.redPlayers[1].singlesStatus) || 'A/S'}
                                             </span>
                                         </div>
                                     )}
