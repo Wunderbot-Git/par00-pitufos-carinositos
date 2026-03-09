@@ -95,6 +95,33 @@ export const requestPasswordReset = async (email: string): Promise<string> => {
     return token;
 };
 
+export const updateProfile = async (userId: string, name: string): Promise<User> => {
+    if (!name || !name.trim()) {
+        throw new Error('Name is required');
+    }
+    return userRepository.updateName(userId, name.trim());
+};
+
+export const changePassword = async (userId: string, currentPassword: string, newPassword: string): Promise<void> => {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) {
+        throw new Error('Current password is incorrect');
+    }
+
+    const pwValidation = validatePassword(newPassword);
+    if (!pwValidation.valid) {
+        throw new Error(pwValidation.errors[0]);
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await userRepository.updatePassword(userId, passwordHash);
+};
+
 export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
     const resetData = await userRepository.findResetToken(token);
 

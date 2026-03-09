@@ -109,6 +109,50 @@ export const authRoutes = async (fastify: FastifyInstance) => {
         };
     });
 
+    // Update Profile (name)
+    fastify.put<{ Body: { name: string } }>('/auth/profile', {
+        onRequest: [authenticate]
+    }, async (request, reply) => {
+        const { userId } = request.user as { userId: string };
+        const { name } = request.body;
+
+        if (!name) {
+            return reply.status(400).send({ error: 'Name is required' });
+        }
+
+        try {
+            const user = await userService.updateProfile(userId, name);
+            return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                appRole: user.app_role,
+                createdAt: user.created_at.toISOString()
+            };
+        } catch (error: any) {
+            return reply.status(400).send({ error: error.message });
+        }
+    });
+
+    // Change Password
+    fastify.put<{ Body: { currentPassword: string; newPassword: string } }>('/auth/change-password', {
+        onRequest: [authenticate]
+    }, async (request, reply) => {
+        const { userId } = request.user as { userId: string };
+        const { currentPassword, newPassword } = request.body;
+
+        if (!currentPassword || !newPassword) {
+            return reply.status(400).send({ error: 'Current password and new password are required' });
+        }
+
+        try {
+            await userService.changePassword(userId, currentPassword, newPassword);
+            return { message: 'Password changed successfully' };
+        } catch (error: any) {
+            return reply.status(400).send({ error: error.message });
+        }
+    });
+
     // Request Password Reset
     fastify.post<{ Body: { email: string } }>(
         '/auth/reset-password/request',

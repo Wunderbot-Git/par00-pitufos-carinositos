@@ -69,3 +69,9 @@ export const updatePassword = async (userId: string, passwordHash: string): Prom
     const pool = getPool();
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, userId]);
 };
+
+export const updateName = async (userId: string, name: string): Promise<User> => {
+    const pool = getPool();
+    const res = await pool.query('UPDATE users SET name = $1 WHERE id = $2 RETURNING *', [name, userId]);
+    return res.rows[0];
+};

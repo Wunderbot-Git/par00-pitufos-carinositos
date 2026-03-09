@@ -18,6 +18,8 @@ const BET_TYPE_LABELS: Record<string, { title: string; description: string }> = 
     flight_sweep: { title: 'Barrida Total', description: '¿Alguien barre limpio?' },
     biggest_blowout: { title: 'Más Aplastante', description: '¿Cuál partida tendrá el mayor margen de victoria?' },
     early_close: { title: 'Cierre Rápido', description: '¿Alguien cierra en el hoyo 6 o antes?' },
+    mvp: { title: 'MVP', description: '¿Quién será el mejor jugador del torneo?' },
+    worst_player: { title: 'Peor Jugador', description: '¿Quién será el peor jugador del torneo?' },
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
@@ -73,11 +75,25 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
     const meta = BET_TYPE_LABELS[pool.betType] || { title: pool.betType, description: '' };
     const hasBet = !!myBet;
 
-    const outcomes = pool.betType === 'tournament_winner' ? ['red', 'blue']
+    const isPlayerBet = pool.betType === 'mvp' || pool.betType === 'worst_player';
+
+    // Parse player lists from "id:name" format for player-based bets
+    const allPlayers = isPlayerBet
+        ? [...(pool.redPlayerNames || []), ...(pool.bluePlayerNames || [])].map(s => {
+            const [id, ...nameParts] = s.split(':');
+            return { id, name: nameParts.join(':'), team: (pool.redPlayerNames || []).includes(s) ? 'red' as const : 'blue' as const };
+        })
+        : [];
+
+    const outcomes = isPlayerBet ? allPlayers.map(p => p.id)
+        : pool.betType === 'tournament_winner' ? ['red', 'blue']
         : pool.betType === 'early_close' ? ['yes', 'no']
         : pool.betType === 'flight_winner' ? ['red', 'blue', 'tie']
         : pool.betType === 'flight_sweep' ? ['red', 'blue']
         : ['red', 'blue']; // biggest_blowout fallback
+
+    const getPlayerName = (id: string) => allPlayers.find(p => p.id === id)?.name || id;
+    const getPlayerTeam = (id: string) => allPlayers.find(p => p.id === id)?.team;
 
     const handlePlace = async () => {
         if (!selectedOutcome) return;
@@ -115,37 +131,65 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                         ? <span className="text-[10px] text-green-500 font-bold">Apostado ✓</span>
                         : <span className="text-[10px] text-slate-400">Pendiente</span>
                     }
-                    {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (
-                        <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${
-                            pool.winningOutcome === 'red' ? 'bg-rose-100 text-rose-600' :
-                            pool.winningOutcome === 'blue' ? 'bg-blue-100 text-blue-600' :
-                            'bg-slate-100 text-slate-600'
-                        }`}>
-                            {OUTCOME_LABELS[pool.winningOutcome] || pool.winningOutcome}
-                        </span>
-                    )}
+                    {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
+                        const winTeam = isPlayerBet ? getPlayerTeam(pool.winningOutcome) : null;
+                        const winLabel = isPlayerBet ? getPlayerName(pool.winningOutcome) : (OUTCOME_LABELS[pool.winningOutcome] || pool.winningOutcome);
+                        const winColor = isPlayerBet
+                            ? (winTeam === 'red' ? 'bg-rose-100 text-rose-600' : winTeam === 'blue' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600')
+                            : (pool.winningOutcome === 'red' ? 'bg-rose-100 text-rose-600' : pool.winningOutcome === 'blue' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600');
+                        return (
+                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${winColor}`}>
+                                {winLabel}
+                            </span>
+                        );
+                    })()}
                 </div>
             </button>
 
-            {hasBet && !expanded && (
-                <div className="px-4 pb-3 -mt-1">
-                    <div className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2 py-1 rounded ${
-                        myBet.pickedOutcome === 'red' ? 'bg-rose-50 text-rose-600' :
-                        myBet.pickedOutcome === 'blue' ? 'bg-blue-50 text-blue-600' :
-                        'bg-slate-50 text-slate-600'
-                    }`}>
-                        <div className={`w-1.5 h-4 rounded-full ${
-                            myBet.pickedOutcome === 'red' ? 'bg-rose-500' :
-                            myBet.pickedOutcome === 'blue' ? 'bg-blue-500' :
-                            'bg-slate-400'
-                        }`} />
-                        Tu apuesta: {OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome}
+            {hasBet && !expanded && (() => {
+                const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
+                const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
+                const colorKey = isPlayerBet ? (pickedTeam || 'slate') : myBet.pickedOutcome;
+                const bgClass = colorKey === 'red' ? 'bg-rose-50 text-rose-600' : colorKey === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600';
+                const dotClass = colorKey === 'red' ? 'bg-rose-500' : colorKey === 'blue' ? 'bg-blue-500' : 'bg-slate-400';
+                return (
+                    <div className="px-4 pb-3 -mt-1">
+                        <div className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2 py-1 rounded ${bgClass}`}>
+                            <div className={`w-1.5 h-4 rounded-full ${dotClass}`} />
+                            Tu apuesta: {displayOutcome}
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
             {expanded && !hasBet && !pool.isResolved && (
                 <div className="px-4 pb-4 border-t border-slate-100 pt-3">
+                    {isPlayerBet ? (
+                        <div className="flex flex-col gap-1.5 mb-3 max-h-60 overflow-y-auto">
+                            {allPlayers.map(p => {
+                                const isSelected = selectedOutcome === p.id;
+                                const teamColor = p.team === 'red' ? 'rose' : 'blue';
+                                return (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => setSelectedOutcome(p.id)}
+                                        disabled={isSubmitting}
+                                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-all text-left
+                                            ${isSelected
+                                                ? `border-${teamColor}-400 bg-${teamColor}-50`
+                                                : 'border-slate-100 bg-white hover:border-slate-200'
+                                            }
+                                        `}
+                                    >
+                                        <span className={`text-sm font-bold text-${teamColor}-600`}>{p.name}</span>
+                                        {(pool.outcomePartes[p.id] || 0) > 0 && (
+                                            <span className="text-[10px] text-slate-400">{pool.outcomePartes[p.id]} partes</span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : (
                     <div className="flex gap-2 mb-3">
                         {outcomes.map(o => (
                             <OutcomeButton
@@ -160,6 +204,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                             />
                         ))}
                     </div>
+                    )}
 
                     {selectedOutcome && (
                         <div className="flex flex-col gap-3 mt-2">
@@ -199,7 +244,7 @@ export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter
     };
 
     // Tournament-level pools
-    const tournamentPools = pools.filter(p => ['tournament_winner', 'any_halve', 'biggest_blowout'].includes(p.betType)).filter(filterPool);
+    const tournamentPools = pools.filter(p => ['tournament_winner', 'any_halve', 'biggest_blowout', 'mvp', 'worst_player'].includes(p.betType)).filter(filterPool);
 
     // Flight pools grouped by flightId
     const flightPools = pools.filter(p => ['flight_winner', 'flight_sweep', 'early_close'].includes(p.betType)).filter(filterPool);

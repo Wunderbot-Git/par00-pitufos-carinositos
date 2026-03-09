@@ -23,6 +23,8 @@ const VALID_OUTCOMES: Record<GeneralBetType, string[]> = {
     biggest_blowout: [], // dynamic — any flight+segment id
     any_halve: ['yes', 'no'],
     early_close: ['yes', 'no'],
+    mvp: [], // dynamic — any player id
+    worst_player: [], // dynamic — any player id
 };
 
 /**
@@ -51,8 +53,9 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         if (!betAmount || betAmount <= 0) throw new Error('Betting is not enabled for this event.');
 
         // 2. Validate bet type and outcome
+        const dynamicBetTypes: GeneralBetType[] = ['biggest_blowout', 'mvp', 'worst_player'];
         const validOutcomes = VALID_OUTCOMES[input.betType];
-        if (input.betType !== 'biggest_blowout' && !validOutcomes.includes(input.pickedOutcome)) {
+        if (!dynamicBetTypes.includes(input.betType) && !validOutcomes.includes(input.pickedOutcome)) {
             throw new Error(`Invalid outcome '${input.pickedOutcome}' for bet type '${input.betType}'.`);
         }
 
@@ -263,6 +266,45 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
         });
     }
 
+    // ── MVP & Worst Player ──
+    // Score each player by their singles match result: Win=2, Halve=1, Loss=0
+    if (allCompleted) {
+        const playerScores: Record<string, { id: string; name: string; score: number }> = {};
+
+        leaderboard.matches.forEach(m => {
+            if (m.segmentType !== 'singles1' && m.segmentType !== 'singles2') return;
+            const winner = m.matchWinner;
+
+            const allPlayers = [...m.redPlayers, ...m.bluePlayers];
+            allPlayers.forEach(p => {
+                if (!playerScores[p.playerId]) playerScores[p.playerId] = { id: p.playerId, name: p.playerName, score: 0 };
+                const team = m.redPlayers.some(rp => rp.playerId === p.playerId) ? 'red' : 'blue';
+                if (!winner || m.matchStatus === 'Halved') {
+                    playerScores[p.playerId].score += 1; // halve
+                } else if (winner === team) {
+                    playerScores[p.playerId].score += 2; // win
+                }
+                // loss = 0
+            });
+        });
+
+        const sorted = Object.values(playerScores).sort((a, b) => b.score - a.score);
+        const mvpId = sorted.length > 0 ? sorted[0].id : null;
+        const worstId = sorted.length > 0 ? sorted[sorted.length - 1].id : null;
+
+        outcomes.push({
+            betType: 'mvp', flightId: null, segmentType: null,
+            winningOutcome: mvpId, isResolved: true
+        });
+        outcomes.push({
+            betType: 'worst_player', flightId: null, segmentType: null,
+            winningOutcome: worstId, isResolved: true
+        });
+    } else {
+        outcomes.push({ betType: 'mvp', flightId: null, segmentType: null, winningOutcome: null, isResolved: false });
+        outcomes.push({ betType: 'worst_player', flightId: null, segmentType: null, winningOutcome: null, isResolved: false });
+    }
+
     return outcomes;
 }
 
@@ -383,6 +425,37 @@ export const getGeneralBetPools = async (eventId: string): Promise<GeneralBetPoo
                 bluePlayerNames: [...(flightBluePlayers[flightId] || [])]
             });
         }
+    }
+
+    // MVP & Worst Player pools (tournament-level, player-based)
+    for (const bt of ['mvp', 'worst_player'] as GeneralBetType[]) {
+        const key = `${bt}||`;
+        const bets = poolMap[key] || [];
+        const resolution = resolutions.find(r => r.betType === bt && !r.flightId);
+
+        const outcomePartes: Record<string, number> = {};
+        bets.forEach(b => {
+            outcomePartes[b.pickedOutcome] = (outcomePartes[b.pickedOutcome] || 0) + b.partes;
+        });
+
+        // Collect all player names from leaderboard for display
+        const allPlayerNames: string[] = [];
+        leaderboard.matches.forEach(m => {
+            m.redPlayers.forEach(p => allPlayerNames.push(p.playerName));
+            m.bluePlayers.forEach(p => allPlayerNames.push(p.playerName));
+        });
+
+        pools.push({
+            betType: bt,
+            flightId: null, flightName: null, segmentType: null,
+            pot: bets.reduce((s, b) => s + b.amount, 0),
+            betsCount: bets.length,
+            outcomePartes,
+            isResolved: resolution?.isResolved || false,
+            winningOutcome: resolution?.winningOutcome || null,
+            redPlayerNames: [...new Set(leaderboard.matches.flatMap(m => m.redPlayers.map(p => `${p.playerId}:${p.playerName}`)))],
+            bluePlayerNames: [...new Set(leaderboard.matches.flatMap(m => m.bluePlayers.map(p => `${p.playerId}:${p.playerName}`)))]
+        });
     }
 
     // Biggest blowout pool (tournament-level)

@@ -29,6 +29,15 @@ export interface LoginRequest {
     password: string;
 }
 
+export interface UpdateProfileRequest {
+    name: string;
+}
+
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export interface PasswordResetRequest {
     email: string;
 }

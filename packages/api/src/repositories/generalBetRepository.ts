@@ -1,6 +1,6 @@
 import { getPool } from '../config/database';
 
-export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'early_close';
+export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'early_close' | 'mvp' | 'worst_player';
 
 export interface GeneralBet {
     id: string;

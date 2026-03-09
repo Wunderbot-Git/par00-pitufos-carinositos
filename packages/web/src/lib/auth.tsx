@@ -18,6 +18,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, name: string, password: string) => Promise<void>;
     logout: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -62,6 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await login(email, password);
     };
 
+    const refreshUser = async () => {
+        try {
+            const user = await api.get<User>('/auth/me');
+            setUser(user);
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
+    };
+
     const logout = () => {
         api.clearToken();
         setUser(null);
@@ -77,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 signup,
                 logout,
+                refreshUser,
             }}
         >
             {children}

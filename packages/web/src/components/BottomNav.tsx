@@ -3,31 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const tabs = [
-    {
-        href: '/leaderboard',
-        label: 'Scoreboard',
-        icon: (isActive: boolean) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? "2.5" : "2"} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 10v4" />
-                <path d="m14.5 11.5-3 3" />
-                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-                <path d="M12 2v2" />
-                <path d="M2 12h2" />
-                <path d="M20 12h2" />
-                <path d="M19.07 4.93 17.66 6.34" />
-                <path d="M4.93 4.93 6.34 6.34" />
-            </svg>
-            // Actually, let's use a simpler Speedometer style
-            // <svg ...><path d="M12 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" /><path d="M13.4 15.4 19 9" /><path d="M22 4s-.4-2-2-2-2 .4-2 2 .4 2 2 2 2-.4 2-2z" /><path d="M2 13a10 10 0 0 1 18.3-4.5" /></svg>
-            // Let's use a standard Gauge icon path:
-        )
-    },
-    { href: '/score', label: 'Score', icon: (isActive: boolean) => null }, // Placeholder
-    { href: '/matches', label: 'Matches', icon: (isActive: boolean) => null },
-    { href: '/apuestas', label: 'Apuestas', icon: (isActive: boolean) => null },
-];
-
 function GaugeIcon({ isActive }: { isActive: boolean }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? "2.5" : "2"} strokeLinecap="round" strokeLinejoin="round">
@@ -46,13 +21,11 @@ function EditIcon({ isActive }: { isActive: boolean }) {
     );
 }
 
-function UsersIcon({ isActive }: { isActive: boolean }) {
+function SettingsIcon({ isActive }: { isActive: boolean }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? "2.5" : "2"} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
         </svg>
     );
 }
@@ -70,8 +43,8 @@ function BettingIcon({ isActive }: { isActive: boolean }) {
 const navItems = [
     { href: '/leaderboard', label: 'Scoreboard', Icon: GaugeIcon },
     { href: '/score', label: 'Score', Icon: EditIcon },
-    { href: '/matches', label: 'Matches', Icon: UsersIcon },
     { href: '/apuestas', label: 'Apuestas', Icon: BettingIcon },
+    { href: '/settings', label: 'Settings', Icon: SettingsIcon },
 ];
 
 export function BottomNav() {

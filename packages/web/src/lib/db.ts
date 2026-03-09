@@ -171,6 +171,18 @@ class LocalDatabase {
             request.onerror = () => reject(request.error);
         });
     }
+
+    async clearAll(): Promise<void> {
+        await this.ensureInit();
+        return new Promise((resolve, reject) => {
+            const transaction = this.db!.transaction(['events', 'scores', 'syncQueue'], 'readwrite');
+            transaction.objectStore('events').clear();
+            transaction.objectStore('scores').clear();
+            transaction.objectStore('syncQueue').clear();
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
 }
 
 export const db = new LocalDatabase();
