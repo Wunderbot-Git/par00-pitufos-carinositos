@@ -137,10 +137,10 @@ export const submitHoleScores = async (input: SubmitScoresInput): Promise<Submit
             await createAuditLog({
                 eventId: input.eventId,
                 entityType: 'hole_score',
-                entityId: `${score.playerId}-${score.holeNumber}`, // logical ID as real ID is unknown without query
+                entityId: score.playerId,
                 action: 'delete',
-                previousValue: { grossScore: 'unknown' },
-                newValue: { grossScore: null },
+                previousValue: { grossScore: 'unknown', holeNumber: score.holeNumber },
+                newValue: { grossScore: null, holeNumber: score.holeNumber },
                 source: input.source || 'online',
                 byUserId: input.userId
             });
