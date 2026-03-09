@@ -189,9 +189,9 @@ export default function ScoresPage() {
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[9px] text-white/70 font-medium">Bestball</span>
                                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                            currentLeader === 'red' ? 'bg-rose-100 text-rose-700' :
-                                            currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' :
-                                            'bg-white/20 text-white'
+                                            flightScore.fourballStatus && flightScore.fourballStatus !== 'A/S' && flightScore.fourballStatus !== 'Not Started'
+                                                ? (currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700')
+                                                : 'bg-white/20 text-white'
                                         }`}>
                                             {flightScore.fourballStatus || 'A/S'}
                                         </span>
