@@ -366,74 +366,46 @@ export const getFlightScoreboardData = async (flightId: string) => {
             bluePlayer2: buildCalcInput(1, 'blue')
         });
 
+        // Unified singles status formatter
+        const formatSinglesStatus = (res: any, team: 'red' | 'blue'): string | null => {
+            if (!res) return null;
+            if (res.result.finalStatus === 'Not Started') return null;
+
+            // Match decided
+            if (res.result.winner) {
+                const status = res.result.finalStatus; // e.g. "3&2", "1 UP", "A/S"
+                if (res.result.winner === team) return `Won ${status}`;
+                // "Lost X&Y" is fine, but "Lost X UP" should never exist
+                if (status.includes('UP')) return 'Lost';
+                return `Lost ${status}`;
+            }
+
+            // Active match
+            const leader = res.finalState.leader;
+            const lead = res.finalState.lead;
+            if (leader === null) return 'A/S';
+            if (leader === team) return `${lead} UP`;
+            return `${lead} DN`;
+        };
+
         // Map Singles Status
         if (result.singles1) {
-            redPlayersData[0].singlesStatus = result.singles1.result.finalStatus; // Already formatted for Red perspective usually? 
-            // Wait, finalStatus is "3 & 2" or "1 UP". It doesn't say WHO is up in the string itself unless we look at winner.
-            // We need to format relative to the player.
-            // Actually `finalStatus` from matchResult is "3 & 2". The `winner` tells us who won.
-            // But for "1 UP", we need to know who is leading.
-            // Let's use `result.singles1.finalState.leader` and `result.singles1.finalState.up`.
-
-            const formatStatus = (res: any, team: 'red' | 'blue') => {
-                if (!res) return null;
-                if (res.result.finalStatus === 'Not Started') return null;
-
-                // If match is finished (win/loss)
-                if (res.result.winner) {
-                    if (res.result.winner === team) return res.result.finalStatus; // e.g. "3 & 2"
-                    return "Lost"; // Or show result from winner's perspective? Commonly just "Lost" or empty?
-                    // Let's basically show the status. If R1 won 3&2, R1 sees "3 & 2", B1 sees "Lost 3 & 2"?
-                }
-
-                // Keep it simple: Show the general Match Status string "AS", "1 UP", but color it?
-                // Or better: "AS", "1 UP" (if me), "1 DN" (if opp)?
-
-                const leader = res.finalState.leader;
-                const up = res.finalState.lead;
-
-                if (leader === null) return "AS";
-                if (leader === team) return `${up} UP`;
-                return `${up} DN`;
-            };
-
-            redPlayersData[0].singlesStatus = formatStatus(result.singles1, 'red');
-            bluePlayersData[0].singlesStatus = formatStatus(result.singles1, 'blue');
+            redPlayersData[0].singlesStatus = formatSinglesStatus(result.singles1, 'red');
+            bluePlayersData[0].singlesStatus = formatSinglesStatus(result.singles1, 'blue');
 
             redPlayersData[0].singlesResult = result.singles1.result.winner === 'red' ? 'win' : (result.singles1.result.winner === 'blue' ? 'loss' : null);
             bluePlayersData[0].singlesResult = result.singles1.result.winner === 'blue' ? 'win' : (result.singles1.result.winner === 'red' ? 'loss' : null);
 
             // Populate singles hole winners
             result.singles1.holes.forEach(h => {
-                redPlayersData[0].singlesHoles[h.holeNumber - 1] = h.winner; // 'red' or 'blue' or null
+                redPlayersData[0].singlesHoles[h.holeNumber - 1] = h.winner;
                 bluePlayersData[0].singlesHoles[h.holeNumber - 1] = h.winner;
             });
         }
 
         if (result.singles2) {
-            const formatStatus = (res: any, team: 'red' | 'blue') => {
-                if (!res) return null;
-                if (res.result.finalStatus === 'Not Started') return null;
-
-                if (res.result.winner) { // Match Finished
-                    // If I won, show result. If I lost, show result?
-                    // Standard: "Won 3&2", "Lost 3&2".
-                    // Ideally we just pass the status string from the calculator matchResult? 
-                    // The calculator string is "3 & 2".
-                    if (res.result.winner === team) return `Won ${res.result.finalStatus}`;
-                    return `Lost ${res.result.finalStatus}`;
-                }
-
-                const leader = res.finalState.leader;
-                const up = res.finalState.lead;
-
-                if (leader === null) return "AS";
-                if (leader === team) return `${up} UP`;
-                return `${up} DN`;
-            };
-
-            redPlayersData[1].singlesStatus = formatStatus(result.singles2, 'red');
-            bluePlayersData[1].singlesStatus = formatStatus(result.singles2, 'blue');
+            redPlayersData[1].singlesStatus = formatSinglesStatus(result.singles2, 'red');
+            bluePlayersData[1].singlesStatus = formatSinglesStatus(result.singles2, 'blue');
 
             redPlayersData[1].singlesResult = result.singles2.result.winner === 'red' ? 'win' : (result.singles2.result.winner === 'blue' ? 'loss' : null);
             bluePlayersData[1].singlesResult = result.singles2.result.winner === 'blue' ? 'win' : (result.singles2.result.winner === 'red' ? 'loss' : null);
