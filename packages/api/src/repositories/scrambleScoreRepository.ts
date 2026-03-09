@@ -125,3 +125,24 @@ export const getFlightScrambleScores = async (flightId: string): Promise<Scrambl
     );
     return res.rows.map(mapRowToScrambleScore);
 };
+
+/**
+ * Delete all scramble scores for a flight.
+ */
+export const deleteFlightScrambleScores = async (flightId: string): Promise<number> => {
+    const pool = getPool();
+    const res = await pool.query('DELETE FROM scramble_team_scores WHERE flight_id = $1', [flightId]);
+    return res.rowCount || 0;
+};
+
+/**
+ * Delete scramble scores for a specific hole in a flight.
+ */
+export const deleteScrambleScoresForHole = async (flightId: string, holeNumber: number): Promise<number> => {
+    const pool = getPool();
+    const res = await pool.query(
+        'DELETE FROM scramble_team_scores WHERE flight_id = $1 AND hole_number = $2',
+        [flightId, holeNumber]
+    );
+    return res.rowCount || 0;
+};

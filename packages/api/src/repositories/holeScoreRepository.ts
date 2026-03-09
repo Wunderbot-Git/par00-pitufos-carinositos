@@ -135,3 +135,24 @@ export const getPlayerHoleScores = async (playerId: string): Promise<HoleScore[]
     );
     return res.rows.map(mapRowToHoleScore);
 };
+
+/**
+ * Delete all hole scores for a flight.
+ */
+export const deleteFlightHoleScores = async (flightId: string): Promise<number> => {
+    const pool = getPool();
+    const res = await pool.query('DELETE FROM hole_scores WHERE flight_id = $1', [flightId]);
+    return res.rowCount || 0;
+};
+
+/**
+ * Delete hole scores for a specific hole in a flight.
+ */
+export const deleteHoleScoresForHole = async (flightId: string, holeNumber: number): Promise<number> => {
+    const pool = getPool();
+    const res = await pool.query(
+        'DELETE FROM hole_scores WHERE flight_id = $1 AND hole_number = $2',
+        [flightId, holeNumber]
+    );
+    return res.rowCount || 0;
+};

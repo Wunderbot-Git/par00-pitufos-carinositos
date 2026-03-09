@@ -156,4 +156,39 @@ export function useSubmitScores() {
     return { submitScore, submitBatchScores, isSubmitting, error };
 }
 
+export function useDeleteScores() {
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const deleteFlightScores = async (eventId: string, flightId: string): Promise<boolean> => {
+        try {
+            setIsDeleting(true);
+            setError(null);
+            await api.delete(`/events/${eventId}/flights/${flightId}/scores`);
+            return true;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete scores');
+            return false;
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const deleteHoleScores = async (eventId: string, flightId: string, holeNumber: number): Promise<boolean> => {
+        try {
+            setIsDeleting(true);
+            setError(null);
+            await api.delete(`/events/${eventId}/flights/${flightId}/scores/${holeNumber}`);
+            return true;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete hole scores');
+            return false;
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    return { deleteFlightScores, deleteHoleScores, isDeleting, error };
+}
+
 export type { FlightScore };

@@ -1,8 +1,9 @@
 // Score Routes - API endpoints for score submission and retrieval
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { submitHoleScores, submitScrambleScores, getHoleScoresForFlight, getScrambleScoresForFlight, getFlightScoreboardData } from '../services/scoreService';
+import { submitHoleScores, submitScrambleScores, getHoleScoresForFlight, getScrambleScoresForFlight, getFlightScoreboardData, adminDeleteFlightScores, adminDeleteHoleScores } from '../services/scoreService';
 import { authenticate } from '../middleware/auth';
+import { isOrganizer } from '../repositories/eventMemberRepository';
 
 interface ScoreParams {
     eventId: string;
@@ -89,6 +90,48 @@ export default async function scoreRoutes(fastify: FastifyInstance) {
                 const { flightId } = request.params;
                 const scores = await getScrambleScoresForFlight(flightId);
                 return reply.send({ scores });
+            } catch (error: any) {
+                return reply.status(500).send({ error: error.message });
+            }
+        }
+    );
+
+    // Admin: Delete all scores for a flight
+    fastify.delete<{ Params: ScoreParams }>(
+        '/events/:eventId/flights/:flightId/scores',
+        { preHandler: [authenticate] },
+        async (request: FastifyRequest<{ Params: ScoreParams }>, reply: FastifyReply) => {
+            try {
+                const { eventId, flightId } = request.params;
+                const user = request.user as any;
+                const organizer = await isOrganizer(eventId, user.userId);
+                if (!organizer) return reply.status(403).send({ error: 'Only organizers can delete scores' });
+
+                const result = await adminDeleteFlightScores(eventId, flightId, user.userId);
+                return reply.send({ message: 'All scores deleted', ...result });
+            } catch (error: any) {
+                return reply.status(500).send({ error: error.message });
+            }
+        }
+    );
+
+    // Admin: Delete scores for a specific hole in a flight
+    fastify.delete<{ Params: ScoreParams & { holeNumber: string } }>(
+        '/events/:eventId/flights/:flightId/scores/:holeNumber',
+        { preHandler: [authenticate] },
+        async (request: FastifyRequest<{ Params: ScoreParams & { holeNumber: string } }>, reply: FastifyReply) => {
+            try {
+                const { eventId, flightId } = request.params;
+                const holeNumber = parseInt(request.params.holeNumber, 10);
+                if (isNaN(holeNumber) || holeNumber < 1 || holeNumber > 18) {
+                    return reply.status(400).send({ error: 'Hole number must be between 1 and 18' });
+                }
+                const user = request.user as any;
+                const organizer = await isOrganizer(eventId, user.userId);
+                if (!organizer) return reply.status(403).send({ error: 'Only organizers can delete scores' });
+
+                const result = await adminDeleteHoleScores(eventId, flightId, holeNumber, user.userId);
+                return reply.send({ message: `Hole ${holeNumber} scores deleted`, ...result });
             } catch (error: any) {
                 return reply.status(500).send({ error: error.message });
             }

@@ -1,7 +1,7 @@
 // Score Service - Business logic for score submission
 
-import { upsertHoleScore, upsertHoleScoresBatch, getFlightHoleScores, HoleScore, CreateHoleScoreInput } from '../repositories/holeScoreRepository';
-import { upsertScrambleScore, upsertScrambleScoresBatch, getFlightScrambleScores, ScrambleScore, CreateScrambleScoreInput } from '../repositories/scrambleScoreRepository';
+import { upsertHoleScore, upsertHoleScoresBatch, getFlightHoleScores, HoleScore, CreateHoleScoreInput, deleteFlightHoleScores, deleteHoleScoresForHole } from '../repositories/holeScoreRepository';
+import { upsertScrambleScore, upsertScrambleScoresBatch, getFlightScrambleScores, ScrambleScore, CreateScrambleScoreInput, deleteFlightScrambleScores, deleteScrambleScoresForHole } from '../repositories/scrambleScoreRepository';
 import { createAuditLog } from '../repositories/auditRepository';
 import { getPool } from '../config/database';
 import { formatMatchStatus } from '../scoring/matchStatus';
@@ -471,4 +471,57 @@ export const getFlightScoreboardData = async (flightId: string) => {
         parValues,
         siValues
     };
+};
+
+/**
+ * Delete all scores for a flight (admin).
+ */
+export const adminDeleteFlightScores = async (eventId: string, flightId: string, userId: string) => {
+    const holeDeleted = await deleteFlightHoleScores(flightId);
+    const scrambleDeleted = await deleteFlightScrambleScores(flightId);
+
+    await createAuditLog({
+        eventId,
+        entityType: 'flight_scores',
+        entityId: flightId,
+        action: 'admin_delete_all',
+        previousValue: { holeScores: holeDeleted, scrambleScores: scrambleDeleted },
+        newValue: null,
+        source: 'online',
+        byUserId: userId
+    });
+
+    invalidateLeaderboardCache(eventId);
+
+    return { holeDeleted, scrambleDeleted };
+};
+
+/**
+ * Delete scores for a specific hole in a flight (admin).
+ */
+export const adminDeleteHoleScores = async (eventId: string, flightId: string, holeNumber: number, userId: string) => {
+    let deleted = 0;
+
+    if (holeNumber <= 9) {
+        deleted += await deleteHoleScoresForHole(flightId, holeNumber);
+    } else {
+        deleted += await deleteScrambleScoresForHole(flightId, holeNumber);
+        // Also clean up any hole_scores for this hole number
+        deleted += await deleteHoleScoresForHole(flightId, holeNumber);
+    }
+
+    await createAuditLog({
+        eventId,
+        entityType: 'hole_score',
+        entityId: flightId,
+        action: 'admin_delete_hole',
+        previousValue: { holeNumber, deleted },
+        newValue: null,
+        source: 'online',
+        byUserId: userId
+    });
+
+    invalidateLeaderboardCache(eventId);
+
+    return { deleted, holeNumber };
 };
