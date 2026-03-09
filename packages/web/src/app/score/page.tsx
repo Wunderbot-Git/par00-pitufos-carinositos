@@ -160,11 +160,11 @@ export default function ScoresPage() {
                                                 {flightScore.redPlayers[0].playerName.split(' ')[0]} vs {flightScore.bluePlayers[0].playerName.split(' ')[0]}
                                             </span>
                                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                flightScore.redPlayers[0].singlesResult === 'win' ? 'bg-rose-100 text-rose-700' :
-                                                flightScore.redPlayers[0].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
+                                                flightScore.redPlayers[0].singlesResult === 'win' || flightScore.redPlayers[0].singlesStatus?.includes('UP') ? 'bg-rose-100 text-rose-700' :
+                                                flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN') ? 'bg-blue-100 text-blue-700' :
                                                 'bg-white/20 text-white'
                                             }`}>
-                                                {(flightScore.redPlayers[0].singlesResult === 'loss'
+                                                {(flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN')
                                                     ? flightScore.bluePlayers[0]?.singlesStatus
                                                     : flightScore.redPlayers[0].singlesStatus) || 'A/S'}
                                             </span>
@@ -176,11 +176,11 @@ export default function ScoresPage() {
                                                 {flightScore.redPlayers[1].playerName.split(' ')[0]} vs {flightScore.bluePlayers[1].playerName.split(' ')[0]}
                                             </span>
                                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                flightScore.redPlayers[1].singlesResult === 'win' ? 'bg-rose-100 text-rose-700' :
-                                                flightScore.redPlayers[1].singlesResult === 'loss' ? 'bg-blue-100 text-blue-700' :
+                                                flightScore.redPlayers[1].singlesResult === 'win' || flightScore.redPlayers[1].singlesStatus?.includes('UP') ? 'bg-rose-100 text-rose-700' :
+                                                flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN') ? 'bg-blue-100 text-blue-700' :
                                                 'bg-white/20 text-white'
                                             }`}>
-                                                {(flightScore.redPlayers[1].singlesResult === 'loss'
+                                                {(flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN')
                                                     ? flightScore.bluePlayers[1]?.singlesStatus
                                                     : flightScore.redPlayers[1].singlesStatus) || 'A/S'}
                                             </span>
