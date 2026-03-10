@@ -86,7 +86,7 @@ export default function LeaderboardPage() {
             (filterType === 'singles' && match.segmentType.startsWith('singles')) ||
             match.segmentType === filterType;
         const matchesStatus = statusFilter === 'all' ||
-            (statusFilter === 'live' && match.status !== 'completed') ||
+            (statusFilter === 'live' && match.status !== 'completed' && match.status !== 'not_started') ||
             (statusFilter === 'finished' && match.status === 'completed');
 
         const searchLower = searchQuery.toLowerCase();

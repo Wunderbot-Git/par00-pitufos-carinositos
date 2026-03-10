@@ -43,15 +43,16 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
         });
 
         const formatDelta = (n: number) => n === 0 ? '0' : `+${n}`;
+        const liveCount = segmentMatches.filter(m => m.status !== 'not_started').length;
 
         return (
             <div className="py-4 border-b border-gray-100 last:border-0">
                 <div className="flex justify-between items-end mb-2">
                     <div className="flex items-baseline gap-2">
                         <span className="font-bold text-gray-700 text-sm">{label}</span>
-                        {segmentMatches.length > 0 && (
+                        {liveCount > 0 && (
                             <span className="text-[10px] text-gray-400 font-medium lowercase">
-                                ({segmentMatches.length} {segmentMatches.length === 1 ? 'partido en vivo' : 'partidos en vivo'})
+                                ({liveCount} {liveCount === 1 ? 'partido en vivo' : 'partidos en vivo'})
                             </span>
                         )}
                     </div>
