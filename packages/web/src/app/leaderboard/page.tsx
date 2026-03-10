@@ -234,7 +234,7 @@ export default function LeaderboardPage() {
                                 {/* Status Pills */}
                                 <div className="flex gap-1.5">
                                     {['all', 'live', 'finished'].map(status => {
-                                        const statusLabels: Record<string, string> = { all: 'Todos', live: 'En Vivo', finished: 'Terminados' };
+                                        const statusLabels: Record<string, string> = { all: 'Todo', live: 'Vivo', finished: 'Final' };
                                         return (
                                         <button
                                             key={status}
@@ -257,9 +257,9 @@ export default function LeaderboardPage() {
                                         onChange={(e) => setFilterType(e.target.value as any)}
                                         className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-team-blue/20 focus:border-team-blue transition-all cursor-pointer"
                                     >
-                                        <option value="all">Todos los Partidos</option>
-                                        <option value="singles">Individual</option>
-                                        <option value="fourball">Mejor Bola</option>
+                                        <option value="all">Todos</option>
+                                        <option value="singles">Indiv.</option>
+                                        <option value="fourball">M. Bola</option>
                                         <option value="scramble">Scramble</option>
                                     </select>
                                     {/* Dropdown Arrow */}
