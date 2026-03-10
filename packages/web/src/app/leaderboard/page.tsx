@@ -43,7 +43,7 @@ export default function LeaderboardPage() {
         return (
             <div className="flex flex-col items-center justify-center p-12 min-h-screen bg-gray-50">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-team-blue mb-4"></div>
-                <p className="text-gray-500 text-sm">Loading leaderboard...</p>
+                <p className="text-gray-500 text-sm">Cargando marcador...</p>
             </div>
         );
     }
@@ -51,7 +51,7 @@ export default function LeaderboardPage() {
     if (!activeEvent) {
         return (
             <div className="p-8 text-center min-h-screen bg-gray-50 pt-20">
-                <p className="text-gray-500 mb-4">No active event found.</p>
+                <p className="text-gray-500 mb-4">No se encontró un evento activo.</p>
             </div>
         );
     }
@@ -114,7 +114,7 @@ export default function LeaderboardPage() {
                 {user?.appRole === 'admin' && (
                     <div className="absolute top-4 right-4 z-50">
                         <Link href={`/admin/events/${eventId}/players`} className="bg-white/90 text-team-blue text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hover:bg-white transition">
-                            Manage Players
+                            Gestionar Jugadores
                         </Link>
                     </div>
                 )}
@@ -187,7 +187,7 @@ export default function LeaderboardPage() {
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Search player..."
+                                        placeholder="Buscar jugador..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onFocus={() => setIsSearchFocused(true)}
@@ -233,7 +233,9 @@ export default function LeaderboardPage() {
                             <div className="flex items-center justify-between gap-3">
                                 {/* Status Pills */}
                                 <div className="flex gap-1.5">
-                                    {['all', 'live', 'finished'].map(status => (
+                                    {['all', 'live', 'finished'].map(status => {
+                                        const statusLabels: Record<string, string> = { all: 'Todos', live: 'En Vivo', finished: 'Terminados' };
+                                        return (
                                         <button
                                             key={status}
                                             onClick={() => setStatusFilter(status as any)}
@@ -242,9 +244,10 @@ export default function LeaderboardPage() {
                                                 : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
                                                 }`}
                                         >
-                                            {status}
+                                            {statusLabels[status]}
                                         </button>
-                                    ))}
+                                    );
+                                    })}
                                 </div>
 
                                 {/* Match Type Dropdown */}
@@ -254,9 +257,9 @@ export default function LeaderboardPage() {
                                         onChange={(e) => setFilterType(e.target.value as any)}
                                         className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-team-blue/20 focus:border-team-blue transition-all cursor-pointer"
                                     >
-                                        <option value="all">All Matches</option>
-                                        <option value="singles">Singles</option>
-                                        <option value="fourball">Fourball</option>
+                                        <option value="all">Todos los Partidos</option>
+                                        <option value="singles">Individual</option>
+                                        <option value="fourball">Mejor Bola</option>
                                         <option value="scramble">Scramble</option>
                                     </select>
                                     {/* Dropdown Arrow */}
@@ -275,8 +278,8 @@ export default function LeaderboardPage() {
                 <div className="px-4 pb-4">
                     {leaderboard.matches.length === 0 ? (
                         <div className="text-center text-gray-500 py-8">
-                            <p>No matches yet.</p>
-                            <p className="text-sm mt-2">Matches will appear here once flights are created.</p>
+                            <p>Aún no hay partidos.</p>
+                            <p className="text-sm mt-2">Los partidos aparecerán aquí una vez se creen los grupos.</p>
                         </div>
                     ) : (
                         <div>
@@ -284,11 +287,12 @@ export default function LeaderboardPage() {
                             {/* Filtered List */}
                             {filteredMatches.length === 0 ? (
                                 <div className="text-center py-12 text-gray-400 text-sm bg-white rounded-xl border border-gray-100 border-dashed">
-                                    No matches found matching your filters.
+                                    No se encontraron partidos con esos filtros.
                                 </div>
                             ) : (
                                 <div className="space-y-8 pb-32">
                                     {['singles', 'fourball', 'scramble'].map((type) => {
+                                        const typeLabels: Record<string, string> = { singles: 'Individual', fourball: 'Mejor Bola', scramble: 'Scramble' };
                                         const typeMatches = filteredMatches
                                             .filter(m => type === 'singles' ? m.segmentType.startsWith('singles') : m.segmentType.toLowerCase() === type)
                                             .sort((a, b) => {
@@ -308,7 +312,7 @@ export default function LeaderboardPage() {
                                         return (
                                             <div key={type}>
                                                 <h3 className="px-1 text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 pl-2 border-l-4 border-gray-200">
-                                                    {type} <span className="text-gray-300 font-normal ml-1">({typeMatches.length})</span>
+                                                    {typeLabels[type]} <span className="text-gray-300 font-normal ml-1">({typeMatches.length})</span>
                                                 </h3>
                                                 <div className="space-y-3">
                                                     {typeMatches.map((match) => (
@@ -339,7 +343,7 @@ export default function LeaderboardPage() {
 
                 {/* Last Updated */}
                 <div className="px-4 pb-4 text-center text-xs text-gray-400 mb-16">
-                    Last updated: {new Date(leaderboard.updatedAt).toLocaleTimeString()}
+                    Última actualización: {new Date(leaderboard.updatedAt).toLocaleTimeString('es-CO')}
                 </div>
             </div>
         </PullToRefresh>

@@ -48,7 +48,7 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4">
-                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Account</h2>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Cuenta</h2>
 
                 {/* User info */}
                 <div className="flex items-center gap-3 mb-4">
@@ -68,10 +68,10 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                                     autoFocus
                                 />
                                 <button onClick={handleSaveName} disabled={nameLoading} className="text-xs font-bold text-blue-600 px-2 py-1">
-                                    {nameLoading ? '...' : 'Save'}
+                                    {nameLoading ? '...' : 'Guardar'}
                                 </button>
                                 <button onClick={() => { setIsEditingName(false); setNewName(user.name); }} className="text-xs text-gray-400 px-1">
-                                    Cancel
+                                    Cancelar
                                 </button>
                             </div>
                         ) : (
@@ -96,14 +96,14 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                     <div className="bg-gray-50 rounded-xl p-3 mb-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Player Profile</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Perfil de Jugador</p>
                                 <p className="text-sm font-bold text-gray-800">{player.playerName}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                                     player.team === 'red' ? 'bg-rose-100 text-rose-600' : 'bg-blue-100 text-blue-600'
                                 }`}>
-                                    {player.team === 'red' ? 'Red' : 'Blue'}
+                                    {player.team === 'red' ? 'Cariñositos' : 'Pitufos'}
                                 </span>
                                 <span className="text-xs text-gray-500 font-semibold">HCP {player.handicapIndex}</span>
                             </div>
@@ -116,7 +116,7 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                     onClick={() => setShowPasswordChange(!showPasswordChange)}
                     className="w-full text-left text-sm font-semibold text-gray-600 py-2 flex items-center justify-between"
                 >
-                    Change Password
+                    Cambiar Contraseña
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showPasswordChange ? 'rotate-180' : ''}`}>
                         <path d="m6 9 6 6 6-6" />
                     </svg>
@@ -126,36 +126,36 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                     <div className="space-y-2 pb-2">
                         <input
                             type="password"
-                            placeholder="Current password"
+                            placeholder="Contraseña actual"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
                         />
                         <input
                             type="password"
-                            placeholder="New password"
+                            placeholder="Nueva contraseña"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
                         />
                         <input
                             type="password"
-                            placeholder="Confirm new password"
+                            placeholder="Confirmar nueva contraseña"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
                         />
                         {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                            <p className="text-xs text-red-500">Passwords do not match</p>
+                            <p className="text-xs text-red-500">Las contraseñas no coinciden</p>
                         )}
                         {pwError && <p className="text-xs text-red-500">{pwError}</p>}
-                        {pwSuccess && <p className="text-xs text-green-500">Password changed successfully</p>}
+                        {pwSuccess && <p className="text-xs text-green-500">Contraseña cambiada exitosamente</p>}
                         <button
                             onClick={handleChangePassword}
                             disabled={pwLoading || !currentPassword || !newPassword || newPassword !== confirmPassword}
                             className="w-full py-2 bg-slate-800 text-white rounded-xl text-sm font-bold disabled:opacity-50"
                         >
-                            {pwLoading ? 'Changing...' : 'Update Password'}
+                            {pwLoading ? 'Cambiando...' : 'Actualizar Contraseña'}
                         </button>
                     </div>
                 )}
@@ -167,7 +167,7 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                     onClick={logout}
                     className="w-full py-2.5 text-red-600 bg-red-50 border border-red-200 rounded-xl text-sm font-bold"
                 >
-                    Log Out
+                    Cerrar Sesión
                 </button>
             </div>
         </div>

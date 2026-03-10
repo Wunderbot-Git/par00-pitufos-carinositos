@@ -123,7 +123,7 @@ export function ScoreEntryModal({
             {isSaving && (
                 <div className="absolute inset-0 z-[110] bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm transition-all duration-300">
                     <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mb-4"></div>
-                    <span className="text-lg font-bold text-white tracking-widest uppercase animate-pulse">Saving Scores...</span>
+                    <span className="text-lg font-bold text-white tracking-widest uppercase animate-pulse">Guardando Scores...</span>
                 </div>
             )}
             {/* Header */}
@@ -137,7 +137,7 @@ export function ScoreEntryModal({
                     </svg>
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-xl font-black tracking-tight uppercase">Hole {holeNumber}</span>
+                    <span className="text-xl font-black tracking-tight uppercase">Hoyo {holeNumber}</span>
                     <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">Par {par}</span>
                 </div>
                 <div className="w-10"></div> {/* Spacer for center alignment */}

@@ -13,10 +13,10 @@ export default function SignupPage() {
     const { signup } = useAuth();
 
     const validatePassword = (pwd: string): string | null => {
-        if (pwd.length < 8) return 'Password must be at least 8 characters';
-        if (!/[A-Z]/.test(pwd)) return 'Password must contain an uppercase letter';
-        if (!/[a-z]/.test(pwd)) return 'Password must contain a lowercase letter';
-        if (!/[0-9]/.test(pwd)) return 'Password must contain a number';
+        if (pwd.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+        if (!/[A-Z]/.test(pwd)) return 'La contraseña debe contener una mayúscula';
+        if (!/[a-z]/.test(pwd)) return 'La contraseña debe contener una minúscula';
+        if (!/[0-9]/.test(pwd)) return 'La contraseña debe contener un número';
         return null;
     };
 
@@ -35,7 +35,7 @@ export default function SignupPage() {
         try {
             await signup(email, name, password);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Signup failed');
+            setError(err instanceof Error ? err.message : 'Error al registrarse');
         } finally {
             setIsLoading(false);
         }
@@ -43,7 +43,7 @@ export default function SignupPage() {
 
     return (
         <div className="flex flex-col min-h-screen p-4">
-            <h1 className="text-2xl font-bold text-center mt-8 mb-6">Sign Up</h1>
+            <h1 className="text-2xl font-bold text-center mt-8 mb-6">Registrarse</h1>
 
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
@@ -54,7 +54,7 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Correo electrónico"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg"
@@ -62,7 +62,7 @@ export default function SignupPage() {
                 />
                 <input
                     type="text"
-                    placeholder="Full Name"
+                    placeholder="Nombre completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg"
@@ -70,27 +70,27 @@ export default function SignupPage() {
                 />
                 <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg"
                     required
                 />
                 <p className="text-xs text-gray-500">
-                    Password must be at least 8 characters with one uppercase, lowercase, and number.
+                    La contraseña debe tener al menos 8 caracteres con una mayúscula, una minúscula y un número.
                 </p>
                 <button
                     type="submit"
                     disabled={isLoading}
                     className="w-full py-3 bg-team-blue text-white rounded-lg font-semibold disabled:opacity-50"
                 >
-                    {isLoading ? 'Creating account...' : 'Sign Up'}
+                    {isLoading ? 'Creando cuenta...' : 'Registrarse'}
                 </button>
             </form>
 
             <p className="text-center mt-4 text-gray-600">
-                Already have an account?{' '}
-                <Link href="/login" className="text-team-blue">Login</Link>
+                ¿Ya tienes cuenta?{' '}
+                <Link href="/login" className="text-team-blue">Iniciar sesión</Link>
             </p>
         </div>
     );

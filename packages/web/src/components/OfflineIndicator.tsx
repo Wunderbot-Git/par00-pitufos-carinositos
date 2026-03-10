@@ -13,22 +13,22 @@ export function OfflineIndicator() {
     const statusConfig = {
         online: {
             bg: 'bg-green-500',
-            text: 'All synced',
+            text: 'Todo sincronizado',
             icon: '✓',
         },
         offline: {
             bg: 'bg-yellow-500',
-            text: pendingCount > 0 ? `Offline - ${pendingCount} pending` : 'Offline',
+            text: pendingCount > 0 ? `Sin conexión - ${pendingCount} pendientes` : 'Sin conexión',
             icon: '⚡',
         },
         syncing: {
             bg: 'bg-blue-500',
-            text: 'Syncing...',
+            text: 'Sincronizando...',
             icon: '↻',
         },
         error: {
             bg: 'bg-red-500',
-            text: `Sync error - ${pendingCount} pending`,
+            text: `Error de sincronización - ${pendingCount} pendientes`,
             icon: '!',
         },
     };

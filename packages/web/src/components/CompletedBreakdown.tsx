@@ -30,8 +30,8 @@ export function CompletedBreakdown({ segmentScores }: CompletedBreakdownProps) {
 
     return (
         <div className="p-4">
-            <Row label="SINGLES" red={segmentScores.singles.red} blue={segmentScores.singles.blue} />
-            <Row label="FOURBALL" red={segmentScores.fourball.red} blue={segmentScores.fourball.blue} />
+            <Row label="INDIVIDUAL" red={segmentScores.singles.red} blue={segmentScores.singles.blue} />
+            <Row label="MEJOR BOLA" red={segmentScores.fourball.red} blue={segmentScores.fourball.blue} />
             <Row label="SCRAMBLE" red={segmentScores.scramble.red} blue={segmentScores.scramble.blue} />
         </div>
     );

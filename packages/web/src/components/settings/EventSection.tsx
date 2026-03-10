@@ -39,7 +39,7 @@ export function EventSection({ events, activeEvent, onEventJoined }: {
 
     return (
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Events</h2>
+            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Eventos</h2>
 
             {/* Active event */}
             {activeEvent && (
@@ -51,7 +51,7 @@ export function EventSection({ events, activeEvent, onEventJoined }: {
                         </span>
                     </div>
                     <p className="text-xs text-gray-400">
-                        Code: <span className="font-mono font-bold text-gray-600">{activeEvent.eventCode}</span>
+                        Código: <span className="font-mono font-bold text-gray-600">{activeEvent.eventCode}</span>
                     </p>
                 </div>
             )}
@@ -59,7 +59,7 @@ export function EventSection({ events, activeEvent, onEventJoined }: {
             {/* Other events */}
             {events.length > 1 && (
                 <div className="mb-4">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Your Events</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tus Eventos</p>
                     <div className="space-y-2">
                         {events.filter(e => e.id !== activeEvent?.id).map(event => (
                             <div key={event.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
@@ -75,11 +75,11 @@ export function EventSection({ events, activeEvent, onEventJoined }: {
 
             {/* Join event */}
             <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Join Event</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Unirse a Evento</p>
                 <div className="flex gap-2">
                     <input
                         type="text"
-                        placeholder="Event code"
+                        placeholder="Código del evento"
                         value={joinCode}
                         onChange={(e) => setJoinCode(e.target.value)}
                         className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-slate-300"
@@ -90,11 +90,11 @@ export function EventSection({ events, activeEvent, onEventJoined }: {
                         disabled={joinLoading || !joinCode.trim()}
                         className="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold disabled:opacity-50"
                     >
-                        {joinLoading ? '...' : 'Join'}
+                        {joinLoading ? '...' : 'Unirse'}
                     </button>
                 </div>
                 {joinError && <p className="text-xs text-red-500 mt-1">{joinError}</p>}
-                {joinSuccess && <p className="text-xs text-green-500 mt-1">Joined successfully!</p>}
+                {joinSuccess && <p className="text-xs text-green-500 mt-1">¡Te uniste exitosamente!</p>}
             </div>
         </div>
     );

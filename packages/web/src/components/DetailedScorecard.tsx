@@ -127,7 +127,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                     <table className="w-full text-xs border-collapse">
                         <thead>
                             <tr className={`${headerColor} text-white`}>
-                                <th className="p-1.5 text-left font-bold w-16 pl-2 text-xs">Hole</th>
+                                <th className="p-1.5 text-left font-bold w-16 pl-2 text-xs">Hoyo</th>
                                 {holes.map(h => (
                                     <th key={h} className="p-1 text-center font-bold text-xs w-[8%] min-w-[20px]">{h}</th>
                                 ))}
@@ -302,7 +302,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
 
                             {/* Match progression row */}
                             <tr className="bg-gray-50 border-t border-gray-200">
-                                <td className="p-1.5 font-medium text-gray-500 pl-2 text-[10px]">Match</td>
+                                <td className="p-1.5 font-medium text-gray-500 pl-2 text-[10px]">Partido</td>
                                 {progression.map((status, i) => {
                                     // Calculate match leader at this hole to color correctly
                                     const globalHoles = match.holeWinners.slice(0, start + i + 1);
@@ -344,12 +344,12 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
 
             {user?.appRole === 'admin' && (
                 <div className="mt-4 flex justify-between items-center border-t border-gray-100 pt-3">
-                    <span className="text-xs text-gray-400">Admin Controls</span>
+                    <span className="text-xs text-gray-400">Controles Admin</span>
                     <Link
                         href={`/events/${eventId}/scores?flightId=${match.id}`}
                         className="text-xs font-bold bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
                     >
-                        Edit Scores
+                        Editar Scores
                     </Link>
                 </div>
             )}

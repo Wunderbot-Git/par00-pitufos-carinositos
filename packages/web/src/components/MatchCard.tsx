@@ -44,8 +44,8 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
         statusTextColor = 'text-gray-500';
         statusTop = (
             <div className="flex flex-col items-center leading-none">
-                <span className="text-sm font-black italic tracking-tighter">Not</span>
-                <span className="text-sm font-black italic tracking-tighter">Started</span>
+                <span className="text-sm font-black italic tracking-tighter">Sin</span>
+                <span className="text-sm font-black italic tracking-tighter">Iniciar</span>
             </div>
         );
     } else if (isAS) {
@@ -89,7 +89,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
         if (lead > 0 && lead === holesRemaining) {
             statusBottom = 'DORMIE';
         } else {
-            statusBottom = `THRU ${match.currentHole}`;
+            statusBottom = `HOYO ${match.currentHole}`;
         }
     } else if (!isNotStarted) {
         statusBottom = '-';

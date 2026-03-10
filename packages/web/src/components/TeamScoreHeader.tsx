@@ -45,7 +45,7 @@ export function TeamScoreHeader({
 
                     {/* CENTER LABEL */}
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">PROJECTED</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">PROYECTADO</span>
                     </div>
 
                     {/* BLUE PROJECTED */}
@@ -68,7 +68,7 @@ export function TeamScoreHeader({
                 >
                     {/* CURRENT SCORE HEADER */}
                     <div className="flex items-center justify-center gap-2 pt-3 pb-1">
-                        <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">CURRENT SCORE</span>
+                        <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">MARCADOR ACTUAL</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="12"
@@ -89,7 +89,7 @@ export function TeamScoreHeader({
                     <div className="flex items-stretch h-[65px]">
                         {/* RED TEAM */}
                         <div className="flex-1 flex flex-col items-center justify-center border-r border-gray-50 relative bg-transparent">
-                            <div className="text-[10px] font-bold text-team-red tracking-widest uppercase mb-1">TEAM RED</div>
+                            <div className="text-[10px] font-bold text-team-red tracking-widest uppercase mb-1">CARIÑOSITOS</div>
                             <div className="text-4xl font-black tracking-tighter text-team-red leading-none">
                                 {redScore}
                             </div>
@@ -102,7 +102,7 @@ export function TeamScoreHeader({
 
                         {/* BLUE TEAM */}
                         <div className="flex-1 flex flex-col items-center justify-center border-l border-gray-50 relative bg-transparent">
-                            <div className="text-[10px] font-bold text-team-blue tracking-widest uppercase mb-1">TEAM BLUE</div>
+                            <div className="text-[10px] font-bold text-team-blue tracking-widest uppercase mb-1">PITUFOS</div>
                             <div className="text-4xl font-black tracking-tighter text-team-blue leading-none">
                                 {blueScore}
                             </div>
@@ -130,7 +130,7 @@ export function TeamScoreHeader({
                             className="cursor-pointer transition-colors pb-3 hover:bg-gray-50"
                         >
                             <div className="flex items-center justify-center gap-2 py-1">
-                                <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">PROJECTED</span>
+                                <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">PROYECTADO</span>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="12"

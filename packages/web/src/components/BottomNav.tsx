@@ -41,10 +41,10 @@ function BettingIcon({ isActive }: { isActive: boolean }) {
 }
 
 const navItems = [
-    { href: '/leaderboard', label: 'Scoreboard', Icon: GaugeIcon },
-    { href: '/score', label: 'Score', Icon: EditIcon },
+    { href: '/leaderboard', label: 'Marcador', Icon: GaugeIcon },
+    { href: '/score', label: 'Scores', Icon: EditIcon },
     { href: '/apuestas', label: 'Apuestas', Icon: BettingIcon },
-    { href: '/settings', label: 'Settings', Icon: SettingsIcon },
+    { href: '/settings', label: 'Ajustes', Icon: SettingsIcon },
 ];
 
 export function BottomNav() {

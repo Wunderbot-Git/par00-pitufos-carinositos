@@ -5,10 +5,10 @@ import { syncService, SyncStatus } from '@/lib/sync';
 import { db } from '@/lib/db';
 
 const STATUS_LABELS: Record<SyncStatus, { label: string; color: string; dot: string }> = {
-    online: { label: 'Online', color: 'text-green-600', dot: 'bg-green-500' },
-    offline: { label: 'Offline', color: 'text-gray-500', dot: 'bg-gray-400' },
-    syncing: { label: 'Syncing...', color: 'text-yellow-600', dot: 'bg-yellow-500' },
-    error: { label: 'Sync Error', color: 'text-red-600', dot: 'bg-red-500' },
+    online: { label: 'En línea', color: 'text-green-600', dot: 'bg-green-500' },
+    offline: { label: 'Sin conexión', color: 'text-gray-500', dot: 'bg-gray-400' },
+    syncing: { label: 'Sincronizando...', color: 'text-yellow-600', dot: 'bg-yellow-500' },
+    error: { label: 'Error de sincronización', color: 'text-red-600', dot: 'bg-red-500' },
 };
 
 export function AppInfoSection() {
@@ -31,7 +31,7 @@ export function AppInfoSection() {
     };
 
     const handleClearCache = async () => {
-        if (!window.confirm('Clear all local data? This will remove cached scores and events. Pending sync items will also be cleared.')) {
+        if (!window.confirm('¿Borrar todos los datos locales? Esto eliminará scores y eventos en caché. Los elementos pendientes de sincronización también se borrarán.')) {
             return;
         }
         await db.clearAll();
@@ -50,7 +50,7 @@ export function AppInfoSection() {
                     <div className={`w-2 h-2 rounded-full ${statusInfo.dot}`} />
                     <span className={`text-sm font-semibold ${statusInfo.color}`}>{statusInfo.label}</span>
                     {pendingCount > 0 && (
-                        <span className="text-[10px] text-gray-400 font-medium">({pendingCount} pending)</span>
+                        <span className="text-[10px] text-gray-400 font-medium">({pendingCount} pendientes)</span>
                     )}
                 </div>
                 <button
@@ -58,7 +58,7 @@ export function AppInfoSection() {
                     disabled={isSyncing || syncStatus === 'offline'}
                     className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold disabled:opacity-50"
                 >
-                    {isSyncing ? 'Syncing...' : 'Sync Now'}
+                    {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
                 </button>
             </div>
 
@@ -67,7 +67,7 @@ export function AppInfoSection() {
                 onClick={handleClearCache}
                 className="w-full py-2 text-gray-500 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors mb-3"
             >
-                Clear Local Data
+                Borrar Datos Locales
             </button>
 
             {/* Version */}

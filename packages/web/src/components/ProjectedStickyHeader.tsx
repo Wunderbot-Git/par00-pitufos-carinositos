@@ -29,7 +29,7 @@ export function ProjectedStickyHeader({
                     className="cursor-pointer transition-colors pb-3 hover:bg-gray-50 pt-2"
                 >
                     <div className="flex items-center justify-center gap-2 py-1">
-                        <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">PROJECTED</span>
+                        <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">PROYECTADO</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="12"

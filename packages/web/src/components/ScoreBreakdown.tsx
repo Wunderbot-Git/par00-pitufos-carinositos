@@ -51,7 +51,7 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
                         <span className="font-bold text-gray-700 text-sm">{label}</span>
                         {segmentMatches.length > 0 && (
                             <span className="text-[10px] text-gray-400 font-medium lowercase">
-                                ({segmentMatches.length} {segmentMatches.length === 1 ? 'match' : 'matches'} live)
+                                ({segmentMatches.length} {segmentMatches.length === 1 ? 'partido en vivo' : 'partidos en vivo'})
                             </span>
                         )}
                     </div>
@@ -88,7 +88,7 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
                         }) : (
                             // Empty state placeholder
                             <div className="w-full text-center text-[10px] text-gray-300 italic font-medium">
-                                All matches finished
+                                Todos los partidos terminados
                             </div>
                         )}
                     </div>
@@ -104,11 +104,11 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
     return (
         <div className="p-4 bg-gray-50/50">
             <h3 className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase mb-4">
-                LIVE & UPCOMING MATCHES
+                PARTIDOS EN VIVO Y POR JUGAR
             </h3>
 
-            <Segment label="Singles" type="singles" />
-            <Segment label="Fourball" type="fourball" />
+            <Segment label="Individual" type="singles" />
+            <Segment label="Mejor Bola" type="fourball" />
             <Segment label="Scramble" type="scramble" />
         </div>
     );

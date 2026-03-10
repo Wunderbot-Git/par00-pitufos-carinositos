@@ -30,10 +30,10 @@ export function AdminSection({ eventId }: { eventId: string }) {
     }, [showScores, eventId, flights.length]);
 
     const handleDeleteAll = async (flight: Flight) => {
-        if (!window.confirm(`Delete ALL scores for Grupo ${flight.flightNumber}? This cannot be undone.`)) return;
+        if (!window.confirm(`¿Eliminar TODOS los scores del Grupo ${flight.flightNumber}? Esto no se puede deshacer.`)) return;
         const success = await deleteFlightScores(eventId, flight.id);
         if (success) {
-            setSuccessMsg(`All scores deleted for Grupo ${flight.flightNumber}`);
+            setSuccessMsg(`Todos los scores eliminados del Grupo ${flight.flightNumber}`);
             setTimeout(() => setSuccessMsg(null), 3000);
         }
     };
@@ -41,14 +41,14 @@ export function AdminSection({ eventId }: { eventId: string }) {
     const handleDeleteHole = async (flight: Flight) => {
         const hole = parseInt(holeInputs[flight.id] || '', 10);
         if (isNaN(hole) || hole < 1 || hole > 18) {
-            alert('Enter a hole number between 1 and 18');
+            alert('Ingresa un número de hoyo entre 1 y 18');
             return;
         }
-        if (!window.confirm(`Delete scores for Hole ${hole} in Grupo ${flight.flightNumber}?`)) return;
+        if (!window.confirm(`¿Eliminar scores del Hoyo ${hole} en Grupo ${flight.flightNumber}?`)) return;
         const success = await deleteHoleScores(eventId, flight.id, hole);
         if (success) {
             setHoleInputs(prev => ({ ...prev, [flight.id]: '' }));
-            setSuccessMsg(`Hole ${hole} scores deleted for Grupo ${flight.flightNumber}`);
+            setSuccessMsg(`Scores del Hoyo ${hole} eliminados del Grupo ${flight.flightNumber}`);
             setTimeout(() => setSuccessMsg(null), 3000);
         }
     };
@@ -66,8 +66,8 @@ export function AdminSection({ eventId }: { eventId: string }) {
                     </svg>
                 </div>
                 <div className="flex-1">
-                    <p className="text-sm font-bold text-gray-800">Manage Players</p>
-                    <p className="text-[10px] text-gray-400">Edit players, generate invites, manage teams</p>
+                    <p className="text-sm font-bold text-gray-800">Gestionar Jugadores</p>
+                    <p className="text-[10px] text-gray-400">Editar jugadores, generar invitaciones, gestionar equipos</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
                     <path d="m9 18 6-6-6-6" />
@@ -85,8 +85,8 @@ export function AdminSection({ eventId }: { eventId: string }) {
                     </svg>
                 </div>
                 <div className="flex-1 text-left">
-                    <p className="text-sm font-bold text-gray-800">Manage Scores</p>
-                    <p className="text-[10px] text-gray-400">Delete scores per flight or hole</p>
+                    <p className="text-sm font-bold text-gray-800">Gestionar Scores</p>
+                    <p className="text-[10px] text-gray-400">Eliminar scores por grupo o hoyo</p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-gray-300 transition-transform ${showScores ? 'rotate-90' : ''}`}>
                     <path d="m9 18 6-6-6-6" />
@@ -96,9 +96,9 @@ export function AdminSection({ eventId }: { eventId: string }) {
             {showScores && (
                 <div className="mt-3 space-y-3">
                     {loadingFlights ? (
-                        <p className="text-xs text-gray-400 text-center py-2">Loading flights...</p>
+                        <p className="text-xs text-gray-400 text-center py-2">Cargando grupos...</p>
                     ) : flights.length === 0 ? (
-                        <p className="text-xs text-gray-400 text-center py-2">No flights found</p>
+                        <p className="text-xs text-gray-400 text-center py-2">No se encontraron grupos</p>
                     ) : (
                         flights.map(flight => (
                             <div key={flight.id} className="bg-gray-50 rounded-xl p-3">
@@ -108,7 +108,7 @@ export function AdminSection({ eventId }: { eventId: string }) {
                                         type="number"
                                         min={1}
                                         max={18}
-                                        placeholder="Hole #"
+                                        placeholder="Hoyo #"
                                         value={holeInputs[flight.id] || ''}
                                         onChange={e => setHoleInputs(prev => ({ ...prev, [flight.id]: e.target.value }))}
                                         className="w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
@@ -118,14 +118,14 @@ export function AdminSection({ eventId }: { eventId: string }) {
                                         disabled={isDeleting}
                                         className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-orange-200 transition-colors"
                                     >
-                                        Delete Hole
+                                        Borrar Hoyo
                                     </button>
                                     <button
                                         onClick={() => handleDeleteAll(flight)}
                                         disabled={isDeleting}
                                         className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-red-200 transition-colors ml-auto"
                                     >
-                                        Reset All
+                                        Borrar Todo
                                     </button>
                                 </div>
                             </div>

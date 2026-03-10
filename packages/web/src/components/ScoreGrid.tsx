@@ -237,7 +237,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderHoleHeaders = (holeNumbers: number[]) => (
         <div className="flex bg-slate-50 border-y border-slate-200 sticky top-0 z-30">
             <div className="flex-shrink-0 w-32 px-3 py-2 bg-slate-50 sticky left-0 z-30 border-r border-slate-200">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hole / Par</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hoyo / Par</span>
             </div>
             <div className="flex-1 flex overflow-hidden">
                 {holeNumbers.map((hole) => (
@@ -259,7 +259,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         <div className="flex bg-slate-100 h-10 border-y border-slate-200 shadow-inner relative z-20">
             <div className="flex-shrink-0 w-32 px-3 sticky left-0 z-30 bg-slate-100 border-r border-slate-200 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                    {flightScore.segmentType === 'scramble' ? 'Scramble Result' : flightScore.segmentType.startsWith('singles') ? 'Match Result' : 'Bestball Result'}
+                    {flightScore.segmentType === 'scramble' ? 'Resultado Scramble' : flightScore.segmentType.startsWith('singles') ? 'Resultado Partido' : 'Resultado Mejor Bola'}
                 </span>
             </div>
             <div className="flex-1 flex overflow-hidden">
