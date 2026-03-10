@@ -126,7 +126,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
         >
             {/* MATCH FORMAT BADGE */}
             <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em]">{match.segmentType}</span>
+                <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.2em]">{
+                    match.segmentType === 'singles1' ? 'Individual 1' :
+                    match.segmentType === 'singles2' ? 'Individual 2' :
+                    match.segmentType === 'fourball' ? 'Mejor Bola' :
+                    match.segmentType
+                }</span>
             </div>
 
             {/* LEFT PANEL (RED) */}

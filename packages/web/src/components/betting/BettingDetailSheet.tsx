@@ -58,7 +58,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <h3 className="font-bold text-lg text-slate-800">
-                                {match.segmentType === 'singles1' || match.segmentType === 'singles2' ? 'Individual' : match.segmentType === 'fourball' ? 'Bestball' : 'Scramble'}
+                                {match.segmentType === 'singles1' ? 'Individual 1' : match.segmentType === 'singles2' ? 'Individual 2' : match.segmentType === 'fourball' ? 'Mejor Bola' : 'Scramble'}
                             </h3>
                             <p className="text-sm text-slate-500 font-medium">{match.flightName}</p>
                         </div>

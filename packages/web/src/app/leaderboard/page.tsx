@@ -290,7 +290,7 @@ export default function LeaderboardPage() {
                                     No se encontraron partidos con esos filtros.
                                 </div>
                             ) : (
-                                <div className="space-y-8 pb-32">
+                                <div className="space-y-8 pb-32 mt-4">
                                     {['singles', 'fourball', 'scramble'].map((type) => {
                                         const typeLabels: Record<string, string> = { singles: 'Individual', fourball: 'Mejor Bola', scramble: 'Scramble' };
                                         const typeMatches = filteredMatches
