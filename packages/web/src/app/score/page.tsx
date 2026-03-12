@@ -2,12 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { usePlayers } from '@/hooks/usePlayers';
 import { useFlightScores, useSubmitScores } from '@/hooks/useScores';
 import { ScoreGrid } from '@/components/ScoreGrid';
-import { ScoreEntryModal } from '@/components/ScoreEntryModal';
+
+const ScoreEntryModal = dynamic(() => import('@/components/ScoreEntryModal').then(m => ({ default: m.ScoreEntryModal })), { ssr: false });
 
 export default function ScoresPage() {
     const { user } = useAuth();
@@ -129,7 +131,7 @@ export default function ScoresPage() {
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden thick-border">
                             <Image
-                                src="/assets/pitufos-vs-carinositos-logo.png"
+                                src="/assets/pitufos-vs-carinositos-logo.webp"
                                 alt="Event Logo"
                                 fill
                                 className="object-contain p-0.5"

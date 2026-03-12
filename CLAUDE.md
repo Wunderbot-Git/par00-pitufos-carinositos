@@ -77,9 +77,9 @@ API starts in `src/index.ts` → builds app from `src/app.ts` → runs migration
 - **Spectator tokens** — public read-only leaderboard access without auth
 
 ### Player Avatars & Winner Assets
-- Avatar images: `packages/web/public/images/{normalized-name}.png` (e.g. `pulido.png`)
-- Winner avatars (optional): `{name}-winner.png` (e.g. `pulido-winner.png`) — shown when a player wins a match. Falls back to normal avatar if missing.
-- Winner star badge: `packages/web/public/images/winner-star2.png` — gold star with glow, displayed on winner's avatar corner
+- Avatar images: `packages/web/public/images/{normalized-name}.webp` (e.g. `pulido.webp`)
+- Winner avatars (optional): `{name}-winner.webp` (e.g. `pulido-winner.webp`) — shown when a player wins a match. Falls back to normal avatar if missing.
+- Winner star badge: `packages/web/public/images/winner-star2.webp` — gold star with glow, displayed on winner's avatar corner
 - Name normalization: first name → lowercase → strip accents → alphanumeric only (see `normalizeName()` in `MatchCard.tsx`)
 
 ## Database

@@ -125,21 +125,22 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
-                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.png` : `/images/${avatarName}.png`}
+                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}
+                                        loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
-                                            if (img.src.includes('-winner.png')) {
-                                                img.src = `/images/${avatarName}.png`;
+                                            if (img.src.includes('-winner.webp')) {
+                                                img.src = `/images/${avatarName}.webp`;
                                             } else {
-                                                img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.png';
+                                                img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
                                             }
                                         }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
                                     {isFinal && isBlueWin && (
-                                        <img src="/images/winner-star2.png" alt="Winner" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+                                        <img src="/images/winner-star2.webp" alt="Winner" loading="lazy" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
                                     )}
                                 </div>
                             );
@@ -233,21 +234,22 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
-                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.png` : `/images/${avatarName}.png`}
+                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}
+                                        loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
-                                            if (img.src.includes('-winner.png')) {
-                                                img.src = `/images/${avatarName}.png`;
+                                            if (img.src.includes('-winner.webp')) {
+                                                img.src = `/images/${avatarName}.webp`;
                                             } else {
-                                                img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.png';
+                                                img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
                                             }
                                         }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
                                     {isFinal && isRedWin && (
-                                        <img src="/images/winner-star2.png" alt="Winner" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+                                        <img src="/images/winner-star2.webp" alt="Winner" loading="lazy" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
                                     )}
                                 </div>
                             );

@@ -2,15 +2,17 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { usePersonalStats, useTournamentSettlement, useGeneralBetPools, useMyGeneralBets } from '@/hooks/useBetting';
 import { useLeaderboard, Match } from '@/hooks/useLeaderboard';
 import { DashboardBanner } from '@/components/betting/DashboardBanner';
 import { MatchBettingCard } from '@/components/betting/MatchBettingCard';
-import { BettingDetailSheet } from '@/components/betting/BettingDetailSheet';
 import { GeneralBetsSection } from '@/components/betting/GeneralBetsSection';
 import { formatCurrency } from '@/lib/currency';
+
+const BettingDetailSheet = dynamic(() => import('@/components/betting/BettingDetailSheet').then(m => ({ default: m.BettingDetailSheet })), { ssr: false });
 
 export default function ApuestasClient() {
     const { user } = useAuth();
@@ -51,7 +53,7 @@ export default function ApuestasClient() {
                     <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden thick-border">
                             <Image
-                                src="/assets/pitufos-vs-carinositos-logo.png"
+                                src="/assets/pitufos-vs-carinositos-logo.webp"
                                 alt="Event Logo"
                                 fill
                                 className="object-contain p-0.5"

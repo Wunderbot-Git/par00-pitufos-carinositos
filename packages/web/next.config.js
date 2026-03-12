@@ -2,7 +2,17 @@
 const nextConfig = {
     reactStrictMode: true,
     output: 'standalone',
-    // PWA config will be added later
+    images: {
+        unoptimized: true,
+    },
+    async headers() {
+        return [{
+            source: '/:all*(webp|jpg|png|svg|ico|woff2)',
+            headers: [
+                { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+            ],
+        }];
+    },
 };
 
 module.exports = nextConfig;

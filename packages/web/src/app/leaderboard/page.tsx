@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { useLeaderboard, Match } from '@/hooks/useLeaderboard';
@@ -11,10 +12,11 @@ import { ProjectedStickyHeader } from '@/components/ProjectedStickyHeader';
 import { ScoreBreakdown } from '@/components/ScoreBreakdown';
 import { CompletedBreakdown } from '@/components/CompletedBreakdown';
 import { MatchCard } from '@/components/MatchCard';
-import { DetailedScorecard } from '@/components/DetailedScorecard';
 import { EventVisualHeader } from '@/components/EventVisualHeader';
 import { PullToRefresh } from '@/components/PullToRefresh';
 import { BattleHeader } from '@/components/BattleHeader';
+
+const DetailedScorecard = dynamic(() => import('@/components/DetailedScorecard').then(m => ({ default: m.DetailedScorecard })), { ssr: false });
 
 export default function LeaderboardPage() {
     const { events, isLoading: eventsLoading } = useMyEvents();
@@ -79,7 +81,7 @@ export default function LeaderboardPage() {
 
     const leaderboard = leaderboardData || fallbackData;
 
-    const filteredMatches = leaderboard.matches.filter(match => {
+    const filteredMatches = useMemo(() => leaderboard.matches.filter(match => {
         const matchesType = filterType === 'all' ||
             (filterType === 'singles' && match.segmentType.startsWith('singles')) ||
             match.segmentType === filterType;
@@ -92,15 +94,15 @@ export default function LeaderboardPage() {
             match.redPlayers.some(p => p.playerName.toLowerCase().includes(searchLower)) ||
             match.bluePlayers.some(p => p.playerName.toLowerCase().includes(searchLower));
         return matchesType && matchesStatus && matchesName;
-    });
+    }), [leaderboard.matches, filterType, statusFilter, searchQuery]);
 
-    const allPlayerNames = Array.from(new Set(
+    const allPlayerNames = useMemo(() => Array.from(new Set(
         leaderboard.matches.flatMap(m => [...m.redPlayers, ...m.bluePlayers].map(p => p.playerName.replace(/-$/, '').trim()))
-    )).sort();
+    )).sort(), [leaderboard.matches]);
 
-    const suggestedNames = searchQuery
+    const suggestedNames = useMemo(() => searchQuery
         ? allPlayerNames.filter(n => n.toLowerCase().includes(searchQuery.toLowerCase()))
-        : allPlayerNames;
+        : allPlayerNames, [allPlayerNames, searchQuery]);
 
     return (
         <PullToRefresh onRefresh={async () => { await refetch(); }}>
