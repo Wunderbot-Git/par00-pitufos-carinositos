@@ -13,7 +13,6 @@ export default function ScoresPage() {
     const { user } = useAuth();
     const { events, isLoading: eventsLoading } = useMyEvents();
 
-    // Pick the "active" event. If we have a 'live' event, use that.
     const activeEvent = useMemo(() => {
         if (!events || events.length === 0) return null;
         return events.find(e => e.status === 'live') || events[0];
@@ -22,7 +21,6 @@ export default function ScoresPage() {
     const eventId = activeEvent?.id || '';
     const { players, isLoading: playersLoading } = usePlayers(eventId);
 
-    // Find current user's player record in this event
     const me = useMemo(() => {
         if (!user || !players) return null;
         return players.find(p => p.userId === user.id);
@@ -40,8 +38,6 @@ export default function ScoresPage() {
 
     const handleHoleClick = (hole: number) => {
         setOpenHole(hole);
-        // Clear previous errors when opening new hole
-        // But useSubmitScores doesn't expose clearError? It clears on new submit.
     };
 
     const handleSaveModal = async (scores: Record<string, number | null>) => {
@@ -49,7 +45,6 @@ export default function ScoresPage() {
 
         const isScrambleHole = openHole > 9;
 
-        // Convert record to array
         const batch = Object.entries(scores).map(([id, score]) => {
             if (isScrambleHole) {
                 return {
@@ -74,12 +69,10 @@ export default function ScoresPage() {
         if (success) {
             setLastSavedHole(openHole);
             setOpenHole(null);
-            refetch(); // Refresh grid
+            refetch();
         }
-        // If failed, modal stays open. Error should be visible.
     };
 
-    // Prepare data for modal — determine by hole number, not segmentType
     const isScrambleModal = openHole !== null && openHole > 9;
 
     const modalPlayers = openHole && flightScore ? (
@@ -111,7 +104,6 @@ export default function ScoresPage() {
 
     const currentPar = openHole && flightScore ? flightScore.parValues[openHole - 1] : 0;
 
-    // Find current leader for dynamic header color
     let currentLeader: 'red' | 'blue' | null = null;
     if (flightScore && flightScore.matchLeaders) {
         let lastPlayedIdx = -1;
@@ -126,18 +118,18 @@ export default function ScoresPage() {
         }
     }
 
-    let headerBgClass = "bg-slate-700"; // Default or A/S
-    if (currentLeader === 'red') headerBgClass = "bg-rose-700";
-    else if (currentLeader === 'blue') headerBgClass = "bg-blue-700";
+    let headerBgClass = "bg-forest-deep";
+    if (currentLeader === 'red') headerBgClass = "bg-gradient-to-r from-team-red to-pink-700";
+    else if (currentLeader === 'blue') headerBgClass = "bg-gradient-to-r from-team-blue to-blue-700";
 
     return (
-        <div className="flex flex-col h-[100dvh] bg-gray-50 pb-16 overflow-hidden">
-            <header className={`${headerBgClass} text-white flex-shrink-0 z-50 shadow-md transition-colors duration-500`}>
+        <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden">
+            <header className={`${headerBgClass} text-white flex-shrink-0 z-50 shadow-md transition-colors duration-500 border-b-2 border-gold-border/50`}>
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-white/20">
+                        <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden thick-border">
                             <Image
-                                src="/assets/event-logo.png"
+                                src="/assets/pitufos-vs-carinositos-logo.png"
                                 alt="Event Logo"
                                 fill
                                 className="object-contain p-0.5"
@@ -145,7 +137,7 @@ export default function ScoresPage() {
                             />
                         </div>
                         <div className="flex flex-col text-left">
-                            <h1 className="text-[13px] font-black uppercase tracking-widest text-white/90 leading-tight">
+                            <h1 className="text-[13px] font-bangers uppercase tracking-widest text-white/90 leading-tight">
                                 {activeEvent?.name || 'MATCH PLAY'}
                             </h1>
                         </div>
@@ -156,14 +148,13 @@ export default function ScoresPage() {
                                 <>
                                     {flightScore.redPlayers[0] && flightScore.bluePlayers[0] && (
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] text-white/70 font-medium truncate max-w-[100px]">
+                                            <span className="text-[9px] text-white/70 font-fredoka font-medium truncate max-w-[100px]">
                                                 {flightScore.redPlayers[0].playerName.split(' ')[0]} vs {flightScore.bluePlayers[0].playerName.split(' ')[0]}
                                             </span>
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                flightScore.redPlayers[0].singlesResult === 'win' || flightScore.redPlayers[0].singlesStatus?.includes('UP') ? 'bg-rose-100 text-rose-700' :
-                                                flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN') ? 'bg-blue-100 text-blue-700' :
-                                                'bg-white/20 text-white'
-                                            }`}>
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.redPlayers[0].singlesResult === 'win' || flightScore.redPlayers[0].singlesStatus?.includes('UP') ? 'bg-team-red/30 text-white' :
+                                                    flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN') ? 'bg-team-blue/30 text-white' :
+                                                        'bg-white/20 text-white'
+                                                }`}>
                                                 {(flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN')
                                                     ? flightScore.bluePlayers[0]?.singlesStatus
                                                     : flightScore.redPlayers[0].singlesStatus) || 'A/S'}
@@ -172,14 +163,13 @@ export default function ScoresPage() {
                                     )}
                                     {flightScore.redPlayers[1] && flightScore.bluePlayers[1] && (
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] text-white/70 font-medium truncate max-w-[100px]">
+                                            <span className="text-[9px] text-white/70 font-fredoka font-medium truncate max-w-[100px]">
                                                 {flightScore.redPlayers[1].playerName.split(' ')[0]} vs {flightScore.bluePlayers[1].playerName.split(' ')[0]}
                                             </span>
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                                flightScore.redPlayers[1].singlesResult === 'win' || flightScore.redPlayers[1].singlesStatus?.includes('UP') ? 'bg-rose-100 text-rose-700' :
-                                                flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN') ? 'bg-blue-100 text-blue-700' :
-                                                'bg-white/20 text-white'
-                                            }`}>
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.redPlayers[1].singlesResult === 'win' || flightScore.redPlayers[1].singlesStatus?.includes('UP') ? 'bg-team-red/30 text-white' :
+                                                    flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN') ? 'bg-team-blue/30 text-white' :
+                                                        'bg-white/20 text-white'
+                                                }`}>
                                                 {(flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN')
                                                     ? flightScore.bluePlayers[1]?.singlesStatus
                                                     : flightScore.redPlayers[1].singlesStatus) || 'A/S'}
@@ -187,24 +177,22 @@ export default function ScoresPage() {
                                         </div>
                                     )}
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[9px] text-white/70 font-medium">Mejor Bola</span>
-                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                                            flightScore.fourballStatus && flightScore.fourballStatus !== 'A/S' && flightScore.fourballStatus !== 'Not Started'
-                                                ? (currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700')
+                                        <span className="text-[9px] text-white/70 font-fredoka font-medium">Mejor Bola</span>
+                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.fourballStatus && flightScore.fourballStatus !== 'A/S' && flightScore.fourballStatus !== 'Not Started'
+                                                ? (currentLeader === 'blue' ? 'bg-team-blue/30 text-white' : 'bg-team-red/30 text-white')
                                                 : 'bg-white/20 text-white'
-                                        }`}>
+                                            }`}>
                                             {flightScore.fourballStatus || 'A/S'}
                                         </span>
                                     </div>
                                 </>
                             ) : (
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] text-white/70 font-medium">Scramble </span>
-                                    <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${
-                                        currentLeader === 'red' ? 'bg-rose-100 text-rose-700' :
-                                        currentLeader === 'blue' ? 'bg-blue-100 text-blue-700' :
-                                        'bg-white/20 text-white'
-                                    }`}>
+                                    <span className="text-[9px] text-white/70 font-fredoka font-medium">Scramble </span>
+                                    <span className={`px-2 py-1 rounded text-[10px] font-bangers uppercase ${currentLeader === 'red' ? 'bg-team-red/30 text-white' :
+                                            currentLeader === 'blue' ? 'bg-team-blue/30 text-white' :
+                                                'bg-white/20 text-white'
+                                        }`}>
                                         {flightScore.scrambleStatus || 'A/S'}
                                     </span>
                                 </div>
@@ -216,40 +204,39 @@ export default function ScoresPage() {
 
             {/* ERROR indicator */}
             {submitError && (
-                <div className="px-4 py-2 bg-red-100 text-red-800 text-xs text-center border-b border-red-200">
+                <div className="px-4 py-2 bg-red-900/80 text-white text-xs text-center border-b border-red-700 font-fredoka">
                     <span className="font-bold">Error:</span> {submitError}
                 </div>
             )}
 
             {/* Saving indicator */}
             {isSaving && (
-                <div className="px-4 py-1 bg-yellow-100 text-yellow-800 text-xs text-center">
+                <div className="px-4 py-1 bg-gold-border/20 text-gold-light text-xs text-center font-fredoka">
                     Guardando...
                 </div>
             )}
 
-
-            <main className="flex-1 overflow-hidden">
+            <main className="flex-1 overflow-hidden bg-cream">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-team-blue mb-4"></div>
-                        <p className="text-gray-500 text-sm">Cargando tu partido...</p>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-border mb-4"></div>
+                        <p className="text-forest-deep/60 text-sm font-fredoka">Cargando tu partido...</p>
                     </div>
                 ) : !activeEvent ? (
                     <div className="p-8 text-center">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                            <p className="text-gray-500 mb-4">No eres parte de ningún evento activo.</p>
+                        <div className="cartoon-card p-6">
+                            <p className="text-forest-deep/60 mb-4 font-fredoka">No eres parte de ningún evento activo.</p>
                         </div>
                     </div>
                 ) : !flightId ? (
-                    <div className="p-8 text-center text-gray-500">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                            <p className="mb-2 font-semibold text-gray-700 uppercase text-xs tracking-widest">Sin Partido Asignado</p>
-                            <p className="text-sm">Podrás ingresar scores cuando te asignen a un grupo en <span className="font-bold text-gray-900">{activeEvent.name}</span>.</p>
+                    <div className="p-8 text-center">
+                        <div className="cartoon-card p-6 text-center">
+                            <p className="mb-2 font-bangers text-[#1e293b] uppercase text-xs tracking-widest">Sin Partido Asignado</p>
+                            <p className="text-sm font-fredoka text-forest-deep/70">Podrás ingresar scores cuando te asignen a un grupo en <span className="font-bold text-forest-deep">{activeEvent.name}</span>.</p>
                         </div>
                     </div>
                 ) : !flightScore ? (
-                    <div className="p-8 text-center text-red-500">
+                    <div className="p-8 text-center text-red-500 font-fredoka">
                         Error al cargar los datos de scores.
                     </div>
                 ) : (
@@ -258,21 +245,19 @@ export default function ScoresPage() {
                         <div className="flex gap-2 px-4 pt-3 pb-2">
                             <button
                                 onClick={() => setActiveSegment('bestball')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                                    activeSegment === 'bestball'
-                                        ? 'bg-slate-800 text-white shadow-sm'
-                                        : 'bg-slate-200 text-slate-500'
-                                }`}
+                                className={`flex-1 py-2 rounded-lg text-xs font-bangers uppercase tracking-wider transition-colors ${activeSegment === 'bestball'
+                                        ? 'bg-team-blue text-white shadow-sm thick-border font-bold'
+                                        : 'cartoon-card text-gray-500 font-bold'
+                                    }`}
                             >
                                 Hoyos 1-9
                             </button>
                             <button
                                 onClick={() => setActiveSegment('scramble')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                                    activeSegment === 'scramble'
-                                        ? 'bg-slate-800 text-white shadow-sm'
-                                        : 'bg-slate-200 text-slate-500'
-                                }`}
+                                className={`flex-1 py-2 rounded-lg text-xs font-bangers uppercase tracking-wider transition-colors ${activeSegment === 'scramble'
+                                        ? 'bg-team-blue text-white shadow-sm thick-border font-bold'
+                                        : 'cartoon-card text-gray-500 font-bold'
+                                    }`}
                             >
                                 Hoyos 10-18
                             </button>

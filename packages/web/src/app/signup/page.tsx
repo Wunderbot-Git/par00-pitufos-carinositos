@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 
 export default function SignupPage() {
@@ -42,56 +43,69 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen p-4">
-            <h1 className="text-2xl font-bold text-center mt-8 mb-6">Registrarse</h1>
+        <div className="flex flex-col min-h-screen items-center pb-8">
+            {/* Header Image */}
+            <div className="relative w-full h-[240px] sm:h-[300px] overflow-hidden rounded-b-[32px] thick-border border-t-0 border-l-0 border-r-0 mb-8 shadow-md">
+                <Image
+                    src="/images/hero_header.png"
+                    alt="Pitufos vs Cariñositos"
+                    fill
+                    className="object-cover object-top"
+                    priority
+                />
+            </div>
 
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
-                    {error}
-                </div>
-            )}
+            <div className="w-full max-w-sm px-4 flex flex-col items-center z-10">
+                <h1 className="text-3xl font-bangers text-center mb-6 metallic-text">Registrarse</h1>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <input
-                    type="email"
-                    placeholder="Correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Nombre completo"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                    required
-                />
-                <p className="text-xs text-gray-500">
-                    La contraseña debe tener al menos 8 caracteres con una mayúscula, una minúscula y un número.
+                {error && (
+                    <div className="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg mb-4 w-full font-fredoka text-sm">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full cartoon-card p-6">
+                    <input
+                        type="email"
+                        placeholder="Correo electrónico"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full p-3 thick-border rounded-xl bg-white font-bangers text-[#1e293b] tracking-wider focus:outline-none focus:ring-0 shadow-none"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Nombre completo"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full p-3 thick-border rounded-xl bg-white font-bangers text-[#1e293b] tracking-wider focus:outline-none focus:ring-0 shadow-none"
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full p-3 thick-border rounded-xl bg-white font-bangers text-[#1e293b] tracking-wider focus:outline-none focus:ring-0 shadow-none"
+                        required
+                    />
+                    <p className="text-xs text-forest-deep/60 font-fredoka">
+                        La contraseña debe tener al menos 8 caracteres con una mayúscula, una minúscula y un número.
+                    </p>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full py-3 gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers text-lg tracking-wider uppercase disabled:opacity-50"
+                    >
+                        {isLoading ? 'Creando cuenta...' : 'Registrarse'}
+                    </button>
+                </form>
+
+                <p className="text-center mt-4 text-cream/70 font-fredoka">
+                    ¿Ya tienes cuenta?{' '}
+                    <Link href="/login" className="text-[#ffd700] drop-shadow-sm font-bangers tracking-wider hover:brightness-110">Iniciar sesión</Link>
                 </p>
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 bg-team-blue text-white rounded-lg font-semibold disabled:opacity-50"
-                >
-                    {isLoading ? 'Creando cuenta...' : 'Registrarse'}
-                </button>
-            </form>
-
-            <p className="text-center mt-4 text-gray-600">
-                ¿Ya tienes cuenta?{' '}
-                <Link href="/login" className="text-team-blue">Iniciar sesión</Link>
-            </p>
+            </div>
         </div>
     );
 }

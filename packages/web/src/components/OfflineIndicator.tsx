@@ -12,22 +12,22 @@ export function OfflineIndicator() {
 
     const statusConfig = {
         online: {
-            bg: 'bg-green-500',
+            bg: 'bg-forest-deep',
             text: 'Todo sincronizado',
             icon: '✓',
         },
         offline: {
-            bg: 'bg-yellow-500',
+            bg: 'bg-brass',
             text: pendingCount > 0 ? `Sin conexión - ${pendingCount} pendientes` : 'Sin conexión',
             icon: '⚡',
         },
         syncing: {
-            bg: 'bg-blue-500',
+            bg: 'bg-team-blue',
             text: 'Sincronizando...',
             icon: '↻',
         },
         error: {
-            bg: 'bg-red-500',
+            bg: 'bg-team-red',
             text: `Error de sincronización - ${pendingCount} pendientes`,
             icon: '!',
         },
@@ -45,7 +45,7 @@ export function OfflineIndicator() {
         <button
             onClick={handleClick}
             disabled={status === 'syncing'}
-            className={`fixed bottom-20 left-1/2 -translate-x-1/2 ${config.bg} text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium z-40`}
+            className={`fixed bottom-20 left-1/2 -translate-x-1/2 ${config.bg} text-cream px-4 py-2 rounded-full shadow-lg gold-border flex items-center gap-2 text-sm font-fredoka font-medium z-40`}
         >
             <span className={status === 'syncing' ? 'animate-spin' : ''}>{config.icon}</span>
             <span>{config.text}</span>

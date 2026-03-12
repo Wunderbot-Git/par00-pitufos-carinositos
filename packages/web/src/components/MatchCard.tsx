@@ -7,165 +7,263 @@ interface MatchCardProps {
     onClick?: () => void;
 }
 
-function getOrdinal(n: number): string {
-    if (n === 0) return '';
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
-
 export function MatchCard({ match, onClick }: MatchCardProps) {
     const isRedWin = match.matchWinner === 'red';
     const isBlueWin = match.matchWinner === 'blue';
     const isAS = (match.matchStatus === 'A/S' || match.matchStatus === 'AS');
     const isFinal = match.status === 'completed';
+    const isNotStarted = match.status === 'not_started';
 
-    // CHEVRON LOGIC
-    // Red Leading/Win: Arrow points Right (->) indicating push towards blue? 
-    // Actually, usually arrow points to the leading team or indicates "To Go"? 
-    // Let's stick to the visual: 
-    // - Red Lead: Arrow shape pointing RIGHT (Standard Pentagon pointing right)
-    // - Blue Lead: Arrow shape pointing LEFT (Standard Pentagon pointing left)
-    // - AS: Rectangle or slight Hexagon? Let's use Rectangle for stability.
+    const displayStatus = match.matchStatus.replace('DN', 'UP');
 
-    // Center Box Logic
-    let centerBg = 'bg-gray-800';
-    let statusTextColor = 'text-white';
-
-    // Status Text
+    // ── CENTER BADGE ─────────────────────────────────────────────────────────
     let statusTop: React.ReactNode = '';
     let statusBottom = '';
 
-    const displayStatus = match.matchStatus.replace('DN', 'UP');
-    const isNotStarted = match.status === 'not_started';
+    // Who is "winning" (leading) right now?
+    const redIsWinning = isRedWin ||
+        (match.matchStatus.includes('UP') && !isBlueWin);
+    const blueIsWinner = isBlueWin;
+
+    let centerGradient = 'bg-gradient-to-b from-[#349be1] to-[#12609b]'; // default blue
+    if (isNotStarted) centerGradient = 'bg-[#2a2a5e]';
+    else if (isAS) centerGradient = 'bg-gradient-to-b from-[#8f9ca6] to-[#596673]';
+    else if (redIsWinning) centerGradient = 'bg-gradient-to-b from-[#e33731] to-[#b81d18]';
 
     if (isNotStarted) {
-        centerBg = 'bg-gray-200';
-        statusTextColor = 'text-gray-500';
         statusTop = (
             <div className="flex flex-col items-center leading-none">
-                <span className="text-sm font-black italic tracking-tighter">Sin</span>
-                <span className="text-sm font-black italic tracking-tighter">Iniciar</span>
+                <span className="text-sm font-bangers italic tracking-tighter">Sin</span>
+                <span className="text-sm font-bangers italic tracking-tighter">Iniciar</span>
             </div>
         );
     } else if (isAS) {
-        centerBg = 'bg-gray-700';
         statusTop = 'A/S';
-    } else if (match.matchWinner === 'red') {
-        // RED WIN
-        centerBg = 'bg-[#ef4444]'; // Red-400
-        statusTop = displayStatus;
-    } else if (match.matchWinner === 'blue') {
-        // BLUE WIN
-        centerBg = 'bg-[#3b82f6]'; // Blue-400
-        statusTop = displayStatus;
     } else {
-        // IN PROGRESS
-        if (match.matchStatus.includes('DN')) {
-            // Red DN -> Blue Leading
-            centerBg = 'bg-[#3b82f6]';
-            statusTop = displayStatus;
-        } else {
-            // Red UP (or others) -> Red Leading
-            centerBg = 'bg-[#ef4444]';
-            statusTop = displayStatus;
-        }
+        statusTop = displayStatus;
     }
 
-    // Bottom Text
     const totalHoles = 9;
     const holesPlayed = match.currentHole;
     const holesRemaining = totalHoles - holesPlayed;
-
     let lead = 0;
     if (match.matchStatus.includes('UP') || match.matchStatus.includes('DN')) {
-        const parts = match.matchStatus.split(' ');
-        lead = parseInt(parts[0]);
+        lead = parseInt(match.matchStatus.split(' ')[0]);
     }
 
     if (isFinal) {
         statusBottom = 'FINAL';
     } else if (match.currentHole > 0) {
-        if (lead > 0 && lead === holesRemaining) {
-            statusBottom = 'DORMIE';
-        } else {
-            statusBottom = `HOYO ${match.currentHole}`;
-        }
+        statusBottom = (lead > 0 && lead === holesRemaining) ? 'DORMIE' : `HOYO ${match.currentHole}`;
     } else if (!isNotStarted) {
         statusBottom = '-';
     }
 
-    // Player Text Colors (Always colored on white bg, unless Final)
-    const redText = 'text-team-red';
-    const blueText = 'text-team-blue';
+    // ── PANEL BACKGROUND / BORDERS ───────────────────────────────────────────
+    // Blue team = Pitufos (left panel), Red team = Cariñositos (right panel)
+    const GOLD  = '#F0C850';
+    const PINK  = '#e0548a';
+    const MUTED = '#4a4a6a';
 
-    let leftPanelClass = 'bg-white';
-    let leftTextClass = redText;
-    let leftLabelClass = 'text-gray-400';
+    // Winner/loser panel display
+    let leftDim  = isFinal && isRedWin;
+    let rightDim = isFinal && isBlueWin;
 
-    let rightPanelClass = 'bg-white';
-    let rightTextClass = blueText;
-    let rightLabelClass = 'text-gray-400';
+    // Left (blue/Pitufos) border: gold always, muted when losing
+    const leftBorderColor  = isFinal && isRedWin ? MUTED : GOLD;
+    // Right (red/Cariñositos) border: pink always, muted when losing
+    const rightBorderColor = isFinal && isBlueWin ? MUTED : PINK;
 
-    if (isFinal) {
-        if (match.matchWinner === 'red') {
-            leftPanelClass = 'bg-team-red';
-            leftTextClass = 'text-white';
-            leftLabelClass = 'text-white/75';
-        } else if (match.matchWinner === 'blue') {
-            rightPanelClass = 'bg-team-blue';
-            rightTextClass = 'text-white';
-            rightLabelClass = 'text-white/75';
-        }
-    }
+    // Panel backgrounds — medium navy, lighter than filter bar
+    const activePanelBg  = '#2a3a5e';
+    const winnerBg       = '#1e2a4a';
+    const notStartedBg   = '#1a2240';
+
+    const leftBg  = isNotStarted ? notStartedBg : (isFinal && isBlueWin ? winnerBg : activePanelBg);
+    const rightBg = isNotStarted ? notStartedBg : (isFinal && isRedWin  ? winnerBg : activePanelBg);
+
+
+    const normalizeName = (name: string) => {
+        return name
+            .split(' ')[0]
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]/g, '');
+    };
 
     return (
         <div
             onClick={onClick}
-            className={`bg-white rounded-xl mb-3 grid grid-cols-[1fr_100px_1fr] h-[80px] relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.08)] mx-1 ${onClick ? 'cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-shadow' : ''}`}
+            className={`w-full rounded-2xl overflow-hidden transition-transform mb-2 ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''}`}
+            style={{
+                background: isNotStarted ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.70)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.85)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                borderRadius: 16,
+            }}
         >
-            {/* MATCH FORMAT BADGE */}
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isNotStarted ? 'text-gray-500' : 'text-gray-300'}`}>{
-                    match.segmentType === 'singles1' ? 'Individual 1' :
-                    match.segmentType === 'singles2' ? 'Individual 2' :
-                    match.segmentType === 'fourball' ? 'Mejor Bola' :
-                    match.segmentType
-                }</span>
-            </div>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[90px]">
 
-            {/* LEFT PANEL (RED) */}
-            <div className={`flex flex-col justify-center items-start px-4 z-0 ${leftPanelClass} transition-colors duration-300 min-w-0`}>
-                {match.redPlayers.map((p, i) => (
-                    <div key={i} className={`font-bold text-[13px] leading-tight w-full ${leftTextClass} py-0.5`}>
-                        {p.playerName.replace(/-$/, '').trim()} <span className="opacity-60 text-[10px] font-normal">({p.hcp})</span>
-                    </div>
-                ))}
-            </div>
-
-            {/* CENTER STATUS */}
-            <div className="relative flex items-center justify-center">
+                {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
-                    className={`${centerBg} w-full h-full flex flex-col items-center justify-center ${statusTextColor} z-1 transition-colors duration-300 pt-2`}
+                    className="flex flex-col items-center justify-center py-2 px-2 relative"
+                    style={{
+                        background: 'transparent',
+                        borderLeft: `3px solid ${leftBorderColor}`,
+                        opacity: leftDim ? 0.55 : 1,
+                        transition: 'opacity 0.2s',
+                    }}
                 >
-                    <div className="text-xl font-black italic tracking-tighter leading-none mb-0.5" style={{ textShadow: isNotStarted ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
-                        {statusTop}
-                    </div>
-                    {statusBottom && (
-                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-90 leading-none">
-                            {statusBottom}
+                    {/* Winner crown */}
+                    {isFinal && isBlueWin && (
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2">
+                            <span style={{ fontSize: 14 }}>👑</span>
                         </div>
                     )}
-                </div>
-            </div>
 
-            {/* RIGHT PANEL (BLUE) */}
-            <div className={`flex flex-col justify-center items-end px-4 z-0 ${rightPanelClass} transition-colors duration-300 min-w-0`}>
-                {match.bluePlayers.map((p, i) => (
-                    <div key={i} className={`font-bold text-[13px] leading-tight w-full text-right ${rightTextClass} py-0.5`}>
-                        <span className="opacity-60 text-[10px] font-normal">({p.hcp})</span> {p.playerName.replace(/-$/, '').trim()}
+                    {/* Avatar(s) */}
+                    <div className={`flex gap-1 justify-center mt-1 flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
+                        {match.bluePlayers.map((p, i) => {
+                            const avatarName = normalizeName(p.playerName);
+                            const size = match.bluePlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
+                            return (
+                                <div key={i} className={`${size} flex-shrink-0`}>
+                                    <img
+                                        src={`/images/${avatarName}.png`}
+                                        alt={p.playerName}
+                                        onError={(e) => { (e.target as HTMLImageElement).src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.png'; }}
+                                        className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
+                                        style={{ borderRadius: '50%' }}
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
-                ))}
+
+
+                    {/* Player names */}
+                    <div className="flex flex-col items-center mt-1 w-full">
+                        {match.bluePlayers.map((p, i) => (
+                            <div
+                                key={i}
+                                className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
+                                style={{ color: isNotStarted ? '#aaa' : '#1a1a3e', fontWeight: 700 }}
+                            >
+                                {p.playerName.split(' ')[0]}
+                                <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── CENTER STATUS BADGE ──────────────────────────────────── */}
+                <div className="relative flex items-center justify-center px-2 py-2 min-w-[130px] sm:min-w-[150px]">
+                    <div
+                        className={`relative w-full py-2.5 rounded-2xl border-[3px] border-[#1e293b] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'shadow-none' : 'shadow-[0_5px_0_#1e293b]'}`}
+                    >
+                        {/* Top gloss */}
+                        {!isNotStarted && (
+                            <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-white/5 rounded-t-xl pointer-events-none z-0" />
+                        )}
+
+                        {/* Live indicator star */}
+                        {!isNotStarted && !isFinal && (
+                            <div className="absolute -top-[12px] -right-[12px] z-30">
+                                <div className="relative flex items-center justify-center w-7 h-7">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full text-[#ed5f59]" fill="currentColor" style={{ filter: 'drop-shadow(0 2px 0 #1e293b)' }}>
+                                        <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35" stroke="#1e293b" strokeWidth="8" strokeLinejoin="round" />
+                                    </svg>
+                                    <span className="absolute text-white font-bangers text-[11px]" style={{ textShadow: '1px 1px 0 #1e293b,-1px -1px 0 #1e293b' }}>!</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SIN INICIAR pill */}
+                        {isNotStarted ? (
+                            <div className="px-3 py-1.5 rounded-full border border-[#505078] text-[#9999bb] font-bangers text-[11px] tracking-wider uppercase text-center">
+                                Sin<br />Iniciar
+                            </div>
+                        ) : (
+                            <>
+                                {/* Main score text */}
+                                <div className="relative z-20 flex justify-center w-full" style={{ filter: 'drop-shadow(2px 3px 0 rgba(0,0,0,0.5))' }}>
+                                    <span className="text-[32px] sm:text-[38px] font-bangers tracking-wide leading-[0.9] absolute left-0 right-0 text-center text-[#1e293b]" style={{ WebkitTextStroke: '5px #1e293b' }}>
+                                        {typeof statusTop === 'string' ? statusTop.replace('UP', ' UP') : statusTop}
+                                    </span>
+                                    <span className="text-[32px] sm:text-[38px] font-bangers tracking-wide leading-[0.9] relative text-white text-center">
+                                        {typeof statusTop === 'string' ? statusTop.replace('UP', ' UP') : statusTop}
+                                    </span>
+                                </div>
+
+                                {statusBottom && (
+                                    <div className="relative z-20 mt-0.5 mb-0.5 flex justify-center w-full uppercase" style={{ filter: 'drop-shadow(1px 2px 0 rgba(0,0,0,0.6))' }}>
+                                        <span className="text-[13px] sm:text-[15px] font-bangers tracking-widest leading-none absolute left-0 right-0 text-center text-[#1e293b]" style={{ WebkitTextStroke: '3px #1e293b' }}>
+                                            {statusBottom}
+                                        </span>
+                                        <span className="text-[13px] sm:text-[15px] font-bangers tracking-widest leading-none relative text-white text-center">
+                                            {statusBottom}
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── RIGHT PANEL (RED / CARIÑOSITOS) ─────────────────────── */}
+                <div
+                    className="flex flex-col items-center justify-center py-2 px-2 relative"
+                    style={{
+                        background: 'transparent',
+                        borderRight: `3px solid ${rightBorderColor}`,
+                        opacity: rightDim ? 0.55 : 1,
+                        transition: 'opacity 0.2s',
+                    }}
+                >
+                    {/* Winner crown */}
+                    {isFinal && isRedWin && (
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2">
+                            <span style={{ fontSize: 14 }}>👑</span>
+                        </div>
+                    )}
+
+                    {/* Avatar(s) */}
+                    <div className={`flex gap-1 justify-center mt-1 flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
+                        {match.redPlayers.map((p, i) => {
+                            const avatarName = normalizeName(p.playerName);
+                            const size = match.redPlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
+                            return (
+                                <div key={i} className={`${size} flex-shrink-0`}>
+                                    <img
+                                        src={`/images/${avatarName}.png`}
+                                        alt={p.playerName}
+                                        onError={(e) => { (e.target as HTMLImageElement).src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.png'; }}
+                                        className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
+                                        style={{ borderRadius: '50%' }}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+
+
+                    {/* Player names */}
+                    <div className="flex flex-col items-center mt-1 w-full">
+                        {match.redPlayers.map((p, i) => (
+                            <div
+                                key={i}
+                                className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
+                                style={{ color: isNotStarted ? '#aaa' : '#1a1a3e', fontWeight: 700 }}
+                            >
+                                {p.playerName.split(' ')[0]}
+                                <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

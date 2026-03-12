@@ -28,11 +28,7 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
         const touchY = e.touches[0].clientY;
         const diff = touchY - startY;
 
-        // Dampening
         if (diff > 0) {
-            // Prevent default only if we are pulling down at top? 
-            // Might interfere with normal scroll if not careful.
-            // But if scrollY is 0 and we pull down, it's a refresh intent.
             setCurrentY(diff * 0.4); // Resistance
         }
     };
@@ -69,11 +65,11 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
                     opacity: currentY > 0 ? 1 : 0
                 }}
             >
-                <div className={`w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center ${refreshing ? 'animate-spin' : ''}`}>
+                <div className={`w-8 h-8 rounded-full bg-cream shadow-md gold-border flex items-center justify-center ${refreshing ? 'animate-spin' : ''}`}>
                     {refreshing ? (
-                        <span className="text-blue-500 font-bold text-lg">↻</span>
+                        <span className="text-gold-border font-bold text-lg">↻</span>
                     ) : (
-                        <span className="text-gray-400 font-bold text-lg" style={{ transform: `rotate(${currentY * 3}deg)` }}>↓</span>
+                        <span className="text-forest-deep/40 font-bold text-lg" style={{ transform: `rotate(${currentY * 3}deg)` }}>↓</span>
                     )}
                 </div>
             </div>

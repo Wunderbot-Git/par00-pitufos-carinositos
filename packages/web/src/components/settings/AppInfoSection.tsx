@@ -6,9 +6,9 @@ import { db } from '@/lib/db';
 
 const STATUS_LABELS: Record<SyncStatus, { label: string; color: string; dot: string }> = {
     online: { label: 'En línea', color: 'text-green-600', dot: 'bg-green-500' },
-    offline: { label: 'Sin conexión', color: 'text-gray-500', dot: 'bg-gray-400' },
-    syncing: { label: 'Sincronizando...', color: 'text-yellow-600', dot: 'bg-yellow-500' },
-    error: { label: 'Error de sincronización', color: 'text-red-600', dot: 'bg-red-500' },
+    offline: { label: 'Sin conexión', color: 'text-forest-deep/50', dot: 'bg-forest-deep/30' },
+    syncing: { label: 'Sincronizando...', color: 'text-gold-border', dot: 'bg-gold-border' },
+    error: { label: 'Error de sincronización', color: 'text-team-red', dot: 'bg-team-red' },
 };
 
 export function AppInfoSection() {
@@ -41,37 +41,34 @@ export function AppInfoSection() {
     const statusInfo = STATUS_LABELS[syncStatus];
 
     return (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">App</h2>
+        <div className="bg-white thick-border rounded-[20px] p-4">
+            <h2 className="text-xs font-bangers text-[#1e293b] uppercase tracking-widest mb-3">App</h2>
 
-            {/* Sync status */}
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${statusInfo.dot}`} />
-                    <span className={`text-sm font-semibold ${statusInfo.color}`}>{statusInfo.label}</span>
+                    <span className={`text-sm font-fredoka font-semibold ${statusInfo.color}`}>{statusInfo.label}</span>
                     {pendingCount > 0 && (
-                        <span className="text-[10px] text-gray-400 font-medium">({pendingCount} pendientes)</span>
+                        <span className="text-[10px] text-forest-deep/40 font-fredoka font-medium">({pendingCount} pendientes)</span>
                     )}
                 </div>
                 <button
                     onClick={handleSync}
                     disabled={isSyncing || syncStatus === 'offline'}
-                    className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold disabled:opacity-50"
+                    className="px-3 py-1.5 bg-forest-deep/10 text-forest-deep/60 rounded-lg text-xs font-bangers disabled:opacity-50 border border-gold-border/20"
                 >
                     {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
                 </button>
             </div>
 
-            {/* Clear cache */}
             <button
                 onClick={handleClearCache}
-                className="w-full py-2 text-gray-500 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors mb-3"
+                className="w-full py-2 text-forest-deep/50 bg-forest-deep/5 border border-gold-border/20 rounded-xl text-xs font-fredoka font-semibold hover:bg-forest-deep/10 transition-colors mb-3"
             >
                 Borrar Datos Locales
             </button>
 
-            {/* Version */}
-            <p className="text-[10px] text-gray-300 text-center">Ryder Cup Par00 v1.0.0</p>
+            <p className="text-[10px] text-forest-deep/30 text-center font-fredoka">Ryder Cup Par00 v1.0.0</p>
         </div>
     );
 }

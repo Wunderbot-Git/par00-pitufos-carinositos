@@ -7,15 +7,25 @@ module.exports = {
     ],
     theme: {
         extend: {
-            'team-red': '#C8102E',
-            'team-blue': '#003399',
-            'header-navy': '#333333', // Dark charcoal as requested for dividers/dark elements? Or keep Navy separate? User said "Center Divider (Numbers): #333333". 
-            // Let's keep header-navy as is if used elsewhere, but maybe map it to the new dark if appropriate. 
-            // Actually, the main header was "header-navy". User wants "Header Background: #F9F9F9". 
-            // So the TOP header (navigation) might change. 
-            // For now, let's just update the team colors and add the new ones.
-            'ryder-bg': '#F9F9F9',
-            'ryder-dark': '#333333',
+            colors: {
+                'team-red': '#ea4335',
+                'team-blue': '#4285f4',
+                'forest-deep': '#0a4030',
+                'forest-mid': '#147255',
+                'gold-border': '#fbbc05',
+                'gold-light': '#fce8b2',
+                'brass': '#e37400',
+                'nav-teal': '#1a4a5e',
+                'cream': '#ffffff',
+                'header-navy': '#1a2b3c',
+                'ryder-bg': '#e6f4ea',
+                'ryder-dark': '#1e293b',
+                'stroke-dark': '#1e293b',
+            },
+            fontFamily: {
+                bangers: ['var(--font-bangers)', 'cursive'],
+                fredoka: ['var(--font-fredoka)', 'sans-serif'],
+            },
         },
     },
     plugins: [],

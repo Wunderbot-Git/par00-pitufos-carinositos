@@ -20,16 +20,16 @@ export function ProjectedStickyHeader({
     detachedTop = false,
 }: ProjectedStickyHeaderProps) {
     return (
-        <div className={`bg-ryder-bg px-2 pb-2 ${detachedTop ? 'pt-0' : 'pt-2'} transition-all duration-300`}>
-            <div className={`bg-white shadow-sm overflow-hidden ${detachedTop ? 'rounded-b-xl rounded-t-none' : 'rounded-xl'} mb-0`}>
+        <div className={`px-2 pb-2 ${detachedTop ? 'pt-0' : 'pt-2'} transition-all duration-300`}>
+            <div className={`bg-forest-deep gold-border shadow-sm overflow-hidden ${detachedTop ? 'rounded-b-xl rounded-t-none border-t-0' : 'rounded-xl'} mb-0`}>
 
-                {/* PROJECTED SECTION (Clickable) */}
+                {/* PROJECTED SECTION */}
                 <div
                     onClick={onToggle}
-                    className="cursor-pointer transition-colors pb-3 hover:bg-gray-50 pt-2"
+                    className="cursor-pointer transition-colors pb-3 hover:bg-forest-mid/30 pt-2"
                 >
                     <div className="flex items-center justify-center gap-2 py-1">
-                        <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">PROYECTADO</span>
+                        <span className="text-[10px] font-bangers text-gold-light tracking-[0.2em] uppercase">PROYECTADO</span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="12"
@@ -40,23 +40,18 @@ export function ProjectedStickyHeader({
                             strokeWidth="3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className={`text-gray-300 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                            className={`text-gold-border transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                         >
                             <path d="m6 9 6 6 6-6" />
                         </svg>
                     </div>
 
                     <div className="flex justify-center items-center gap-8">
-                        {/* Red Proj */}
-                        <div className="text-3xl font-bold text-team-red opacity-60">
+                        <div className="text-3xl font-bangers text-team-red opacity-80">
                             {projectedRed.toFixed(1).replace('.0', '')}
                         </div>
-
-                        {/* VS Small */}
-                        <div className="text-sm font-bold text-gray-300 italic">VS</div>
-
-                        {/* Blue Proj */}
-                        <div className="text-3xl font-bold text-team-blue opacity-60">
+                        <div className="text-sm font-bangers text-gold-light italic">VS</div>
+                        <div className="text-3xl font-bangers text-team-blue opacity-80">
                             {projectedBlue.toFixed(1).replace('.0', '')}
                         </div>
                     </div>
@@ -64,7 +59,7 @@ export function ProjectedStickyHeader({
 
                 {/* EXPANDED CONTENT: PROJECTED */}
                 {isExpanded && detailContent && (
-                    <div className="border-t border-gray-100 bg-gray-50/30">
+                    <div className="border-t border-gold-border/30 bg-forest-mid/30">
                         {detailContent}
                     </div>
                 )}

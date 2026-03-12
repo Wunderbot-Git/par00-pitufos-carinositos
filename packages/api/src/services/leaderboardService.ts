@@ -25,6 +25,7 @@ export interface Match {
     currentHole: number;
     matchStatus: string; // e.g., "2 UP", "A/S", "1 DN"
     matchWinner: 'red' | 'blue' | null;
+    currentLeader: 'red' | 'blue' | null;
     redPlayers: PlayerScore[];
     bluePlayers: PlayerScore[];
     matchProgression: string[]; // Status at each hole
@@ -273,6 +274,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
                     currentHole: isUnstarted ? 0 : matchDetails.holes.length,
                     matchStatus: isUnstarted ? 'Not Started' : matchDetails.result.finalStatus,
                     matchWinner: isUnstarted ? null : matchDetails.result.winner,
+                    currentLeader: isUnstarted ? null : matchDetails.finalState.leader,
                     redPlayers: rPlayers.map((p, i) => mapPlayerToScore(p, prepareScores(isUnstarted ? Object.values(rScores[i]).fill(null) : rScores[i]))),
                     bluePlayers: bPlayers.map((p, i) => mapPlayerToScore(p, prepareScores(isUnstarted ? Object.values(bScores[i]).fill(null) : bScores[i]))),
                     matchProgression: isUnstarted ? [] : prepareProgression(matchDetails.holes.map((h: any) => formatMatchStatus(h.matchState))),
@@ -338,19 +340,21 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
     let projectedBlue = totalBluePoints;
 
     matchResults.forEach(m => {
+        const pts = m.segmentType === 'scramble' ? 2 : 1;
+
         if (m.status === 'not_started') {
-            projectedRed += 0.5;
-            projectedBlue += 0.5;
+            projectedRed += (pts / 2);
+            projectedBlue += (pts / 2);
         } else if (m.status === 'in_progress') {
             // Project based on current leader
-            if (m.matchWinner === 'red') {
-                projectedRed += 1;
-            } else if (m.matchWinner === 'blue') {
-                projectedBlue += 1;
+            if (m.currentLeader === 'red') {
+                projectedRed += pts;
+            } else if (m.currentLeader === 'blue') {
+                projectedBlue += pts;
             } else {
                 // A/S or undefined - split the projected point
-                projectedRed += 0.5;
-                projectedBlue += 0.5;
+                projectedRed += (pts / 2);
+                projectedBlue += (pts / 2);
             }
         }
     });

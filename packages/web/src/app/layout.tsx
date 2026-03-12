@@ -1,9 +1,23 @@
 import type { Metadata, Viewport } from 'next';
+import { Bangers, Fredoka } from 'next/font/google';
 import './globals.css';
 import { BottomNav } from '@/components/BottomNav';
 import { AuthProvider } from '@/lib/auth';
 import { SyncProvider } from '@/lib/syncContext';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+
+const bangers = Bangers({
+    weight: '400',
+    subsets: ['latin'],
+    variable: '--font-bangers',
+    display: 'swap',
+});
+
+const fredoka = Fredoka({
+    subsets: ['latin'],
+    variable: '--font-fredoka',
+    display: 'swap',
+});
 
 export const metadata: Metadata = {
     title: 'Ryder Cup Par00',
@@ -23,11 +37,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en">
-            <body className="bg-gray-100">
+        <html lang="en" className={`${bangers.variable} ${fredoka.variable}`}>
+            <body className="bg-app-gradient">
                 <AuthProvider>
                     <SyncProvider>
-                        <main className="max-w-md mx-auto bg-white">
+                        <main className="max-w-md mx-auto bg-transparent">
                             {children}
                         </main>
                         <OfflineIndicator />

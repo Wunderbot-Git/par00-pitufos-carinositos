@@ -24,7 +24,7 @@ export function AdminSection({ eventId }: { eventId: string }) {
             setLoadingFlights(true);
             api.get<Flight[]>(`/events/${eventId}/flights`)
                 .then(setFlights)
-                .catch(() => {})
+                .catch(() => { })
                 .finally(() => setLoadingFlights(false));
         }
     }, [showScores, eventId, flights.length]);
@@ -54,41 +54,40 @@ export function AdminSection({ eventId }: { eventId: string }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Admin</h2>
+        <div className="bg-white thick-border rounded-[20px] p-4">
+            <h2 className="text-xs font-bangers text-[#1e293b] uppercase tracking-widest mb-3">Admin</h2>
             <Link
                 href={`/admin/events/${eventId}/players`}
-                className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 py-2.5 px-3 bg-forest-deep/5 rounded-xl hover:bg-forest-deep/10 transition-colors border border-gold-border/20"
             >
-                <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-forest-deep rounded-lg flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
                     </svg>
                 </div>
                 <div className="flex-1">
-                    <p className="text-sm font-bold text-gray-800">Gestionar Jugadores</p>
-                    <p className="text-[10px] text-gray-400">Editar jugadores, generar invitaciones, gestionar equipos</p>
+                    <p className="text-sm font-fredoka font-bold text-forest-deep">Gestionar Jugadores</p>
+                    <p className="text-[10px] text-forest-deep/40 font-fredoka">Editar jugadores, generar invitaciones, gestionar equipos</p>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gold-border/50">
                     <path d="m9 18 6-6-6-6" />
                 </svg>
             </Link>
 
-            {/* Score Management */}
             <button
                 onClick={() => setShowScores(!showScores)}
-                className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors w-full mt-2"
+                className="flex items-center gap-3 py-2.5 px-3 bg-forest-deep/5 rounded-xl hover:bg-forest-deep/10 transition-colors w-full mt-2 border border-gold-border/20"
             >
-                <div className="w-8 h-8 bg-red-700 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-team-red rounded-lg flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                     </svg>
                 </div>
                 <div className="flex-1 text-left">
-                    <p className="text-sm font-bold text-gray-800">Gestionar Scores</p>
-                    <p className="text-[10px] text-gray-400">Eliminar scores por grupo o hoyo</p>
+                    <p className="text-sm font-fredoka font-bold text-forest-deep">Gestionar Scores</p>
+                    <p className="text-[10px] text-forest-deep/40 font-fredoka">Eliminar scores por grupo o hoyo</p>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-gray-300 transition-transform ${showScores ? 'rotate-90' : ''}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-gold-border/50 transition-transform ${showScores ? 'rotate-90' : ''}`}>
                     <path d="m9 18 6-6-6-6" />
                 </svg>
             </button>
@@ -96,13 +95,13 @@ export function AdminSection({ eventId }: { eventId: string }) {
             {showScores && (
                 <div className="mt-3 space-y-3">
                     {loadingFlights ? (
-                        <p className="text-xs text-gray-400 text-center py-2">Cargando grupos...</p>
+                        <p className="text-xs text-forest-deep/40 text-center py-2 font-fredoka">Cargando grupos...</p>
                     ) : flights.length === 0 ? (
-                        <p className="text-xs text-gray-400 text-center py-2">No se encontraron grupos</p>
+                        <p className="text-xs text-forest-deep/40 text-center py-2 font-fredoka">No se encontraron grupos</p>
                     ) : (
                         flights.map(flight => (
-                            <div key={flight.id} className="bg-gray-50 rounded-xl p-3">
-                                <p className="text-sm font-bold text-gray-700 mb-2">Grupo {flight.flightNumber}</p>
+                            <div key={flight.id} className="bg-forest-deep/5 rounded-xl p-3 border border-gold-border/10">
+                                <p className="text-sm font-fredoka font-bold text-forest-deep mb-2">Grupo {flight.flightNumber}</p>
                                 <div className="flex gap-2 items-center mb-2">
                                     <input
                                         type="number"
@@ -111,19 +110,19 @@ export function AdminSection({ eventId }: { eventId: string }) {
                                         placeholder="Hoyo #"
                                         value={holeInputs[flight.id] || ''}
                                         onChange={e => setHoleInputs(prev => ({ ...prev, [flight.id]: e.target.value }))}
-                                        className="w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-slate-300"
+                                        className="w-20 px-2 py-1.5 border-2 border-gold-border/30 rounded-lg text-sm text-center font-fredoka text-forest-deep focus:outline-none focus:ring-2 focus:ring-gold-border/50"
                                     />
                                     <button
                                         onClick={() => handleDeleteHole(flight)}
                                         disabled={isDeleting}
-                                        className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-orange-200 transition-colors"
+                                        className="px-3 py-1.5 bg-gold-light/30 text-brass rounded-lg text-xs font-bangers disabled:opacity-50 hover:bg-gold-light/50 transition-colors border border-gold-border/30"
                                     >
                                         Borrar Hoyo
                                     </button>
                                     <button
                                         onClick={() => handleDeleteAll(flight)}
                                         disabled={isDeleting}
-                                        className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-red-200 transition-colors ml-auto"
+                                        className="px-3 py-1.5 bg-team-red/10 text-team-red rounded-lg text-xs font-bangers disabled:opacity-50 hover:bg-team-red/20 transition-colors ml-auto border border-team-red/30"
                                     >
                                         Borrar Todo
                                     </button>
@@ -131,8 +130,8 @@ export function AdminSection({ eventId }: { eventId: string }) {
                             </div>
                         ))
                     )}
-                    {error && <p className="text-xs text-red-500">{error}</p>}
-                    {successMsg && <p className="text-xs text-green-600 font-semibold">{successMsg}</p>}
+                    {error && <p className="text-xs text-red-500 font-fredoka">{error}</p>}
+                    {successMsg && <p className="text-xs text-green-600 font-fredoka font-semibold">{successMsg}</p>}
                 </div>
             )}
         </div>

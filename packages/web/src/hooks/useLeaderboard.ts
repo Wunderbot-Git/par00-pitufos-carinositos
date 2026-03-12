@@ -21,6 +21,7 @@ interface Match {
     fourballStatus?: string;
     scrambleStatus?: string;
     matchWinner: 'red' | 'blue' | null;
+    currentLeader: 'red' | 'blue' | null;
     redPlayers: PlayerScore[];
     bluePlayers: PlayerScore[];
     parValues: number[];

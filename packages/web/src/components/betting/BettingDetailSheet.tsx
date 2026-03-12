@@ -15,7 +15,6 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
 
     const [selectedPick, setSelectedPick] = useState<'A' | 'B' | 'AS' | null>(null);
 
-    // Derived states
     const isClosed = match.currentHole > 8 || match.status === 'completed' || match.matchStatus.includes('Won') || match.matchStatus.includes('Lost') || match.matchStatus.includes('&');
     const isLive = match.currentHole > 0 && !isClosed;
     const currentLeader = match.matchLeaders && match.matchLeaders.length > 0
@@ -47,115 +46,113 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
 
     return (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-slate-50 relative w-full rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-up">
+            <div className="bg-cream relative w-full rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-up">
                 <div className="flex justify-center pt-3 pb-2">
-                    <div className="w-12 h-1.5 bg-slate-300 rounded-full" />
+                    <div className="w-12 h-1.5 bg-gold-border/40 rounded-full" />
                 </div>
 
                 <div className="px-5 pb-5 overflow-y-auto">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <h3 className="font-bold text-lg text-slate-800">
+                            <h3 className="font-bangers text-lg text-forest-deep">
                                 {match.segmentType === 'singles1' ? 'Individual 1' : match.segmentType === 'singles2' ? 'Individual 2' : match.segmentType === 'fourball' ? 'Mejor Bola' : 'Scramble'}
                             </h3>
-                            <p className="text-sm text-slate-500 font-medium">{match.flightName}</p>
+                            <p className="text-sm text-forest-deep/50 font-fredoka font-medium">{match.flightName}</p>
                         </div>
                         {match.currentHole > 0 && (
                             <div className="text-right">
-                                <span className="text-sm font-bold bg-white border border-slate-200 shadow-sm px-3 py-1 rounded-lg text-slate-700">
+                                <span className="text-sm font-bangers bg-forest-deep text-gold-light gold-border px-3 py-1 rounded-lg">
                                     {match.matchStatus || 'A/S'}
                                 </span>
-                                <div className="text-xs text-slate-400 mt-1">Hoyo {match.currentHole} de 9</div>
+                                <div className="text-xs text-forest-deep/40 mt-1 font-fredoka">Hoyo {match.currentHole} de 9</div>
                             </div>
                         )}
                     </div>
 
                     {/* Pick Selection */}
-                    <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 mt-6">Tu Pronóstico</div>
+                    <div className="text-xs font-bangers uppercase tracking-wider text-gold-border mb-3 mt-6">Tu Pronóstico</div>
 
                     <div className="flex flex-col gap-3">
                         <button
                             onClick={() => setSelectedPick('A')}
                             disabled={isClosed || (isLive && currentLeader === 'red')}
                             className={`relative p-4 rounded-xl border-2 text-center transition-all ${selectedPick === 'A'
-                                ? 'border-red-500 bg-red-50'
+                                ? 'border-team-red bg-team-red/10'
                                 : (isClosed || (isLive && currentLeader === 'red'))
-                                    ? 'border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed'
-                                    : 'border-slate-200 bg-white hover:border-red-200'
+                                    ? 'border-gold-border/20 bg-forest-deep/5 opacity-60 cursor-not-allowed'
+                                    : 'border-gold-border/30 bg-white hover:border-team-red/50'
                                 }`}
                         >
-                            <div className="font-bold text-red-600">Ganará {redName}</div>
-                            {isLive && currentLeader === 'red' && <span className="text-xs font-medium text-slate-400 bg-slate-200 px-2 py-0.5 rounded mt-1 inline-block">🚫 Líder</span>}
+                            <div className="font-fredoka font-bold text-team-red">Ganará {redName}</div>
+                            {isLive && currentLeader === 'red' && <span className="text-xs font-fredoka font-medium text-forest-deep/40 bg-forest-deep/5 px-2 py-0.5 rounded mt-1 inline-block">Líder</span>}
                         </button>
 
                         <button
                             onClick={() => setSelectedPick('AS')}
                             disabled={isClosed}
                             className={`relative p-4 rounded-xl border-2 text-center transition-all ${selectedPick === 'AS'
-                                ? 'border-slate-800 bg-slate-100'
+                                ? 'border-forest-deep bg-forest-deep/10'
                                 : isClosed
-                                    ? 'border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed'
-                                    : 'border-slate-200 bg-white hover:border-slate-300'
+                                    ? 'border-gold-border/20 bg-forest-deep/5 opacity-60 cursor-not-allowed'
+                                    : 'border-gold-border/30 bg-white hover:border-forest-deep/30'
                                 }`}
                         >
-                            <div className="font-bold text-slate-700">Empate (A/S)</div>
+                            <div className="font-fredoka font-bold text-forest-deep">Empate (A/S)</div>
                         </button>
 
                         <button
                             onClick={() => setSelectedPick('B')}
                             disabled={isClosed || (isLive && currentLeader === 'blue')}
                             className={`relative p-4 rounded-xl border-2 text-center transition-all ${selectedPick === 'B'
-                                ? 'border-team-blue bg-blue-50'
+                                ? 'border-team-blue bg-team-blue/10'
                                 : (isClosed || (isLive && currentLeader === 'blue'))
-                                    ? 'border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed'
-                                    : 'border-slate-200 bg-white hover:border-blue-200'
+                                    ? 'border-gold-border/20 bg-forest-deep/5 opacity-60 cursor-not-allowed'
+                                    : 'border-gold-border/30 bg-white hover:border-team-blue/50'
                                 }`}
                         >
-                            <div className="font-bold text-team-blue">Ganará {blueName}</div>
-                            {isLive && currentLeader === 'blue' && <span className="text-xs font-medium text-slate-400 bg-slate-200 px-2 py-0.5 rounded mt-1 inline-block">🚫 Líder</span>}
+                            <div className="font-fredoka font-bold text-team-blue">Ganará {blueName}</div>
+                            {isLive && currentLeader === 'blue' && <span className="text-xs font-fredoka font-medium text-forest-deep/40 bg-forest-deep/5 px-2 py-0.5 rounded mt-1 inline-block">Líder</span>}
                         </button>
                     </div>
 
-                    {/* Comment + Confirm — appears when a pick is selected */}
                     {selectedPick && (
                         <div className="mt-6 flex flex-col gap-4">
-                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                                <p className="text-xs text-amber-800 font-medium">⚠️ Compromiso de Honor</p>
-                                <p className="text-[11px] text-amber-700 mt-1">
+                            <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
+                                <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
+                                <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
                                     Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.
                                 </p>
                             </div>
 
-                            {error && <div className="text-red-500 text-sm font-medium text-center">{error}</div>}
+                            {error && <div className="text-team-red text-sm font-fredoka font-medium text-center">{error}</div>}
 
                             <button
                                 onClick={handleConfirm}
                                 disabled={isSubmitting}
-                                className={`w-full text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-slate-500 cursor-wait' : 'bg-slate-800 hover:bg-slate-700'}`}
+                                className={`w-full font-bangers text-lg py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
                             >
                                 {isSubmitting ? 'Cargando...' : 'Confirmar Apuesta'}
                             </button>
                         </div>
                     )}
 
-                    {/* Pot Summary */}
                     {betsData && betsData.bets.length > 0 && (
                         <div className="mt-8">
-                            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex justify-between">
+                            <div className="text-xs font-bangers uppercase tracking-wider text-forest-deep/50 mb-3 flex justify-between">
                                 <span>Apuestas en esta partida</span>
-                                <span className="text-amber-500 font-bold">Pozo: {formatCurrency(betsData.pot)}</span>
+                                <span className="text-brass font-bold">Pozo: {formatCurrency(betsData.pot)}</span>
                             </div>
                             <div className="space-y-2">
                                 {betsData.bets.map(b => (
-                                    <div key={b.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm text-sm flex justify-between items-center">
+                                    <div key={b.id} className="bg-white p-3 rounded-lg gold-border text-sm flex justify-between items-center">
                                         <div>
-                                            <span className="font-medium text-slate-700">{b.pickedOutcome === 'A' ? redName : b.pickedOutcome === 'B' ? blueName : 'Empate'}</span>
-                                            {b.comment && <div className="text-xs text-slate-500 italic mt-0.5">"{b.comment}"</div>}
+                                            <span className="font-fredoka font-medium text-forest-deep">{b.pickedOutcome === 'A' ? redName : b.pickedOutcome === 'B' ? blueName : 'Empate'}</span>
+                                            {b.comment && <div className="text-xs text-forest-deep/40 italic mt-0.5 font-fredoka">"{b.comment}"</div>}
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-xs text-slate-400">{b.partes} partes</div>
+                                            <div className="text-xs text-forest-deep/40 font-fredoka">{b.partes} partes</div>
                                         </div>
                                     </div>
                                 ))}

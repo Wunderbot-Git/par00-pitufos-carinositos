@@ -9,14 +9,14 @@ export function Input({ label, error, className = '', ...props }: InputProps) {
     return (
         <div className="flex flex-col gap-1">
             {label && (
-                <label className="text-sm font-medium text-gray-700">{label}</label>
+                <label className="text-sm font-bangers text-forest-deep">{label}</label>
             )}
             <input
-                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-team-blue ${error ? 'border-red-500' : 'border-gray-300'
+                className={`w-full p-3 border-2 rounded-lg font-fredoka focus:outline-none focus:ring-2 focus:ring-gold-border ${error ? 'border-team-red' : 'border-gold-border/30'
                     } ${className}`}
                 {...props}
             />
-            {error && <span className="text-sm text-red-500">{error}</span>}
+            {error && <span className="text-sm text-team-red font-fredoka">{error}</span>}
         </div>
     );
 }

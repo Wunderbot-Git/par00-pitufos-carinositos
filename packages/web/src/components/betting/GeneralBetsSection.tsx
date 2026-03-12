@@ -34,32 +34,37 @@ function OutcomeButton({ outcome, label, isSelected, isMyPick, partes, onClick, 
     outcome: string; label: string; isSelected: boolean; isMyPick: boolean;
     partes: number; onClick: () => void; disabled: boolean;
 }) {
-    const teamColor = outcome === 'red' ? 'rose' : outcome === 'blue' ? 'blue' : 'slate';
-    const isTeam = outcome === 'red' || outcome === 'blue';
+    const isRed = outcome === 'red';
+    const isBlue = outcome === 'blue';
+
+    let borderClass = 'border-gold-border/30 bg-white hover:border-gold-border/60';
+    let textClass = 'text-forest-deep';
+
+    if (isMyPick) {
+        borderClass = isRed ? 'border-team-red bg-team-red/10 ring-2 ring-team-red/30'
+            : isBlue ? 'border-team-blue bg-team-blue/10 ring-2 ring-team-blue/30'
+            : 'border-forest-deep bg-forest-deep/10 ring-2 ring-forest-deep/20';
+    } else if (isSelected) {
+        borderClass = isRed ? 'border-team-red/50 bg-team-red/5'
+            : isBlue ? 'border-team-blue/50 bg-team-blue/5'
+            : 'border-forest-deep/30 bg-forest-deep/5';
+    }
+
+    if (isRed) textClass = 'text-team-red';
+    else if (isBlue) textClass = 'text-team-blue';
 
     return (
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`
-                flex-1 rounded-lg p-3 text-center border-2 transition-all
-                ${isMyPick
-                    ? `border-${teamColor}-500 bg-${teamColor}-50 ring-2 ring-${teamColor}-200`
-                    : isSelected
-                        ? `border-${teamColor}-300 bg-${teamColor}-50`
-                        : 'border-slate-200 bg-white hover:border-slate-300'
-                }
-                ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-            `}
+            className={`flex-1 rounded-lg p-3 text-center border-2 transition-all ${borderClass} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
-            <div className={`text-sm font-bold ${isTeam ? `text-${teamColor}-600` : 'text-slate-700'}`}>
-                {label}
-            </div>
+            <div className={`text-sm font-fredoka font-bold ${textClass}`}>{label}</div>
             {partes > 0 && (
-                <div className="text-[10px] text-slate-400 mt-1">{partes} partes</div>
+                <div className="text-[10px] text-forest-deep/40 mt-1 font-fredoka">{partes} partes</div>
             )}
             {isMyPick && (
-                <div className="text-[9px] font-bold text-green-600 mt-1 uppercase">Tu apuesta</div>
+                <div className="text-[9px] font-bangers text-green-600 mt-1 uppercase">Tu apuesta</div>
             )}
         </button>
     );
@@ -77,7 +82,6 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
 
     const isPlayerBet = pool.betType === 'mvp' || pool.betType === 'worst_player';
 
-    // Parse player lists from "id:name" format for player-based bets
     const allPlayers = isPlayerBet
         ? [...(pool.redPlayerNames || []), ...(pool.bluePlayerNames || [])].map(s => {
             const [id, ...nameParts] = s.split(':');
@@ -90,7 +94,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
         : pool.betType === 'early_close' ? ['yes', 'no']
         : pool.betType === 'flight_winner' ? ['red', 'blue', 'tie']
         : pool.betType === 'flight_sweep' ? ['red', 'blue']
-        : ['red', 'blue']; // biggest_blowout fallback
+        : ['red', 'blue'];
 
     const getPlayerName = (id: string) => allPlayers.find(p => p.id === id)?.name || id;
     const getPlayerTeam = (id: string) => allPlayers.find(p => p.id === id)?.team;
@@ -112,33 +116,33 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
     };
 
     return (
-        <div className={`bg-white rounded-xl border shadow-sm overflow-hidden ${pool.isResolved ? 'border-slate-200 opacity-80' : 'border-slate-200'}`}>
+        <div className={`bg-cream gold-border rounded-xl overflow-hidden ${pool.isResolved ? 'opacity-80' : ''}`}>
             <button
                 onClick={() => !pool.isResolved && setExpanded(!expanded)}
                 className="w-full flex items-center justify-between p-4 text-left"
             >
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-slate-800">{meta.title}</h3>
+                        <h3 className="text-sm font-bangers text-forest-deep">{meta.title}</h3>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{meta.description}</p>
+                    <p className="text-[11px] text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1 ml-3">
                     {pool.pot > 0 && (
-                        <span className="text-xs font-bold text-amber-600">{formatCurrency(pool.pot)}</span>
+                        <span className="text-xs font-bangers text-brass">{formatCurrency(pool.pot)}</span>
                     )}
                     {pool.betsCount > 0
-                        ? <span className="text-[10px] text-green-500 font-bold">Apostado ✓</span>
-                        : <span className="text-[10px] text-slate-400">Pendiente</span>
+                        ? <span className="text-[10px] text-green-600 font-bangers">Apostado ✓</span>
+                        : <span className="text-[10px] text-forest-deep/30 font-fredoka">Pendiente</span>
                     }
                     {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
                         const winTeam = isPlayerBet ? getPlayerTeam(pool.winningOutcome) : null;
                         const winLabel = isPlayerBet ? getPlayerName(pool.winningOutcome) : (OUTCOME_LABELS[pool.winningOutcome] || pool.winningOutcome);
                         const winColor = isPlayerBet
-                            ? (winTeam === 'red' ? 'bg-rose-100 text-rose-600' : winTeam === 'blue' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600')
-                            : (pool.winningOutcome === 'red' ? 'bg-rose-100 text-rose-600' : pool.winningOutcome === 'blue' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600');
+                            ? (winTeam === 'red' ? 'bg-team-red/15 text-team-red' : winTeam === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60')
+                            : (pool.winningOutcome === 'red' ? 'bg-team-red/15 text-team-red' : pool.winningOutcome === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60');
                         return (
-                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${winColor}`}>
+                            <span className={`text-[9px] font-bangers uppercase px-2 py-0.5 rounded ${winColor}`}>
                                 {winLabel}
                             </span>
                         );
@@ -149,12 +153,12 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
             {hasBet && !expanded && (() => {
                 const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
                 const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
-                const colorKey = isPlayerBet ? (pickedTeam || 'slate') : myBet.pickedOutcome;
-                const bgClass = colorKey === 'red' ? 'bg-rose-50 text-rose-600' : colorKey === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600';
-                const dotClass = colorKey === 'red' ? 'bg-rose-500' : colorKey === 'blue' ? 'bg-blue-500' : 'bg-slate-400';
+                const colorKey = isPlayerBet ? (pickedTeam || 'neutral') : myBet.pickedOutcome;
+                const bgClass = colorKey === 'red' ? 'bg-team-red/10 text-team-red' : colorKey === 'blue' ? 'bg-team-blue/10 text-team-blue' : 'bg-forest-mid/10 text-forest-deep/60';
+                const dotClass = colorKey === 'red' ? 'bg-team-red' : colorKey === 'blue' ? 'bg-team-blue' : 'bg-forest-mid';
                 return (
                     <div className="px-4 pb-3 -mt-1">
-                        <div className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2 py-1 rounded ${bgClass}`}>
+                        <div className={`inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded ${bgClass}`}>
                             <div className={`w-1.5 h-4 rounded-full ${dotClass}`} />
                             Tu apuesta: {displayOutcome}
                         </div>
@@ -163,12 +167,11 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
             })()}
 
             {expanded && !hasBet && !pool.isResolved && (
-                <div className="px-4 pb-4 border-t border-slate-100 pt-3">
+                <div className="px-4 pb-4 border-t border-gold-border/20 pt-3">
                     {isPlayerBet ? (
                         <div className="flex flex-col gap-1.5 mb-3 max-h-60 overflow-y-auto">
                             {allPlayers.map(p => {
                                 const isSelected = selectedOutcome === p.id;
-                                const teamColor = p.team === 'red' ? 'rose' : 'blue';
                                 return (
                                     <button
                                         key={p.id}
@@ -176,14 +179,14 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                                         disabled={isSubmitting}
                                         className={`flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-all text-left
                                             ${isSelected
-                                                ? `border-${teamColor}-400 bg-${teamColor}-50`
-                                                : 'border-slate-100 bg-white hover:border-slate-200'
+                                                ? p.team === 'red' ? 'border-team-red/50 bg-team-red/5' : 'border-team-blue/50 bg-team-blue/5'
+                                                : 'border-gold-border/20 bg-white hover:border-gold-border/40'
                                             }
                                         `}
                                     >
-                                        <span className={`text-sm font-bold text-${teamColor}-600`}>{p.name}</span>
+                                        <span className={`text-sm font-fredoka font-bold ${p.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>{p.name}</span>
                                         {(pool.outcomePartes[p.id] || 0) > 0 && (
-                                            <span className="text-[10px] text-slate-400">{pool.outcomePartes[p.id]} partes</span>
+                                            <span className="text-[10px] text-forest-deep/40 font-fredoka">{pool.outcomePartes[p.id]} partes</span>
                                         )}
                                     </button>
                                 );
@@ -208,19 +211,19 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
 
                     {selectedOutcome && (
                         <div className="flex flex-col gap-3 mt-2">
-                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                                <p className="text-xs text-amber-800 font-medium">⚠️ Compromiso de Honor</p>
-                                <p className="text-[11px] text-amber-700 mt-1">
+                            <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
+                                <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
+                                <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
                                     Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.
                                 </p>
                             </div>
 
-                            {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+                            {error && <p className="text-team-red text-xs text-center font-fredoka">{error}</p>}
 
                             <button
                                 onClick={handlePlace}
                                 disabled={isSubmitting}
-                                className="w-full py-3 rounded-xl bg-slate-800 text-white text-sm font-bold disabled:opacity-50 shadow-lg"
+                                className="w-full py-3 rounded-xl bevel-button font-bangers text-sm disabled:opacity-50 shadow-lg"
                             >
                                 {isSubmitting ? 'Guardando...' : 'Confirmar Apuesta'}
                             </button>
@@ -234,7 +237,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
 
 export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter = 'all' }: Props) {
     if (!pools || pools.length === 0) {
-        return <p className="text-center text-slate-400 text-sm py-8">No hay apuestas generales disponibles.</p>;
+        return <p className="text-center text-cream/50 text-sm py-8 font-fredoka">No hay apuestas generales disponibles.</p>;
     }
 
     const filterPool = (pool: GeneralBetPool) => {
@@ -243,10 +246,8 @@ export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter
         return filter === 'placed' ? hasBet : !hasBet;
     };
 
-    // Tournament-level pools
     const tournamentPools = pools.filter(p => ['tournament_winner', 'any_halve', 'biggest_blowout', 'mvp', 'worst_player'].includes(p.betType)).filter(filterPool);
 
-    // Flight pools grouped by flightId
     const flightPools = pools.filter(p => ['flight_winner', 'flight_sweep', 'early_close'].includes(p.betType)).filter(filterPool);
     const flightGroups: Record<string, { name: string; redPlayers: string[]; bluePlayers: string[]; pools: GeneralBetPool[] }> = {};
     flightPools.forEach(p => {
@@ -274,27 +275,25 @@ export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter
 
     return (
         <div className="flex flex-col gap-5">
-            {/* Tournament-level bets */}
             {tournamentPools.length > 0 && (
-                <div className="bg-slate-100/80 rounded-xl p-3 pt-3">
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 px-1">Torneo General</h3>
+                <div className="bg-forest-deep/50 gold-border rounded-xl p-3 pt-3">
+                    <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest mb-3 px-1">Torneo General</h3>
                     <div className="flex flex-col gap-2">
                         {tournamentPools.map(renderCard)}
                     </div>
                 </div>
             )}
 
-            {/* Per-flight bets, grouped by flight */}
             {Object.entries(flightGroups).map(([flightId, group]) => (
-                <div key={flightId} className="bg-slate-100/80 rounded-xl p-3 pt-3">
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 px-1">
+                <div key={flightId} className="bg-forest-deep/50 gold-border rounded-xl p-3 pt-3">
+                    <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest mb-1 px-1">
                         {group.name}
                     </h3>
                     {(group.redPlayers.length > 0 || group.bluePlayers.length > 0) && (
                         <div className="flex items-center gap-2 px-1 mb-3 text-sm">
-                            <span className="text-rose-500 font-bold">{group.redPlayers.join(', ')}</span>
-                            <span className="text-slate-500 font-semibold">vs</span>
-                            <span className="text-blue-500 font-bold">{group.bluePlayers.join(', ')}</span>
+                            <span className="text-team-red font-fredoka font-bold">{group.redPlayers.join(', ')}</span>
+                            <span className="text-cream/40 font-bangers">vs</span>
+                            <span className="text-team-blue font-fredoka font-bold">{group.bluePlayers.join(', ')}</span>
                         </div>
                     )}
                     <div className="flex flex-col gap-2">

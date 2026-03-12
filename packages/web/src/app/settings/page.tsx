@@ -17,9 +17,9 @@ export default function SettingsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
+            <div className="flex flex-col min-h-screen pb-20">
                 <div className="flex items-center justify-center p-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-team-blue"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-border"></div>
                 </div>
             </div>
         );

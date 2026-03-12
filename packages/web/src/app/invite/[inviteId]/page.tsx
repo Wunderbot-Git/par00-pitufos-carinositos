@@ -58,19 +58,19 @@ export default function InviteClaimPage() {
         }
     };
 
-    if (isLoading || authLoading) return <div className="p-8 text-center text-gray-500">Verifying invite...</div>;
+    if (isLoading || authLoading) return <div className="p-8 text-center text-cream/50 font-fredoka">Verificando invitación...</div>;
 
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md w-full text-center">
-                    <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-cream gold-border rounded-2xl p-8 max-w-md w-full text-center">
+                    <svg className="w-12 h-12 text-team-red mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <h2 className="text-lg font-bold text-red-800 mb-2">Oops!</h2>
-                    <p className="text-red-600">{error}</p>
-                    <Link href="/" className="mt-6 inline-block text-team-blue hover:underline">
-                        Return to Home
+                    <h2 className="text-lg font-bangers text-forest-deep mb-2">Oops!</h2>
+                    <p className="text-team-red font-fredoka">{error}</p>
+                    <Link href="/" className="mt-6 inline-block text-gold-border hover:underline font-fredoka">
+                        Volver al inicio
                     </Link>
                 </div>
             </div>
@@ -81,49 +81,49 @@ export default function InviteClaimPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[70vh] p-4">
-            <div className="bg-white border rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
-                <div className="w-16 h-16 bg-blue-100 text-team-blue rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-cream/90 backdrop-blur-sm gold-border rounded-2xl p-8 max-w-md w-full text-center">
+                <div className="w-16 h-16 bg-forest-deep/10 text-forest-deep rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-gold-border/30">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                     </svg>
                 </div>
 
-                <h1 className="text-2xl font-bold mb-2">You're Invited!</h1>
-                <p className="text-gray-600 mb-6 flex flex-col gap-1">
-                    <span>You have been invited to play as:</span>
-                    <strong className="text-xl text-gray-900">{inviteDetails.playerName}</strong>
+                <h1 className="text-2xl font-bangers metallic-text mb-2">Estás Invitado!</h1>
+                <p className="text-forest-deep/60 mb-6 flex flex-col gap-1 font-fredoka">
+                    <span>Has sido invitado a jugar como:</span>
+                    <strong className="text-xl text-forest-deep">{inviteDetails.playerName}</strong>
                     {inviteDetails.eventName && (
-                        <span>in <span className="font-semibold text-team-blue">{inviteDetails.eventName}</span></span>
+                        <span>en <span className="font-bold text-brass">{inviteDetails.eventName}</span></span>
                     )}
                 </p>
 
-                <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 mb-8 text-sm text-gray-600">
-                    By claiming this profile, your account will be linked to this player's stats and scoring permissions.
+                <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-4 mb-8 text-sm text-forest-deep/60 font-fredoka">
+                    Al reclamar este perfil, tu cuenta será vinculada a las estadísticas y permisos de puntuación de este jugador.
                 </div>
 
                 {!user ? (
                     <div className="space-y-4">
-                        <p className="text-sm text-gray-500 font-medium">Please log in or sign up to claim your profile.</p>
+                        <p className="text-sm text-forest-deep/50 font-fredoka font-medium">Inicia sesión o regístrate para reclamar tu perfil.</p>
                         <div className="flex gap-3">
-                            <Link href={`/login?redirect=/invite/${inviteId}`} className="flex-1 bg-team-blue text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-                                Log In
+                            <Link href={`/login?redirect=/invite/${inviteId}`} className="flex-1 bevel-button text-center py-3 rounded-xl font-bangers">
+                                Iniciar Sesión
                             </Link>
-                            <Link href={`/signup?redirect=/invite/${inviteId}`} className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-50 transition">
-                                Sign Up
+                            <Link href={`/signup?redirect=/invite/${inviteId}`} className="flex-1 bg-cream border-2 border-gold-border/30 text-forest-deep py-3 rounded-xl font-bangers hover:bg-gold-light/20 transition">
+                                Registrarse
                             </Link>
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <p className="text-sm text-gray-500 mb-4">
-                            Logged in as <strong className="text-gray-900">{user.email}</strong>.
+                        <p className="text-sm text-forest-deep/50 mb-4 font-fredoka">
+                            Conectado como <strong className="text-forest-deep">{user.email}</strong>.
                         </p>
                         <button
                             onClick={handleClaim}
                             disabled={isClaiming}
-                            className="w-full bg-team-blue text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50"
+                            className="w-full bevel-button py-3.5 rounded-xl font-bangers text-lg disabled:opacity-50"
                         >
-                            {isClaiming ? 'Claiming...' : 'Claim Profile Now'}
+                            {isClaiming ? 'Reclamando...' : 'Reclamar Perfil'}
                         </button>
                     </div>
                 )}
