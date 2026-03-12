@@ -17,6 +17,7 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=8080
 
 COPY package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
@@ -31,6 +32,6 @@ COPY --from=builder /app/packages/api/migrations ./packages/api/migrations
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
 
-EXPOSE 3002
+EXPOSE 8080
 WORKDIR /app/packages/api
 CMD ["node", "dist/src/index.js"]
