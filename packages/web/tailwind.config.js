@@ -8,8 +8,9 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'team-red': '#ea4335',
-                'team-blue': '#4285f4',
+                'team-red': '#E75480',
+                'team-blue': '#4A90D9',
+                'scorecard-navy': '#1a1a3e',
                 'forest-deep': '#0a4030',
                 'forest-mid': '#147255',
                 'gold-border': '#fbbc05',

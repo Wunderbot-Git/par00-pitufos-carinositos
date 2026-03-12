@@ -69,8 +69,8 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
     let leftDim  = isFinal && isRedWin;
     let rightDim = isFinal && isBlueWin;
 
-    // Left (blue/Pitufos) border: gold always, muted when losing
-    const leftBorderColor  = isFinal && isRedWin ? MUTED : GOLD;
+    // Left (blue/Pitufos) border: blue team color, muted when losing
+    const leftBorderColor  = isFinal && isRedWin ? MUTED : '#4A90D9';
     // Right (red/Cariñositos) border: pink always, muted when losing
     const rightBorderColor = isFinal && isBlueWin ? MUTED : PINK;
 
@@ -111,38 +111,40 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 <div
                     className="flex flex-col items-center justify-center py-2 px-2 relative"
                     style={{
-                        background: 'transparent',
+                        background: isNotStarted ? 'transparent' : 'rgba(74,144,217,0.08)',
                         borderLeft: `3px solid ${leftBorderColor}`,
                         opacity: leftDim ? 0.55 : 1,
                         transition: 'opacity 0.2s',
                     }}
                 >
-                    {/* Winner crown */}
-                    {isFinal && isBlueWin && (
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2">
-                            <span style={{ fontSize: 14 }}>👑</span>
-                        </div>
-                    )}
-
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center mt-1 flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
+                    <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.bluePlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
                             const size = match.bluePlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
                             return (
-                                <div key={i} className={`${size} flex-shrink-0`}>
+                                <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
-                                        src={`/images/${avatarName}.png`}
+                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.png` : `/images/${avatarName}.png`}
                                         alt={p.playerName}
-                                        onError={(e) => { (e.target as HTMLImageElement).src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.png'; }}
+                                        onError={(e) => {
+                                            const img = e.target as HTMLImageElement;
+                                            if (img.src.includes('-winner.png')) {
+                                                img.src = `/images/${avatarName}.png`;
+                                            } else {
+                                                img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.png';
+                                            }
+                                        }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
+                                    {isFinal && isBlueWin && (
+                                        <img src="/images/winner-star2.png" alt="Winner" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
-
 
                     {/* Player names */}
                     <div className="flex flex-col items-center mt-1 w-full">
@@ -150,7 +152,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             <div
                                 key={i}
                                 className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                style={{ color: isNotStarted ? '#aaa' : '#1a1a3e', fontWeight: 700 }}
+                                style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
                             >
                                 {p.playerName.split(' ')[0]}
                                 <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>
@@ -217,38 +219,40 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 <div
                     className="flex flex-col items-center justify-center py-2 px-2 relative"
                     style={{
-                        background: 'transparent',
+                        background: isNotStarted ? 'transparent' : 'rgba(231,84,128,0.08)',
                         borderRight: `3px solid ${rightBorderColor}`,
                         opacity: rightDim ? 0.55 : 1,
                         transition: 'opacity 0.2s',
                     }}
                 >
-                    {/* Winner crown */}
-                    {isFinal && isRedWin && (
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2">
-                            <span style={{ fontSize: 14 }}>👑</span>
-                        </div>
-                    )}
-
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center mt-1 flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
+                    <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.redPlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
                             const size = match.redPlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
                             return (
-                                <div key={i} className={`${size} flex-shrink-0`}>
+                                <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
-                                        src={`/images/${avatarName}.png`}
+                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.png` : `/images/${avatarName}.png`}
                                         alt={p.playerName}
-                                        onError={(e) => { (e.target as HTMLImageElement).src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.png'; }}
+                                        onError={(e) => {
+                                            const img = e.target as HTMLImageElement;
+                                            if (img.src.includes('-winner.png')) {
+                                                img.src = `/images/${avatarName}.png`;
+                                            } else {
+                                                img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.png';
+                                            }
+                                        }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
+                                    {isFinal && isRedWin && (
+                                        <img src="/images/winner-star2.png" alt="Winner" className="absolute -top-3 -right-3 w-8 h-8 sm:w-9 sm:h-9 z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8)) drop-shadow(0 0 16px rgba(255,200,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
-
 
                     {/* Player names */}
                     <div className="flex flex-col items-center mt-1 w-full">
@@ -256,7 +260,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             <div
                                 key={i}
                                 className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                style={{ color: isNotStarted ? '#aaa' : '#1a1a3e', fontWeight: 700 }}
+                                style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
                             >
                                 {p.playerName.split(' ')[0]}
                                 <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>

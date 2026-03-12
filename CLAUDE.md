@@ -70,9 +70,17 @@ API starts in `src/index.ts` → builds app from `src/app.ts` → runs migration
 - **Events** — tournaments with members, courses, flights
 - **Flights** — groups of 4 players playing together
 - **Segments** — front 9 (individual play) and back 9 (scramble)
-- **Teams** — Red vs Blue (CSS vars: `--team-red`, `--team-blue`)
+- **Teams** — Red (Cariñositos) vs Blue (Pitufos)
+  - Cariñositos: `#E75480` (CSS var `--team-red`, Tailwind `team-red`)
+  - Pitufos: `#4A90D9` (CSS var `--team-blue`, Tailwind `team-blue`)
 - **Match play scoring** — not stroke play; points from head-to-head match results
 - **Spectator tokens** — public read-only leaderboard access without auth
+
+### Player Avatars & Winner Assets
+- Avatar images: `packages/web/public/images/{normalized-name}.png` (e.g. `pulido.png`)
+- Winner avatars (optional): `{name}-winner.png` (e.g. `pulido-winner.png`) — shown when a player wins a match. Falls back to normal avatar if missing.
+- Winner star badge: `packages/web/public/images/winner-star2.png` — gold star with glow, displayed on winner's avatar corner
+- Name normalization: first name → lowercase → strip accents → alphanumeric only (see `normalizeName()` in `MatchCard.tsx`)
 
 ## Database
 

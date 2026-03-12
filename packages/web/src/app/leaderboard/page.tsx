@@ -345,7 +345,17 @@ export default function LeaderboardPage() {
                                                                 onClick={() => setExpandedMatch(expandedMatch === match.id ? null : match.id)}
                                                             />
                                                             {expandedMatch === match.id && (
-                                                                <div className="bg-white thick-border rounded-2xl p-4 mt-2 overflow-x-auto">
+                                                                <div
+                                                                    className="rounded-2xl p-4 mt-2 overflow-x-auto"
+                                                                    style={{
+                                                                        background: 'rgba(255,255,255,0.85)',
+                                                                        backdropFilter: 'blur(12px)',
+                                                                        WebkitBackdropFilter: 'blur(12px)',
+                                                                        borderRadius: 16,
+                                                                        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                                                                        border: '1px solid rgba(255,255,255,0.9)',
+                                                                    }}
+                                                                >
                                                                     <DetailedScorecard
                                                                         match={match}
                                                                         onClose={() => setExpandedMatch(null)}

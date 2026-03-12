@@ -25,56 +25,78 @@ function ScoreCell({
     par,
     strokes,
     team,
-    isWinner
+    isWinner,
+    isLoser,
 }: {
     score: number | null;
     par: number;
     strokes: number;
     team: 'red' | 'blue';
     isWinner?: boolean;
+    isLoser?: boolean;
 }) {
-    const textColor = team === 'red' ? 'text-team-red' : 'text-team-blue';
-    const dots = Array(strokes).fill('●').join('');
-    const winnerBg = isWinner ? (team === 'red' ? 'bg-red-50 ring-1 ring-gold-border' : 'bg-blue-50 ring-1 ring-gold-border') : '';
-    const winnerBorder = isWinner ? 'rounded-full' : '';
+    const dots = Array(strokes).fill('\u25CF').join('');
 
-    return (
-        <td className="p-0 text-center relative">
-            {score !== null ? (
-                <div className={`inline-flex items-center justify-center w-5 h-5 text-sm ${winnerBorder} ${winnerBg} ${textColor}`}>
-                    <span className="font-bold leading-none font-fredoka">{score}</span>
-                </div>
-            ) : (
-                <span className="text-gold-border/30">-</span>
-            )}
-            {strokes > 0 && (
-                <span className="absolute top-0 right-0 text-[6px] text-gold-border/60 tracking-tighter" style={{ lineHeight: '0.8', right: '2px', top: '1px' }}>{dots}</span>
-            )}
-        </td>
-    );
-}
-
-function MatchStatusCell({ status }: { status: string }) {
-    const isRedUp = status.includes('UP') && !status.includes('DN');
-    const isBlueUp = status.includes('DN');
-    const isAllSquare = status === 'AS' || status === 'A/S';
-
-    let bgColor = 'bg-forest-mid/30';
-    let textColor = 'text-cream';
-
-    if (isRedUp) {
-        bgColor = 'bg-team-red/20';
-        textColor = 'text-team-red';
-    } else if (isBlueUp) {
-        bgColor = 'bg-team-blue/20';
-        textColor = 'text-team-blue';
+    if (score === null) {
+        return (
+            <td className="p-0 text-center relative">
+                <span className="text-gray-300 text-[10px] font-fredoka">-</span>
+                {strokes > 0 && (
+                    <span className="absolute top-0 right-0 text-[6px] text-gray-300 tracking-tighter" style={{ lineHeight: '0.8', right: '2px', top: '1px' }}>{dots}</span>
+                )}
+            </td>
+        );
     }
 
-    const displayStatus = status.replace('DN', 'UP');
+    const netScore = score - strokes;
+    const isBirdie = netScore < par;
+    const isBogey = netScore > par;
+
+    // Background for won holes
+    let cellBg = '';
+    if (isWinner) {
+        cellBg = team === 'red'
+            ? 'rgba(231,84,128,0.15)'
+            : 'rgba(74,144,217,0.15)';
+    }
+
+    // Text color and weight
+    let textColor = team === 'red' ? '#E75480' : '#4A90D9';
+    let fontWeight = 'normal';
+    if (isWinner) {
+        fontWeight = 'bold';
+    } else if (isLoser) {
+        textColor = team === 'red' ? 'rgba(231,84,128,0.4)' : 'rgba(74,144,217,0.4)';
+    }
 
     return (
-        <td className={`px-2 py-1 text-center text-xs font-bangers ${bgColor} ${textColor}`}>
-            {isAllSquare ? 'AS' : displayStatus}
+        <td className="p-0 text-center relative" style={{ backgroundColor: cellBg }}>
+            <div className="inline-flex items-center justify-center w-6 h-6 relative">
+                {/* Birdie circle indicator */}
+                {isBirdie && (
+                    <div
+                        className="absolute w-5 h-5 rounded-full"
+                        style={{
+                            backgroundColor: team === 'red' ? 'rgba(231,84,128,0.2)' : 'rgba(74,144,217,0.2)',
+                            border: `1px solid ${team === 'red' ? '#E75480' : '#4A90D9'}`,
+                        }}
+                    />
+                )}
+                {/* Bogey square indicator */}
+                {isBogey && (
+                    <div
+                        className="absolute w-5 h-5 rounded-[2px]"
+                        style={{
+                            backgroundColor: team === 'red' ? 'rgba(231,84,128,0.1)' : 'rgba(74,144,217,0.1)',
+                            border: `1px solid ${team === 'red' ? 'rgba(231,84,128,0.35)' : 'rgba(74,144,217,0.35)'}`,
+                        }}
+                    />
+                )}
+                <span className="relative z-10 text-sm leading-none font-fredoka" style={{ color: textColor, fontWeight }}>{score}</span>
+            </div>
+            {strokes > 0 && (
+                <span className="absolute top-0 right-0 text-[6px] text-gray-400 tracking-tighter" style={{ lineHeight: '0.8', right: '2px', top: '1px' }}>{dots}</span>
+            )}
         </td>
     );
 }
@@ -99,84 +121,76 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
         const holeWinnersChunk = match.holeWinners ? match.holeWinners.slice(start, end) : [];
         const isOut = label.includes('FRONT');
 
-        let headerColor = 'bg-forest-deep';
-        if (match.matchWinner === 'red') {
-            headerColor = 'bg-team-red';
-        } else if (match.matchWinner === 'blue') {
-            headerColor = 'bg-team-blue';
-        } else {
-            if (match.matchStatus.includes('DN')) {
-                headerColor = 'bg-team-blue';
-            } else if (match.matchStatus.includes('UP')) {
-                headerColor = 'bg-team-red';
-            }
-        }
+        // Track row index for alternating backgrounds
+        let rowIdx = 0;
 
         return (
             <div className="mb-0">
-                <div className="overflow-x-auto rounded-lg gold-border">
-                    <table className="w-full text-xs border-collapse">
+                <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <table className="w-full text-xs" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
                         <thead>
-                            <tr className={`${headerColor} text-white`}>
-                                <th className="p-1.5 text-left font-bangers w-16 pl-2 text-xs">Hoyo</th>
+                            <tr style={{ backgroundColor: '#1a1a3e' }}>
+                                <th className="p-1.5 text-left font-bangers w-16 pl-2 text-xs text-white font-bold rounded-tl-lg">Hoyo</th>
                                 {holes.map(h => (
-                                    <th key={h} className="p-1 text-center font-bangers text-xs w-[8%] min-w-[20px]">{h}</th>
+                                    <th key={h} className="p-1 text-center font-bangers text-xs w-[8%] min-w-[20px] text-white font-bold">{h}</th>
                                 ))}
-                                <th className="p-1.5 text-center font-bangers w-10 text-[10px] sm:text-xs">{isOut ? 'Out' : 'In'}</th>
+                                <th className="p-1.5 text-center font-bangers w-10 text-[10px] sm:text-xs text-white font-bold rounded-tr-lg">{isOut ? 'Out' : 'In'}</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-cream">
+                        <tbody>
                             {/* Par row */}
-                            <tr className="border-b last:border-0 border-gold-border/20">
-                                <td className="p-1.5 font-bangers text-forest-deep pl-2 text-[10px] uppercase tracking-wider">Par</td>
+                            <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                <td className="p-1.5 font-fredoka text-gray-400 pl-2 text-[9px] uppercase tracking-wider font-normal">Par</td>
                                 {pars.map((p, i) => (
-                                    <td key={i} className="p-0.5 text-center text-forest-deep font-fredoka font-medium text-[10px]">{p}</td>
+                                    <td key={i} className="p-0.5 text-center text-gray-400 font-fredoka font-normal text-[9px]">{p}</td>
                                 ))}
-                                <td className="p-1.5 text-center font-bangers text-forest-deep text-xs">
+                                <td className="p-1.5 text-center font-fredoka text-gray-400 text-[10px]">
                                     {pars.reduce((a, b) => a + b, 0)}
                                 </td>
                             </tr>
 
                             {/* HCP row */}
-                            <tr className="border-b last:border-0 border-gold-border/20 bg-gold-light/10">
-                                <td className="p-1.5 font-fredoka font-medium text-gold-border pl-2 text-[10px] uppercase tracking-wider italic">Hcp</td>
+                            <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                <td className="p-1.5 font-fredoka font-normal text-gray-300 pl-2 text-[9px] uppercase tracking-wider italic">Hcp</td>
                                 {hcps.map((h, i) => (
-                                    <td key={i} className="p-0.5 text-center text-gold-border/70 text-[10px] italic font-fredoka">{h}</td>
+                                    <td key={i} className="p-0.5 text-center text-gray-300 text-[9px] italic font-fredoka">{h}</td>
                                 ))}
-                                <td className="p-1.5 text-center text-gold-border/70"></td>
+                                <td className="p-1.5 text-center text-gray-300"></td>
                             </tr>
 
                             {/* Player Rows */}
                             {match.segmentType === 'scramble' ? (
                                 <>
-                                    <tr className="border-b last:border-0 border-gold-border/20">
-                                        <td className="p-1.5 text-team-red font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs">
+                                    <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                        <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
                                             {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
                                         </td>
                                         {match.redPlayers[0]?.scores.slice(start, end).map((score, i) => {
                                             const isWinner = holeWinnersChunk[i] === 'red';
+                                            const isLoser = holeWinnersChunk[i] === 'blue';
                                             const strokes = match.redTeamStrokes ? match.redTeamStrokes[start + i] : 0;
                                             return (
-                                                <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="red" isWinner={isWinner} />
+                                                <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="red" isWinner={isWinner} isLoser={isLoser} />
                                             );
                                         })}
-                                        <td className="p-1.5 text-center font-bold text-team-red text-xs font-fredoka">
+                                        <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#E75480' }}>
                                             {match.redPlayers[0]?.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
                                         </td>
                                     </tr>
 
-                                    <tr className="border-b last:border-0 border-gold-border/20">
-                                        <td className="p-1.5 text-team-blue font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs">
+                                    <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                        <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
                                             {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
                                         </td>
                                         {match.bluePlayers[0]?.scores.slice(start, end).map((score, i) => {
                                             const isWinner = holeWinnersChunk[i] === 'blue';
+                                            const isLoser = holeWinnersChunk[i] === 'red';
                                             const strokes = match.blueTeamStrokes ? match.blueTeamStrokes[start + i] : 0;
                                             return (
-                                                <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="blue" isWinner={isWinner} />
+                                                <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="blue" isWinner={isWinner} isLoser={isLoser} />
                                             );
                                         })}
-                                        <td className="p-1.5 text-center font-bold text-team-blue text-xs font-fredoka">
+                                        <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#4A90D9' }}>
                                             {match.bluePlayers[0]?.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
                                         </td>
                                     </tr>
@@ -184,8 +198,8 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                             ) : (
                                 <>
                                     {match.redPlayers.map((player, pIdx) => (
-                                        <tr key={`red-${pIdx}`} className="border-b last:border-0 border-gold-border/20">
-                                            <td className="p-1.5 text-team-red font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs">
+                                        <tr key={`red-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                            <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
                                                 {player.playerName.split(' ')[0]}
                                             </td>
                                             {player.scores.slice(start, end).map((score, i) => {
@@ -194,6 +208,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 const strokes = getStrokes(match.hcpValues, playingHandicap, globalHoleIdx);
                                                 const net = score !== null ? score - strokes : 999;
                                                 const isHoleWinner = holeWinnersChunk[i] === 'red';
+                                                const isHoleLoser = holeWinnersChunk[i] === 'blue';
 
                                                 let isWinningScore = false;
                                                 if (isHoleWinner && score !== null) {
@@ -211,18 +226,20 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 }
 
                                                 return (
-                                                    <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="red" isWinner={isWinningScore} />
+                                                    <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="red" isWinner={isWinningScore} isLoser={isHoleLoser && score !== null} />
                                                 );
                                             })}
-                                            <td className="p-1.5 text-center font-bold text-team-red text-xs font-fredoka">
+                                            <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#E75480' }}>
                                                 {player.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
                                             </td>
                                         </tr>
                                     ))}
+                                    {/* Update rowIdx after red players */}
+                                    {(() => { rowIdx += match.redPlayers.length; return null; })()}
 
                                     {match.bluePlayers.map((player, pIdx) => (
-                                        <tr key={`blue-${pIdx}`} className="border-b last:border-0 border-gold-border/20">
-                                            <td className="p-1.5 text-team-blue font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs">
+                                        <tr key={`blue-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                            <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
                                                 {player.playerName.split(' ')[0]}
                                             </td>
                                             {player.scores.slice(start, end).map((score, i) => {
@@ -231,6 +248,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 const strokes = getStrokes(match.hcpValues, playingHandicap, globalHoleIdx);
                                                 const net = score !== null ? score - strokes : 999;
                                                 const isHoleWinner = holeWinnersChunk[i] === 'blue';
+                                                const isHoleLoser = holeWinnersChunk[i] === 'red';
 
                                                 let isWinningScore = false;
                                                 if (isHoleWinner && score !== null) {
@@ -248,10 +266,10 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 }
 
                                                 return (
-                                                    <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="blue" isWinner={isWinningScore} />
+                                                    <ScoreCell key={i} score={score} par={pars[i]} strokes={strokes} team="blue" isWinner={isWinningScore} isLoser={isHoleLoser && score !== null} />
                                                 );
                                             })}
-                                            <td className="p-1.5 text-center font-bold text-team-blue text-xs font-fredoka">
+                                            <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#4A90D9' }}>
                                                 {player.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
                                             </td>
                                         </tr>
@@ -260,8 +278,8 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                             )}
 
                             {/* Match progression row */}
-                            <tr className="bg-forest-mid/20 border-t border-gold-border/30">
-                                <td className="p-1.5 font-fredoka font-medium text-forest-deep pl-2 text-[10px]">Partido</td>
+                            <tr style={{ background: 'rgba(26,26,62,0.93)', backdropFilter: 'blur(4px)' }}>
+                                <td className="p-1.5 font-fredoka font-medium pl-2 text-[10px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Partido</td>
                                 {progression.map((status, i) => {
                                     const globalHoles = match.holeWinners.slice(0, start + i + 1);
                                     let scoreDiff = 0;
@@ -273,19 +291,32 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                     const isRedUp = scoreDiff > 0;
                                     const isBlueUp = scoreDiff < 0;
 
-                                    let textColor = 'text-forest-deep/50';
-                                    if (isRedUp) textColor = 'text-team-red';
-                                    else if (isBlueUp) textColor = 'text-team-blue';
+                                    let textColor = 'rgba(255,255,255,0.5)';
+                                    if (isRedUp) textColor = '#E75480';
+                                    else if (isBlueUp) textColor = '#4A90D9';
+
+                                    // Dot indicator
+                                    const holeWinner = match.holeWinners[start + i];
+                                    const hasBeenPlayed = (start + i) < match.holeWinners.length;
+                                    let dotColor = '#666';
+                                    if (holeWinner === 'red') dotColor = '#E75480';
+                                    else if (holeWinner === 'blue') dotColor = '#4A90D9';
 
                                     return (
-                                        <td key={i} className="p-0.5 text-center font-bangers text-[9px] tracking-tight">
-                                            <span className={textColor}>
+                                        <td key={i} className="p-0.5 text-center">
+                                            <span className="font-bangers text-[8px] tracking-tight block" style={{ color: textColor }}>
                                                 {status === 'AS' || status === 'A/S' ? 'AS' : status.replace('DN', 'UP')}
                                             </span>
+                                            {hasBeenPlayed && (
+                                                <span
+                                                    className="inline-block w-[5px] h-[5px] rounded-full mt-0.5"
+                                                    style={{ backgroundColor: dotColor }}
+                                                />
+                                            )}
                                         </td>
                                     );
                                 })}
-                                <td className="p-1.5 text-center font-bold text-forest-deep"></td>
+                                <td className="p-1.5 text-center"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -295,13 +326,13 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
     };
 
     return (
-        <div className="bg-cream">
+        <div>
             {showFront && renderHalfTable(0, 9, 'FRONT 9')}
             {showBack && match.parValues.length > 9 && renderHalfTable(9, 18, 'BACK 9')}
 
             {user?.appRole === 'admin' && (
-                <div className="mt-4 flex justify-between items-center border-t border-gold-border/20 pt-3">
-                    <span className="text-xs text-gold-border/60 font-fredoka">Controles Admin</span>
+                <div className="mt-4 flex justify-between items-center border-t border-gray-100 pt-3">
+                    <span className="text-xs text-gray-400 font-fredoka">Controles Admin</span>
                     <Link
                         href={`/events/${eventId}/scores?flightId=${match.id}`}
                         className="text-xs font-bangers bevel-button px-4 py-2 rounded-lg hover:brightness-110 transition-colors shadow-sm"
