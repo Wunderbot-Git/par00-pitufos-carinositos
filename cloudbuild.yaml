@@ -60,3 +60,6 @@ steps:
 images:
   - 'gcr.io/$PROJECT_ID/ryder-cup-api'
   - 'gcr.io/$PROJECT_ID/ryder-cup-web'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
