@@ -41,31 +41,6 @@ export default function LeaderboardPage() {
 
     const isLoading = eventsLoading || (eventId && scoresLoading);
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center p-12 min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-light mb-4"></div>
-                <p className="text-cream/70 text-sm font-fredoka">Cargando marcador...</p>
-            </div>
-        );
-    }
-
-    if (!activeEvent) {
-        return (
-            <div className="p-8 text-center min-h-screen pt-20">
-                <p className="text-cream/70 mb-4 font-fredoka">No se encontró un evento activo.</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="p-4 text-center text-red-300 min-h-screen font-fredoka">
-                {error}
-            </div>
-        );
-    }
-
     const fallbackData = {
         totalScore: { red: 0, blue: 0 },
         projectedScore: { red: 0, blue: 0 },
@@ -103,6 +78,31 @@ export default function LeaderboardPage() {
     const suggestedNames = useMemo(() => searchQuery
         ? allPlayerNames.filter(n => n.toLowerCase().includes(searchQuery.toLowerCase()))
         : allPlayerNames, [allPlayerNames, searchQuery]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-light mb-4"></div>
+                <p className="text-cream/70 text-sm font-fredoka">Cargando marcador...</p>
+            </div>
+        );
+    }
+
+    if (!activeEvent) {
+        return (
+            <div className="p-8 text-center min-h-screen pt-20">
+                <p className="text-cream/70 mb-4 font-fredoka">No se encontró un evento activo.</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-4 text-center text-red-300 min-h-screen font-fredoka">
+                {error}
+            </div>
+        );
+    }
 
     return (
         <PullToRefresh onRefresh={async () => { await refetch(); }}>
