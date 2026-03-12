@@ -23,11 +23,11 @@ steps:
     args: ['push', 'gcr.io/$PROJECT_ID/ryder-cup-web']
 
   # 5. Run Database Migrations using the built API container
-  - name: 'gcr.io/$PROJECT_ID/ryder-cup-api'
-    entrypoint: 'sh'
-    args: ['-c', 'cd /app/packages/api && npx ts-node src/scripts/migrate.ts']
-    env:
-      - 'DATABASE_URL=$_DATABASE_URL'
+  #- name: 'gcr.io/$PROJECT_ID/ryder-cup-api'
+  #  entrypoint: 'sh'
+  #  args: ['-c', 'cd /app/packages/api && npx ts-node src/scripts/migrate.ts']
+  #  env:
+  #    - 'DATABASE_URL=$_DATABASE_URL'
 
   # 6. Deploy API to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
