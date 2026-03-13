@@ -105,11 +105,11 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 borderRadius: 16,
             }}
         >
-            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[110px]">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[120px]">
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-2 px-2 relative"
+                    className="flex flex-col items-center justify-center py-1 px-2 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(74,144,217,0.08)',
                         borderLeft: `3px solid ${leftBorderColor}`,
@@ -118,10 +118,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     }}
                 >
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
+                    <div className={`flex gap-1 justify-center flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.bluePlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.bluePlayers.length > 1 ? 'w-[52px] h-[52px] sm:w-[58px] sm:h-[58px]' : 'w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]';
+                            const size = match.bluePlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
@@ -148,7 +148,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
 
                     {/* Player names */}
-                    <div className="flex flex-col items-center mt-1 w-full">
+                    <div className="flex flex-col items-center mt-0.5 w-full">
                         {match.bluePlayers.map((p, i) => (
                             <div
                                 key={i}
@@ -218,7 +218,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                 {/* ── RIGHT PANEL (RED / CARIÑOSITOS) ─────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-2 px-2 relative"
+                    className="flex flex-col items-center justify-center py-1 px-2 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(231,84,128,0.08)',
                         borderRight: `3px solid ${rightBorderColor}`,
@@ -227,10 +227,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     }}
                 >
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
+                    <div className={`flex gap-1 justify-center flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.redPlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.redPlayers.length > 1 ? 'w-[52px] h-[52px] sm:w-[58px] sm:h-[58px]' : 'w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]';
+                            const size = match.redPlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
@@ -257,7 +257,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
 
                     {/* Player names */}
-                    <div className="flex flex-col items-center mt-1 w-full">
+                    <div className="flex flex-col items-center mt-0.5 w-full">
                         {match.redPlayers.map((p, i) => (
                             <div
                                 key={i}
