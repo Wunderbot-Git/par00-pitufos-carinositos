@@ -118,15 +118,51 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     }}
                 >
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
-                        {match.bluePlayers.map((p, i) => {
-                            const avatarName = normalizeName(p.playerName);
-                            const isMulti = match.bluePlayers.length > 1;
-                            return (
-                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)', height: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)' }}>
+                    {match.bluePlayers.length > 1 ? (
+                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                            {match.bluePlayers.map((p, i) => {
+                                const avatarName = normalizeName(p.playerName);
+                                return (
+                                    <div
+                                        key={i}
+                                        className="absolute rounded-full"
+                                        style={{
+                                            width: 'min(68px, 20vw)',
+                                            height: 'min(68px, 20vw)',
+                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
+                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
+                                            zIndex: i === 0 ? 1 : 2,
+                                            border: i === 1 ? '2px solid rgba(255,255,255,0.8)' : 'none',
+                                            borderRadius: '50%',
+                                        }}
+                                    >
+                                        <img
+                                            src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                            alt={p.playerName}
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                const img = e.target as HTMLImageElement;
+                                                if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                                    img.src = `/images/${avatarName}.webp`;
+                                                } else {
+                                                    img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
+                                                }
+                                            }}
+                                            className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
+                                            style={{ borderRadius: '50%' }}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="flex-shrink-0 relative" style={{ width: 'min(110px, 32vw)', height: 'min(110px, 32vw)' }}>
+                            {(() => {
+                                const avatarName = normalizeName(match.bluePlayers[0]?.playerName || '');
+                                return (
                                     <img
                                         src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
-                                        alt={p.playerName}
+                                        alt={match.bluePlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
@@ -139,10 +175,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })()}
+                        </div>
+                    )}
 
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
@@ -224,15 +260,51 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     }}
                 >
                     {/* Avatar(s) */}
-                    <div className={`flex gap-1 justify-center flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
-                        {match.redPlayers.map((p, i) => {
-                            const avatarName = normalizeName(p.playerName);
-                            const isMulti = match.redPlayers.length > 1;
-                            return (
-                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)', height: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)' }}>
+                    {match.redPlayers.length > 1 ? (
+                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                            {match.redPlayers.map((p, i) => {
+                                const avatarName = normalizeName(p.playerName);
+                                return (
+                                    <div
+                                        key={i}
+                                        className="absolute rounded-full"
+                                        style={{
+                                            width: 'min(68px, 20vw)',
+                                            height: 'min(68px, 20vw)',
+                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
+                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
+                                            zIndex: i === 0 ? 1 : 2,
+                                            border: i === 1 ? '2px solid rgba(255,255,255,0.8)' : 'none',
+                                            borderRadius: '50%',
+                                        }}
+                                    >
+                                        <img
+                                            src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                            alt={p.playerName}
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                const img = e.target as HTMLImageElement;
+                                                if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                                    img.src = `/images/${avatarName}.webp`;
+                                                } else {
+                                                    img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
+                                                }
+                                            }}
+                                            className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
+                                            style={{ borderRadius: '50%' }}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="flex-shrink-0 relative" style={{ width: 'min(110px, 32vw)', height: 'min(110px, 32vw)' }}>
+                            {(() => {
+                                const avatarName = normalizeName(match.redPlayers[0]?.playerName || '');
+                                return (
                                     <img
                                         src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
-                                        alt={p.playerName}
+                                        alt={match.redPlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
@@ -245,10 +317,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
                                         style={{ borderRadius: '50%' }}
                                     />
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })()}
+                        </div>
+                    )}
 
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
