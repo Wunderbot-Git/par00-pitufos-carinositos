@@ -48,7 +48,7 @@ export default function ApuestasClient() {
     return (
         <div className="flex flex-col min-h-screen pb-20">
             {/* Header */}
-            <header className="bg-forest-deep text-white flex-shrink-0 z-50 shadow-md border-b-2 border-gold-border/50">
+            <header className="bg-[#1a1a3e] text-white flex-shrink-0 z-50 shadow-md border-b-2 border-gold-border/50">
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="relative h-10 w-32 flex-shrink-0">
                         <Image
