@@ -31,15 +31,20 @@ function SettingsIcon({ isActive }: { isActive: boolean }) {
 }
 
 function BettingIcon({ isActive }: { isActive: boolean }) {
-    // Simplified chip / poker coin icon
+    // Stacked coins icon
+    const sw = isActive ? "2.5" : "2";
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? "2.5" : "2"} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9" />
-            <circle cx="12" cy="12" r="4" />
-            <line x1="12" y1="3" x2="12" y2="8" />
-            <line x1="12" y1="16" x2="12" y2="21" />
-            <line x1="3" y1="12" x2="8" y2="12" />
-            <line x1="16" y1="12" x2="21" y2="12" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+            {/* Bottom coin */}
+            <ellipse cx="12" cy="18" rx="8" ry="3" />
+            {/* Middle coin */}
+            <ellipse cx="12" cy="14" rx="8" ry="3" />
+            <line x1="4" y1="14" x2="4" y2="18" />
+            <line x1="20" y1="14" x2="20" y2="18" />
+            {/* Top coin */}
+            <ellipse cx="12" cy="10" rx="8" ry="3" />
+            <line x1="4" y1="10" x2="4" y2="14" />
+            <line x1="20" y1="10" x2="20" y2="14" />
         </svg>
     );
 }
