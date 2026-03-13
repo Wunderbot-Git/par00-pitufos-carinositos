@@ -50,24 +50,14 @@ export default function ApuestasClient() {
             {/* Header */}
             <header className="bg-forest-deep text-white flex-shrink-0 z-50 shadow-md border-b-2 border-gold-border/50">
                 <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden thick-border">
-                            <Image
-                                src="/assets/pitufos-vs-carinositos-logo.webp"
-                                alt="Event Logo"
-                                fill
-                                className="object-contain p-0.5"
-                                priority
-                            />
-                        </div>
-                        <div className="flex flex-col text-left">
-                            <h1 className="text-[13px] font-bangers uppercase tracking-widest metallic-text leading-tight">
-                                {activeEvent?.name || 'RYDER CUP'}
-                            </h1>
-                            <span className="text-[9px] font-bangers text-gold-light/70 uppercase tracking-widest mt-0.5">
-                                Apuestas
-                            </span>
-                        </div>
+                    <div className="relative h-10 w-32 flex-shrink-0">
+                        <Image
+                            src="/images/Gemini_Generated_Image_6e37hu6e37hu6e37_1.webp"
+                            alt="Pitufos vs Cariñositos"
+                            fill
+                            className="object-contain object-left"
+                            priority
+                        />
                     </div>
                 </div>
             </header>

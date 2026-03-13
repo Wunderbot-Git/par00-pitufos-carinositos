@@ -128,21 +128,14 @@ export default function ScoresPage() {
         <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden">
             <header className={`${headerBgClass} text-white flex-shrink-0 z-50 shadow-md transition-colors duration-500 border-b-2 border-gold-border/50`}>
                 <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 bg-white rounded-full p-0.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden thick-border">
-                            <Image
-                                src="/assets/pitufos-vs-carinositos-logo.webp"
-                                alt="Event Logo"
-                                fill
-                                className="object-contain p-0.5"
-                                priority
-                            />
-                        </div>
-                        <div className="flex flex-col text-left">
-                            <h1 className="text-[13px] font-bangers uppercase tracking-widest text-white/90 leading-tight">
-                                {activeEvent?.name || 'MATCH PLAY'}
-                            </h1>
-                        </div>
+                    <div className="relative h-10 w-32 flex-shrink-0">
+                        <Image
+                            src="/images/Gemini_Generated_Image_6e37hu6e37hu6e37_1.webp"
+                            alt="Pitufos vs Cariñositos"
+                            fill
+                            className="object-contain object-left"
+                            priority
+                        />
                     </div>
                     {flightScore && (
                         <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
