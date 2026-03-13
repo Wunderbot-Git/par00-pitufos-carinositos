@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -31,21 +32,14 @@ function SettingsIcon({ isActive }: { isActive: boolean }) {
 }
 
 function BettingIcon({ isActive }: { isActive: boolean }) {
-    // Stacked coins icon
-    const sw = isActive ? "2.5" : "2";
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
-            {/* Bottom coin */}
-            <ellipse cx="12" cy="18" rx="8" ry="3" />
-            {/* Middle coin */}
-            <ellipse cx="12" cy="14" rx="8" ry="3" />
-            <line x1="4" y1="14" x2="4" y2="18" />
-            <line x1="20" y1="14" x2="20" y2="18" />
-            {/* Top coin */}
-            <ellipse cx="12" cy="10" rx="8" ry="3" />
-            <line x1="4" y1="10" x2="4" y2="14" />
-            <line x1="20" y1="10" x2="20" y2="14" />
-        </svg>
+        <Image
+            src="/images/apuestas-icon.png"
+            alt="Apuestas"
+            width={26}
+            height={26}
+            className={isActive ? 'opacity-100' : 'opacity-50'}
+        />
     );
 }
 
