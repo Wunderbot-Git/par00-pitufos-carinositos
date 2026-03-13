@@ -25,10 +25,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
         (match.matchStatus.includes('UP') && !isBlueWin);
     const blueIsWinner = isBlueWin;
 
-    let centerGradient = 'bg-gradient-to-b from-[#349be1] to-[#12609b]'; // default blue
+    let centerGradient = 'bg-gradient-to-b from-[#5BA3E0] to-[#3A7CC0]'; // blue (Pitufos)
     if (isNotStarted) centerGradient = 'bg-[#2a2a5e]';
     else if (isAS) centerGradient = 'bg-gradient-to-b from-[#8f9ca6] to-[#596673]';
-    else if (redIsWinning) centerGradient = 'bg-gradient-to-b from-[#e33731] to-[#b81d18]';
+    else if (redIsWinning) centerGradient = 'bg-gradient-to-b from-[#E75480] to-[#C44470]'; // pink (Cariñositos)
 
     if (isNotStarted) {
         statusTop = (
