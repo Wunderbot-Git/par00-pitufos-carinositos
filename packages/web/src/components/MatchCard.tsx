@@ -105,7 +105,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 borderRadius: 16,
             }}
         >
-            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[120px]">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[140px]">
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
@@ -121,7 +121,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.bluePlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.bluePlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px]';
+                            const size = match.bluePlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[110px] h-[110px] sm:w-[120px] sm:h-[120px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
@@ -230,7 +230,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.redPlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.redPlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px]';
+                            const size = match.redPlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[110px] h-[110px] sm:w-[120px] sm:h-[120px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
