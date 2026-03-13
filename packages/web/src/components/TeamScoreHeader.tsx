@@ -80,7 +80,7 @@ export function TeamScoreHeader({
                         <div className="flex items-center justify-between w-full px-2 sm:px-6 cursor-pointer" onClick={onToggleCurrent}>
 
                             {/* Blue Score */}
-                            <div className="flex flex-col items-center justify-center w-[40%] relative overflow-hidden">
+                            <div className="flex flex-col items-center justify-center w-[40%] relative">
                                 <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgba(74,144,217,0.7))' }}>
                                     <span
                                         className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-[#173e6e]"
@@ -114,7 +114,7 @@ export function TeamScoreHeader({
                             </div>
 
                             {/* Pink Score */}
-                            <div className="flex flex-col items-center justify-center w-[40%] relative overflow-hidden">
+                            <div className="flex flex-col items-center justify-center w-[40%] relative">
                                 <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgba(231,84,128,0.7))' }}>
                                     <span
                                         className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-[#8a1c3d]"
