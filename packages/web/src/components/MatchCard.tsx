@@ -105,7 +105,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 borderRadius: 16,
             }}
         >
-            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[90px]">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[110px]">
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
@@ -121,7 +121,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.bluePlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.bluePlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
+                            const size = match.bluePlayers.length > 1 ? 'w-[52px] h-[52px] sm:w-[58px] sm:h-[58px]' : 'w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
@@ -230,7 +230,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 mt-1 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.redPlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.redPlayers.length > 1 ? 'w-[44px] h-[44px] sm:w-[50px] sm:h-[50px]' : 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]';
+                            const size = match.redPlayers.length > 1 ? 'w-[52px] h-[52px] sm:w-[58px] sm:h-[58px]' : 'w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]';
                             return (
                                 <div key={i} className={`${size} flex-shrink-0 relative`}>
                                     <img
