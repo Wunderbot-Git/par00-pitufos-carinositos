@@ -204,18 +204,6 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             <div className="absolute top-0 left-0 right-0 h-[45%] bg-gradient-to-b from-white/25 to-white/5 rounded-t-xl pointer-events-none z-0" />
                         )}
 
-                        {/* Live indicator star */}
-                        {!isNotStarted && !isFinal && (
-                            <div className="absolute -top-[12px] -right-[12px] z-30">
-                                <div className="relative flex items-center justify-center w-7 h-7">
-                                    <svg viewBox="0 0 100 100" className="w-full h-full text-[#ed5f59]" fill="currentColor" style={{ filter: 'drop-shadow(0 2px 0 #1e293b)' }}>
-                                        <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35" stroke="#1e293b" strokeWidth="8" strokeLinejoin="round" />
-                                    </svg>
-                                    <span className="absolute text-white font-bangers text-[11px]" style={{ textShadow: '1px 1px 0 #1e293b,-1px -1px 0 #1e293b' }}>!</span>
-                                </div>
-                            </div>
-                        )}
-
                         {/* SIN INICIAR */}
                         {isNotStarted ? (
                             <div className="text-[#7777aa] font-bangers text-[13px] tracking-wider uppercase text-center leading-tight py-1">
