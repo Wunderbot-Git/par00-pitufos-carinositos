@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
+import { BattleHeader } from '@/components/BattleHeader';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -28,19 +28,10 @@ export default function LoginPage() {
 
     return (
         <div className="flex flex-col min-h-screen items-center pb-8">
-            {/* Header Image */}
-            <div className="relative w-full h-[240px] sm:h-[300px] overflow-hidden rounded-b-[32px] thick-border border-t-0 border-l-0 border-r-0 mb-8 shadow-md">
-                <Image
-                    src="/images/hero_header.webp"
-                    alt="Pitufos vs Cariñositos"
-                    fill
-                    className="object-cover object-top"
-                    priority
-                />
-            </div>
+            {/* Header */}
+            <BattleHeader />
 
             <div className="w-full max-w-sm px-4 flex flex-col items-center z-10">
-                <h1 className="text-3xl font-bangers text-center mb-6 metallic-text">Iniciar Sesión</h1>
 
                 {error && (
                     <div className="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg mb-4 w-full font-fredoka text-sm">
