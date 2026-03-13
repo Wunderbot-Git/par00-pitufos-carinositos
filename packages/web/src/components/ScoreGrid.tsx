@@ -44,23 +44,21 @@ function ScoreCell({
     const strokes = getStrokes(siValues, playingHcp, holeIdx);
     const net = score !== null ? score - strokes : null;
 
-    const teamBorder = team === 'red' ? 'border-team-red/40' : 'border-team-blue/40';
-    const singlesBorder = team === 'red' ? 'border-team-red' : 'border-team-blue';
-    const winnerBg = isWinner ? (team === 'red' ? 'bg-red-50' : 'bg-blue-50') : '';
-
-    let winnerBorder = '';
-
-    if (isSinglesWinner) {
-        winnerBorder = `rounded-full border-2 ${singlesBorder}`;
-    } else if (isWinner) {
-        winnerBorder = `rounded-full border ${teamBorder}`;
-    }
-
     const dots = Array(strokes).fill('●').join('');
 
+    // Filled circle for winners: solid team color bg + white text
+    let winnerClasses = '';
     let scoreTextColor = 'text-forest-deep';
-    if (isPending) scoreTextColor = 'text-gold-border';
-    else if (isWinner || isSinglesWinner) scoreTextColor = team === 'red' ? 'text-team-red' : 'text-team-blue';
+
+    if (isPending) {
+        scoreTextColor = 'text-gold-border';
+    } else if (isSinglesWinner) {
+        winnerClasses = team === 'red' ? 'rounded-full bg-team-red' : 'rounded-full bg-team-blue';
+        scoreTextColor = 'text-white';
+    } else if (isWinner) {
+        winnerClasses = team === 'red' ? 'rounded-full bg-team-red/20 border-2 border-team-red' : 'rounded-full bg-team-blue/20 border-2 border-team-blue';
+        scoreTextColor = team === 'red' ? 'text-team-red' : 'text-team-blue';
+    }
 
     return (
         <div
@@ -71,7 +69,7 @@ function ScoreCell({
             `}
         >
             <div className={`
-                inline-flex flex-col items-center justify-center w-8 h-8 ${winnerBorder} ${winnerBg}
+                inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses}
                 ${isPending ? 'opacity-50' : ''}
             `}>
                 {score !== null ? (
@@ -232,8 +230,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderMatchStatusRow = (holeNumbers: number[]) => (
         <div className="flex bg-forest-mid/10 h-10 border-y border-gold-border/20 shadow-inner relative z-20">
-            <div className="flex-shrink-0 w-32 px-3 sticky left-0 z-30 bg-forest-mid/10 border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                <span className="text-[9px] font-bangers text-forest-deep/60 uppercase tracking-widest">
+            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-forest-mid/10 border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                <span className="text-[8px] font-bangers text-forest-deep/60 uppercase tracking-wider leading-tight">
                     {flightScore.segmentType === 'scramble' ? 'Resultado Scramble' : flightScore.segmentType.startsWith('singles') ? 'Resultado Partido' : 'Resultado Mejor Bola'}
                 </span>
             </div>
