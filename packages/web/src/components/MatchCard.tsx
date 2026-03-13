@@ -132,7 +132,6 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                             top: i === 0 ? 0 : 'min(20px, 6vw)',
                                             left: i === 0 ? 0 : 'min(28px, 8vw)',
                                             zIndex: i === 0 ? 1 : 2,
-                                            border: i === 1 ? '2px solid rgba(255,255,255,0.8)' : 'none',
                                             borderRadius: '50%',
                                         }}
                                     >
@@ -274,7 +273,6 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                             top: i === 0 ? 0 : 'min(20px, 6vw)',
                                             left: i === 0 ? 0 : 'min(28px, 8vw)',
                                             zIndex: i === 0 ? 1 : 2,
-                                            border: i === 1 ? '2px solid rgba(255,255,255,0.8)' : 'none',
                                             borderRadius: '50%',
                                         }}
                                     >
