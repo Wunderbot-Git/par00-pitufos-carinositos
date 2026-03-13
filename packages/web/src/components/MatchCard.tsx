@@ -109,7 +109,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-1 px-2 relative"
+                    className="flex flex-col items-center justify-center py-0.5 px-2 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(74,144,217,0.08)',
                         borderLeft: `3px solid ${leftBorderColor}`,
@@ -148,7 +148,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
 
                     {/* Player names */}
-                    <div className="flex flex-col items-center mt-0.5 w-full">
+                    <div className="flex flex-col items-center w-full">
                         {match.bluePlayers.map((p, i) => (
                             <div
                                 key={i}
@@ -218,7 +218,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                 {/* ── RIGHT PANEL (RED / CARIÑOSITOS) ─────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-1 px-2 relative"
+                    className="flex flex-col items-center justify-center py-0.5 px-2 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(231,84,128,0.08)',
                         borderRight: `3px solid ${rightBorderColor}`,
@@ -257,7 +257,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
 
                     {/* Player names */}
-                    <div className="flex flex-col items-center mt-0.5 w-full">
+                    <div className="flex flex-col items-center w-full">
                         {match.redPlayers.map((p, i) => (
                             <div
                                 key={i}
