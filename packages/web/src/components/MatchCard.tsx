@@ -109,7 +109,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-0.5 px-2 relative"
+                    className="flex flex-col items-center justify-center py-0.5 px-0.5 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(74,144,217,0.08)',
                         borderLeft: `3px solid ${leftBorderColor}`,
@@ -121,9 +121,9 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 ${match.bluePlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.bluePlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.bluePlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[110px] h-[110px] sm:w-[120px] sm:h-[120px]';
+                            const isMulti = match.bluePlayers.length > 1;
                             return (
-                                <div key={i} className={`${size} flex-shrink-0 relative`}>
+                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)', height: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)' }}>
                                     <img
                                         src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}
@@ -163,7 +163,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 </div>
 
                 {/* ── CENTER STATUS BADGE ──────────────────────────────────── */}
-                <div className="relative flex items-center justify-center px-2 py-2 min-w-[130px] sm:min-w-[150px]">
+                <div className="relative flex items-center justify-center px-2 py-2 min-w-[100px] sm:min-w-[140px]">
                     <div
                         className={`relative w-full py-2.5 rounded-2xl border-[3px] border-[#1e293b] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'shadow-none' : 'shadow-[0_5px_0_#1e293b]'}`}
                     >
@@ -218,7 +218,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                 {/* ── RIGHT PANEL (RED / CARIÑOSITOS) ─────────────────────── */}
                 <div
-                    className="flex flex-col items-center justify-center py-0.5 px-2 relative"
+                    className="flex flex-col items-center justify-center py-0.5 px-0.5 relative"
                     style={{
                         background: isNotStarted ? 'transparent' : 'rgba(231,84,128,0.08)',
                         borderRight: `3px solid ${rightBorderColor}`,
@@ -230,9 +230,9 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     <div className={`flex gap-1 justify-center flex-shrink-0 ${match.redPlayers.length > 1 ? 'flex-row' : ''}`}>
                         {match.redPlayers.map((p, i) => {
                             const avatarName = normalizeName(p.playerName);
-                            const size = match.redPlayers.length > 1 ? 'w-[62px] h-[62px] sm:w-[70px] sm:h-[70px]' : 'w-[110px] h-[110px] sm:w-[120px] sm:h-[120px]';
+                            const isMulti = match.redPlayers.length > 1;
                             return (
-                                <div key={i} className={`${size} flex-shrink-0 relative`}>
+                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)', height: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)' }}>
                                     <img
                                         src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}

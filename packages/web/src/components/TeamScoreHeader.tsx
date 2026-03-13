@@ -74,7 +74,7 @@ export function TeamScoreHeader({
                 </div>
 
                 {/* 3. Navy/Dark Blue Scoreboard Panel */}
-                <div className={`bg-gradient-to-b from-[#2a2a5e] to-[#1a1a3e] border-[4px] border-[#4a4a8e] shadow-[0_12px_24px_rgba(0,0,0,0.6),inset_0_4px_8px_rgba(255,255,255,0.1)] rounded-[32px] pt-10 sm:pt-10 pb-2 px-2 sm:px-4 relative z-10 mb-8`}>
+                <div className={`bg-gradient-to-b from-[#2a2a5e] to-[#1a1a3e] border-[4px] border-[#4a4a8e] shadow-[0_12px_24px_rgba(0,0,0,0.6),inset_0_4px_8px_rgba(255,255,255,0.1)] rounded-[32px] pt-10 sm:pt-10 pb-2 px-2 sm:px-4 relative z-10 mb-8 overflow-hidden`}>
                     <div className="flex flex-col items-center relative z-20">
                         {/* 4. Huge Dramatic Scores Row */}
                         <div className="flex items-center justify-between w-full px-2 sm:px-6 cursor-pointer" onClick={onToggleCurrent}>

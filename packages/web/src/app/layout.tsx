@@ -41,7 +41,7 @@ export default function RootLayout({
             <body className="bg-app-gradient">
                 <AuthProvider>
                     <SyncProvider>
-                        <main className="max-w-md mx-auto bg-transparent">
+                        <main className="max-w-md mx-auto bg-transparent overflow-x-hidden">
                             {children}
                         </main>
                         <OfflineIndicator />
