@@ -197,7 +197,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 {/* ── CENTER STATUS BADGE ──────────────────────────────────── */}
                 <div className="relative flex items-center justify-center px-2 py-2 min-w-[90px] sm:min-w-[140px]">
                     <div
-                        className={`relative w-full py-2.5 rounded-2xl border-[3px] border-[#1e293b] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'shadow-none' : 'shadow-[0_5px_0_#1e293b]'}`}
+                        className={`relative w-full py-2.5 rounded-2xl border-[3px] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'border-[#3a3a5e] shadow-none' : 'border-[#1e293b] shadow-[0_5px_0_#1e293b]'}`}
                     >
                         {/* Top gloss */}
                         {!isNotStarted && (
@@ -216,9 +216,9 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             </div>
                         )}
 
-                        {/* SIN INICIAR pill */}
+                        {/* SIN INICIAR */}
                         {isNotStarted ? (
-                            <div className="px-3 py-1.5 rounded-full border border-[#505078] text-[#9999bb] font-bangers text-[11px] tracking-wider uppercase text-center">
+                            <div className="text-[#7777aa] font-bangers text-[13px] tracking-wider uppercase text-center leading-tight py-1">
                                 Sin<br />Iniciar
                             </div>
                         ) : (
