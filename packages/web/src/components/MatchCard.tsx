@@ -123,7 +123,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             const avatarName = normalizeName(p.playerName);
                             const isMulti = match.bluePlayers.length > 1;
                             return (
-                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)', height: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)' }}>
+                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)', height: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)' }}>
                                     <img
                                         src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}
@@ -163,7 +163,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 </div>
 
                 {/* ── CENTER STATUS BADGE ──────────────────────────────────── */}
-                <div className="relative flex items-center justify-center px-2 py-2 min-w-[100px] sm:min-w-[140px]">
+                <div className="relative flex items-center justify-center px-2 py-2 min-w-[90px] sm:min-w-[140px]">
                     <div
                         className={`relative w-full py-2.5 rounded-2xl border-[3px] border-[#1e293b] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'shadow-none' : 'shadow-[0_5px_0_#1e293b]'}`}
                     >
@@ -232,7 +232,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             const avatarName = normalizeName(p.playerName);
                             const isMulti = match.redPlayers.length > 1;
                             return (
-                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)', height: isMulti ? 'min(62px, 16vw)' : 'min(110px, 26vw)' }}>
+                                <div key={i} className="flex-shrink-0 relative" style={{ width: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)', height: isMulti ? 'min(62px, 18vw)' : 'min(110px, 32vw)' }}>
                                     <img
                                         src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : `/images/${avatarName}.webp`}
                                         alt={p.playerName}
