@@ -36,9 +36,12 @@ function BettingIcon({ isActive }: { isActive: boolean }) {
         <Image
             src="/images/apuestas-icon.png"
             alt="Apuestas"
-            width={26}
-            height={26}
-            className={isActive ? 'opacity-100' : 'opacity-50'}
+            width={22}
+            height={22}
+            className={isActive ? 'opacity-100' : 'opacity-60'}
+            style={isActive ? {
+                filter: 'brightness(0) saturate(100%) invert(63%) sepia(80%) saturate(500%) hue-rotate(15deg) brightness(95%)',
+            } : undefined}
         />
     );
 }
