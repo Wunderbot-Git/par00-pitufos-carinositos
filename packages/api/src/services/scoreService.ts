@@ -322,7 +322,7 @@ export const getFlightScoreboardData = async (flightId: string) => {
         });
 
         // Use player's own tee SI if available, otherwise default
-        const playerSiValues = teeSiMap[p.tee_id] || siValues;
+        const playerSiValues = (p.tee_id && teeSiMap[p.tee_id]) || siValues;
 
         return {
             playerId: p.id,
