@@ -188,9 +188,16 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
                             >
                                 {p.playerName.split(' ')[0]}
-                                <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>
+                                {match.segmentType !== 'scramble' && (
+                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
+                                )}
                             </div>
                         ))}
+                        {match.segmentType === 'scramble' && (
+                            <span className="text-[11px] font-bangers" style={{ color: isNotStarted ? '#bbb' : '#666' }}>
+                                HCP {Math.round(match.bluePlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)}
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -317,9 +324,16 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
                             >
                                 {p.playerName.split(' ')[0]}
-                                <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({p.hcp})</span>
+                                {match.segmentType !== 'scramble' && (
+                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
+                                )}
                             </div>
                         ))}
+                        {match.segmentType === 'scramble' && (
+                            <span className="text-[11px] font-bangers" style={{ color: isNotStarted ? '#bbb' : '#666' }}>
+                                HCP {Math.round(match.redPlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

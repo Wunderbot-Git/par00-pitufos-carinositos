@@ -152,7 +152,7 @@ export function ScoreEntryModal({
                                     {displayName}
                                 </div>
                                 <div className={`text-xs font-fredoka ${isActive ? 'text-gold-light/70' : 'text-cream/30'}`}>
-                                    HCP {player.hcp}
+                                    HCP {Math.round(player.hcp * 0.8)}
                                 </div>
                             </div>
 

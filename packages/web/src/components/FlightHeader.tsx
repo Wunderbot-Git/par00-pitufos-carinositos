@@ -27,7 +27,7 @@ export function FlightHeader({ flightName, redPlayers, bluePlayers }: FlightHead
                         {redPlayers.map((player) => (
                             <div key={player.playerId} className="bg-team-red/10 rounded-lg px-3 py-2 text-center border border-team-red/20">
                                 <div className="font-fredoka font-bold text-team-red text-sm">{player.playerName}</div>
-                                <div className="text-xs text-cream/50 font-fredoka">HCP {player.hcp}</div>
+                                <div className="text-xs text-cream/50 font-fredoka">HCP {Math.round(player.hcp * 0.8)}</div>
                             </div>
                         ))}
                     </div>
@@ -45,7 +45,7 @@ export function FlightHeader({ flightName, redPlayers, bluePlayers }: FlightHead
                         {bluePlayers.map((player) => (
                             <div key={player.playerId} className="bg-team-blue/10 rounded-lg px-3 py-2 text-center border border-team-blue/20">
                                 <div className="font-fredoka font-bold text-team-blue text-sm">{player.playerName}</div>
-                                <div className="text-xs text-cream/50 font-fredoka">HCP {player.hcp}</div>
+                                <div className="text-xs text-cream/50 font-fredoka">HCP {Math.round(player.hcp * 0.8)}</div>
                             </div>
                         ))}
                     </div>
