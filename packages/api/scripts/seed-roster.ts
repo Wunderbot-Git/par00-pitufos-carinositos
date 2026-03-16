@@ -2,22 +2,45 @@
  * seed-roster.ts
  *
  * Inserts the 5 real player groups into the production database.
+ * Includes Fundadores course with real par/SI values and separate Men/Women tees.
  * Idempotent — safe to re-run, will replace existing flights/players for the event.
  *
  * Run (from repo root):
- *   DATABASE_URL="postgresql://..." npx ts-node packages/api/scripts/seed-roster.ts
+ *   DATABASE_URL="postgresql://..." npx ts-node seed-roster.ts
  *
  * HCPs are set per player in the GROUPS array below.
  */
 
 import { Pool } from 'pg';
 import bcrypt from 'bcrypt';
-const { v4: uuidv4 } = require('uuid');
 
-require('dotenv/config');
+import 'dotenv/config';
 
 // Strip accents: Vélez → Velez, Tomás → Tomas, Gaitán → Gaitan
 const stripAccents = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+// ── COURSE DATA ─────────────────────────────────────────────────────────────
+// Fundadores course — 18 holes with separate stroke indexes for Men and Women
+const COURSE_HOLES = [
+    { hole: 1,  par: 4, siMen: 3,  siWomen: 3 },
+    { hole: 2,  par: 5, siMen: 9,  siWomen: 9 },
+    { hole: 3,  par: 4, siMen: 17, siWomen: 17 },
+    { hole: 4,  par: 4, siMen: 15, siWomen: 11 },
+    { hole: 5,  par: 3, siMen: 7,  siWomen: 5 },
+    { hole: 6,  par: 4, siMen: 5,  siWomen: 15 },
+    { hole: 7,  par: 3, siMen: 13, siWomen: 13 },
+    { hole: 8,  par: 5, siMen: 11, siWomen: 7 },
+    { hole: 9,  par: 4, siMen: 1,  siWomen: 1 },
+    { hole: 10, par: 5, siMen: 10, siWomen: 6 },
+    { hole: 11, par: 4, siMen: 2,  siWomen: 2 },
+    { hole: 12, par: 3, siMen: 4,  siWomen: 10 },
+    { hole: 13, par: 4, siMen: 6,  siWomen: 4 },
+    { hole: 14, par: 4, siMen: 16, siWomen: 12 },
+    { hole: 15, par: 3, siMen: 18, siWomen: 18 },
+    { hole: 16, par: 4, siMen: 14, siWomen: 14 },
+    { hole: 17, par: 4, siMen: 8,  siWomen: 16 },
+    { hole: 18, par: 5, siMen: 12, siWomen: 8 },
+];
 
 // ── ROSTER ────────────────────────────────────────────────────────────────────
 // Each group: { blue: [Pos1, Pos2], red: [Pos1, Pos2] }
@@ -33,6 +56,9 @@ const GROUPS: Array<{ blue: [PlayerEntry, PlayerEntry]; red: [PlayerEntry, Playe
     { blue: [['Vargas', 15], ['Pilarica', 14]], red: [['Sardi', 16],     ['Bernie', 21]]   }, // Group 5
 ];
 
+// Women players use the "Mujeres" tee (different stroke indexes)
+const WOMEN_PLAYERS = ['Ana', 'Adri', 'Manu', 'Pilarica'];
+
 const EVENT_CODE = 'PC2026';
 
 async function main() {
@@ -40,16 +66,27 @@ async function main() {
     console.log('Connecting to:', databaseUrl.replace(/:[^@]+@/, ':***@'));
 
     const pool = new Pool({ connectionString: databaseUrl });
-    const passwordHash = await bcrypt.hash('Par00', 10);
+    const playerPasswordHash = await bcrypt.hash('Par00', 10);
+    const adminPasswordHash = await bcrypt.hash('Admin', 10);
 
     try {
+        // ── Create admin user ───────────────────────────────────────────────
+        await pool.query(
+            `INSERT INTO users (email, password_hash, name, app_role, created_at)
+             VALUES ($1, $2, 'Admin', 'admin', NOW())
+             ON CONFLICT (email) DO UPDATE SET password_hash = $2, app_role = 'admin', name = 'Admin'
+             RETURNING id`,
+            ['admin@par00.com', adminPasswordHash]
+        );
+        console.log('Admin user: admin@par00.com / Admin');
+
         // ── Ensure organizer user ─────────────────────────────────────────────
         const orgRes = await pool.query(
-            `INSERT INTO users (email, password_hash, name, created_at)
-             VALUES ($1, $2, 'Organizer', NOW())
-             ON CONFLICT (email) DO UPDATE SET email = $1
+            `INSERT INTO users (email, password_hash, name, app_role, created_at)
+             VALUES ($1, $2, 'Organizer', 'admin', NOW())
+             ON CONFLICT (email) DO UPDATE SET app_role = 'admin', name = 'Organizer'
              RETURNING id`,
-            ['organizer@par00.com', passwordHash]
+            ['organizer@par00.com', playerPasswordHash]
         );
         const organizerId = orgRes.rows[0].id;
 
@@ -64,40 +101,52 @@ async function main() {
         const eventId = eventRes.rows[0].id;
         console.log(`Event: ${eventId} (code: ${EVENT_CODE})`);
 
-        // ── Ensure course + tee + 9 holes (par 4 default) ────────────────────
+        // ── Create course with two tees ─────────────────────────────────────
         const courseRes = await pool.query(
             `INSERT INTO courses (event_id, name, source, created_at)
              VALUES ($1, $2, 'manual', NOW())
              ON CONFLICT (event_id) DO UPDATE SET name = $2
              RETURNING id`,
-            [eventId, 'Pitufos Carinositos 2026 Course']
+            [eventId, 'Fundadores']
         );
         const courseId = courseRes.rows[0].id;
 
-        let teeRes = await pool.query(
-            `SELECT id FROM tees WHERE course_id = $1 LIMIT 1`, [courseId]
-        );
-        let teeId: string;
-        if (teeRes.rows.length === 0) {
-            const newTee = await pool.query(
-                `INSERT INTO tees (course_id, name, created_at) VALUES ($1, 'Default Tees', NOW()) RETURNING id`,
-                [courseId]
-            );
-            teeId = newTee.rows[0].id;
-            // 9 holes, par 4 each, stroke index 1-9
-            await pool.query(`DELETE FROM holes WHERE tee_id = $1`, [teeId]);
-            for (let h = 1; h <= 9; h++) {
-                await pool.query(
-                    `INSERT INTO holes (tee_id, hole_number, par, stroke_index) VALUES ($1,$2,4,$2)`,
-                    [teeId, h]
-                );
-            }
-            console.log(`Created tee + 9 default holes`);
-        } else {
-            teeId = teeRes.rows[0].id;
+        // Delete existing tees/holes for clean re-seed
+        const existingTees = await pool.query(`SELECT id FROM tees WHERE course_id = $1`, [courseId]);
+        for (const t of existingTees.rows) {
+            await pool.query(`DELETE FROM holes WHERE tee_id = $1`, [t.id]);
         }
-        console.log(`Tee: ${teeId}`);
+        await pool.query(`DELETE FROM tees WHERE course_id = $1`, [courseId]);
 
+        // Create "Hombres" tee (Men's stroke indexes)
+        const menTeeRes = await pool.query(
+            `INSERT INTO tees (course_id, name, created_at) VALUES ($1, 'Hombres', NOW()) RETURNING id`,
+            [courseId]
+        );
+        const menTeeId = menTeeRes.rows[0].id;
+
+        for (const h of COURSE_HOLES) {
+            await pool.query(
+                `INSERT INTO holes (tee_id, hole_number, par, stroke_index) VALUES ($1, $2, $3, $4)`,
+                [menTeeId, h.hole, h.par, h.siMen]
+            );
+        }
+        console.log(`Created "Hombres" tee: ${menTeeId} (18 holes)`);
+
+        // Create "Mujeres" tee (Women's stroke indexes)
+        const womenTeeRes = await pool.query(
+            `INSERT INTO tees (course_id, name, created_at) VALUES ($1, 'Mujeres', NOW()) RETURNING id`,
+            [courseId]
+        );
+        const womenTeeId = womenTeeRes.rows[0].id;
+
+        for (const h of COURSE_HOLES) {
+            await pool.query(
+                `INSERT INTO holes (tee_id, hole_number, par, stroke_index) VALUES ($1, $2, $3, $4)`,
+                [womenTeeId, h.hole, h.par, h.siWomen]
+            );
+        }
+        console.log(`Created "Mujeres" tee: ${womenTeeId} (18 holes)`);
 
         // Clean slate for this event's flights/players/scores
         console.log('Clearing existing data...');
@@ -127,13 +176,14 @@ async function main() {
                 const [firstName, ...rest] = name.split(' ');
                 const lastName = rest.join(' ') || '-';
                 const email = `${stripAccents(name).toLowerCase().replace(/[^a-z0-9]/g, '.')}@par00.com`;
+                const teeId = WOMEN_PLAYERS.includes(name) ? womenTeeId : menTeeId;
 
                 const userRes = await pool.query(
                     `INSERT INTO users (email, password_hash, name, created_at)
                      VALUES ($1, $2, $3, NOW())
                      ON CONFLICT (email) DO UPDATE SET email = $1
                      RETURNING id`,
-                    [email, passwordHash, name]
+                    [email, playerPasswordHash, name]
                 );
                 const userId = userRes.rows[0].id;
 
@@ -143,7 +193,8 @@ async function main() {
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
                     [eventId, userId, firstName, lastName, hcp, team, flightId, position, teeId]
                 );
-                console.log(`    ${team === 'blue' ? '🔵' : '🔴'} ${name} (HCP ${hcp}) — Pos ${position}`);
+                const teeLabel = WOMEN_PLAYERS.includes(name) ? 'Mujeres' : 'Hombres';
+                console.log(`    ${team === 'blue' ? '🔵' : '🔴'} ${name} (HCP ${hcp}, ${teeLabel}) — Pos ${position}`);
                 totalPlayers++;
             };
 
@@ -154,11 +205,9 @@ async function main() {
         }
 
         console.log(`\n✅ Seeded ${GROUPS.length} flights and ${totalPlayers} players.`);
-        console.log(`\nEvent ID: ${eventId}`);
-        console.log(`\nNext steps:`);
-        console.log(`  1. HCPs are already set for all players.`);
-        console.log(`  2. Assign tee boxes if needed.`);
-        console.log(`  3. The leaderboard will show all 20 matches as "SIN INICIAR" until scores are entered.`);
+        console.log(`Event ID: ${eventId}`);
+        console.log(`Course: Fundadores (${COURSE_HOLES.length} holes, 2 tees)`);
+        console.log(`Admin: admin@par00.com / Admin`);
 
     } finally {
         await pool.end();
