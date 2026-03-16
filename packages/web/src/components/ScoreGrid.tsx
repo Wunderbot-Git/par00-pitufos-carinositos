@@ -138,19 +138,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         {!player.playerName.includes('/') && <span className="text-forest-deep/25"> ({Math.round(player.hcp * 0.8)})</span>}
                     </p>
 
-                    {player.singlesStatus && (
-                        <div className={`
-                            mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase tracking-wider
-                            ${player.singlesStatus.startsWith('Won') || player.singlesStatus.includes('UP')
-                                ? player.team === 'red'
-                                    ? 'bg-team-red/10 text-team-red'
-                                    : 'bg-team-blue/10 text-team-blue'
-                                : 'text-forest-deep/30'
-                            }
-                        `}>
-                            {player.singlesStatus}
-                        </div>
-                    )}
                 </div>
                 <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole) => {
@@ -238,8 +225,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     );
 
     const renderMatchStatusRow = (holeNumbers: number[]) => (
-        <div className="flex bg-forest-mid/10 h-10 border-y border-gold-border/20 shadow-inner relative z-20">
-            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-forest-mid/10 border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+        <div className="flex bg-[#e8e4db] h-10 border-y border-gold-border/20 shadow-inner relative z-20">
+            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                 <span className="text-[8px] font-bangers text-forest-deep/60 uppercase tracking-wider leading-tight">
                     {flightScore.segmentType === 'scramble' ? 'Resultado Scramble' : flightScore.segmentType.startsWith('singles') ? 'Resultado Partido' : 'Resultado Mejor Bola'}
                 </span>
@@ -277,22 +264,29 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         const singlesHoles = redPlayer.singlesHoles;
         if (!singlesHoles) return null;
 
-        // Compute running match state from hole winners
+        // Check which holes have been played (both players have a score)
+        const holePlayed = (hole: number): boolean => {
+            const idx = hole - 1;
+            return redPlayer.scores[idx] !== null || bluePlayer.scores[idx] !== null;
+        };
+
+        // Compute running match state from hole winners — only for played holes
         let runningScore = 0; // positive = red leading, negative = blue leading
-        const states: { status: string; leader: 'red' | 'blue' | null }[] = [];
+        const states: { status: string; leader: 'red' | 'blue' | null; played: boolean }[] = [];
 
         for (const hole of holeNumbers) {
+            const played = holePlayed(hole);
             const winner = singlesHoles[hole - 1];
             if (winner === 'red') runningScore++;
             else if (winner === 'blue') runningScore--;
 
-            if (winner === null && states.length === 0 && runningScore === 0) {
-                states.push({ status: '', leader: null });
+            if (!played) {
+                states.push({ status: '', leader: null, played: false });
             } else {
                 const absScore = Math.abs(runningScore);
                 const status = runningScore === 0 ? 'A/S' : `${absScore}UP`;
                 const leader = runningScore > 0 ? 'red' as const : runningScore < 0 ? 'blue' as const : null;
-                states.push({ status, leader });
+                states.push({ status, leader, played: true });
             }
         }
 
@@ -300,16 +294,16 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         const blueName = bluePlayer.playerName.replace(/ -$/, '').split(' ')[0];
 
         return (
-            <div className="flex bg-forest-mid/10 h-9 border-y border-gold-border/20 shadow-inner relative z-20">
-                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-forest-mid/10 border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                    <span className="text-[7px] font-bangers text-forest-deep/60 uppercase tracking-wider leading-tight">
+            <div className="flex bg-[#e8e4db] h-9 border-y border-gold-border/20 shadow-inner relative z-20">
+                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                    <span className="text-[9px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                         {redName} vs {blueName}
                     </span>
                 </div>
                 <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole, i) => {
                         const state = states[i];
-                        if (!state || !state.status) {
+                        if (!state || !state.played) {
                             return <div key={hole} className="min-w-[50px] flex items-center justify-center"><div className="w-1.5 h-1.5 bg-gold-border/20 rounded-full" /></div>;
                         }
 
