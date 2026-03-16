@@ -262,7 +262,7 @@ export const getFlightScoreboardData = async (flightId: string) => {
 
     // 2. Get Players
     const playersRes = await pool.query(
-        `SELECT id, first_name, last_name, handicap_index, team, position 
+        `SELECT id, first_name, last_name, handicap_index, team, position, tee_id
          FROM players WHERE flight_id = $1 ORDER BY team, position`,
         [flightId]
     );
@@ -278,12 +278,25 @@ export const getFlightScoreboardData = async (flightId: string) => {
     let parValues = Array(18).fill(4);
     let siValues = Array.from({ length: 18 }, (_, i) => i + 1);
 
+    // Build per-tee SI map: teeId → siValues[18]
+    const teeSiMap: Record<string, number[]> = {};
+    let scrambleSiValues: number[] | null = null;
+
     if (course && course.tees.length > 0) {
-        const tee = course.tees[0];
-        const sortedHoles = [...tee.holes].sort((a, b) => a.holeNumber - b.holeNumber);
-        if (sortedHoles.length === 18) {
-            parValues = sortedHoles.map(h => h.par);
-            siValues = sortedHoles.map(h => h.strokeIndex);
+        for (const tee of course.tees) {
+            const sortedHoles = [...tee.holes].sort((a, b) => a.holeNumber - b.holeNumber);
+            if (sortedHoles.length === 18) {
+                teeSiMap[tee.id] = sortedHoles.map(h => h.strokeIndex);
+                // Use first tee for default par/SI
+                if (tee.id === course.tees[0].id) {
+                    parValues = sortedHoles.map(h => h.par);
+                    siValues = sortedHoles.map(h => h.strokeIndex);
+                }
+                // Women's tee SI for scramble (mixed teams)
+                if (tee.name === 'Mujeres') {
+                    scrambleSiValues = sortedHoles.map(h => h.strokeIndex);
+                }
+            }
         }
     }
 
@@ -308,11 +321,15 @@ export const getFlightScoreboardData = async (flightId: string) => {
             }
         });
 
+        // Use player's own tee SI if available, otherwise default
+        const playerSiValues = teeSiMap[p.tee_id] || siValues;
+
         return {
             playerId: p.id,
             playerName: [p.first_name, p.last_name].filter((n: string) => n && n !== '-').join(' ').trim(),
             hcp: parseFloat(p.handicap_index) || 0,
             scores,
+            siValues: playerSiValues,
             singlesStatus: null as string | null,
             singlesResult: null as 'win' | 'loss' | 'halved' | null,
             singlesHoles: Array(18).fill(null) as (string | null)[]
@@ -355,7 +372,7 @@ export const getFlightScoreboardData = async (flightId: string) => {
                 handicapIndex: pData.hcp,
                 frontNineGross: front,
                 backNineGross: back,
-                strokeIndexes: siValues
+                strokeIndexes: pData.siValues
             };
         };
 
@@ -363,7 +380,8 @@ export const getFlightScoreboardData = async (flightId: string) => {
             redPlayer1: buildCalcInput(0, 'red'),
             redPlayer2: buildCalcInput(1, 'red'),
             bluePlayer1: buildCalcInput(0, 'blue'),
-            bluePlayer2: buildCalcInput(1, 'blue')
+            bluePlayer2: buildCalcInput(1, 'blue'),
+            ...(scrambleSiValues ? { scrambleStrokeIndexes: scrambleSiValues } : {})
         });
 
         // Unified singles status formatter
@@ -469,7 +487,8 @@ export const getFlightScoreboardData = async (flightId: string) => {
         redPlayers: redPlayersData,
         bluePlayers: bluePlayersData,
         parValues,
-        siValues
+        siValues,
+        scrambleSiValues: scrambleSiValues || siValues
     };
 };
 

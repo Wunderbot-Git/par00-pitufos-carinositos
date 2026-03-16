@@ -16,6 +16,7 @@ interface FlightScore {
         playerName: string;
         hcp: number;
         scores: (number | null)[];
+        siValues?: number[];
         singlesStatus: string | null;
         singlesResult: 'win' | 'loss' | 'halved' | null;
         singlesHoles?: (string | null)[];
@@ -25,12 +26,14 @@ interface FlightScore {
         playerName: string;
         hcp: number;
         scores: (number | null)[];
+        siValues?: number[];
         singlesStatus: string | null;
         singlesResult: 'win' | 'loss' | 'halved' | null;
         singlesHoles?: (string | null)[];
     }[];
     parValues: number[];
     siValues: number[];
+    scrambleSiValues?: number[];
     matchProgression: (string | null)[];
     holeWinners: (string | null)[];
     matchLeaders: ('red' | 'blue' | null)[]; // Add this line

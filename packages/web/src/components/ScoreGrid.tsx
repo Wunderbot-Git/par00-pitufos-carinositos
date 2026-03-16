@@ -171,8 +171,9 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                                 teamPlayers.forEach((p: any) => {
                                     const s = p.scores[holeIdx];
                                     if (s !== null) {
+                                        const pSi = p.siValues || flightScore.siValues;
                                         const playingHcp = Math.round(p.hcp * 0.8);
-                                        const strokes = getStrokes(flightScore.siValues, playingHcp, holeIdx);
+                                        const strokes = getStrokes(pSi, playingHcp, holeIdx);
                                         const net = s - strokes;
                                         if (net < minNet) minNet = net;
                                     }
@@ -180,8 +181,9 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
                                 const backendScore = player.scores[holeIdx];
                                 if (backendScore !== null) {
+                                    const playerSi = player.siValues || flightScore.siValues;
                                     const myPlayingHcp = Math.round(player.hcp * 0.8);
-                                    const myStrokes = getStrokes(flightScore.siValues, myPlayingHcp, holeIdx);
+                                    const myStrokes = getStrokes(playerSi, myPlayingHcp, holeIdx);
                                     const myNet = backendScore - myStrokes;
                                     if (myNet === minNet) isWinner = true;
                                 }
@@ -199,7 +201,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                                 score={score}
                                 isPending={isPending}
                                 hcp={player.hcp}
-                                siValues={flightScore.siValues}
+                                siValues={player.siValues || flightScore.siValues}
                                 holeIdx={holeIdx}
                                 onClick={() => onHoleClick(hole)}
                                 isWinner={isWinner}
@@ -278,6 +280,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
             playerName: combinedName,
             hcp: scrambleHcp,
             isPlayingHcp: true,
+            siValues: flightScore.scrambleSiValues || flightScore.siValues,
             team: team,
             scores: players[0].scores
         }, holeNumbers);
