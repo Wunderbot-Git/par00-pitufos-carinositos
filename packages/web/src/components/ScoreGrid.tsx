@@ -29,6 +29,7 @@ function ScoreCell({
     isWinner,
     isSinglesWinner,
     team,
+    isPlayingHcp,
 }: {
     score: number | null;
     isPending: boolean;
@@ -39,8 +40,10 @@ function ScoreCell({
     isWinner?: boolean;
     isSinglesWinner?: boolean;
     team: 'red' | 'blue';
+    isPlayingHcp?: boolean;
 }) {
-    const playingHcp = Math.round(hcp * 0.8);
+    // For scramble, hcp is already the playing HCP (30% of sum); skip 80% reduction
+    const playingHcp = isPlayingHcp ? hcp : Math.round(hcp * 0.8);
     const strokes = getStrokes(siValues, playingHcp, holeIdx);
     const net = score !== null ? score - strokes : null;
 
@@ -130,7 +133,10 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
-                    <p className="text-[10px] font-fredoka font-bold text-forest-deep/40 uppercase tracking-tighter">HCP {player.hcp} <span className="text-forest-deep/25">({Math.round(player.hcp * 0.8)})</span></p>
+                    <p className="text-[10px] font-fredoka font-bold text-forest-deep/40 uppercase tracking-tighter">
+                        HCP {player.hcp}
+                        {!player.playerName.includes('/') && <span className="text-forest-deep/25"> ({Math.round(player.hcp * 0.8)})</span>}
+                    </p>
 
                     {player.singlesStatus && (
                         <div className={`
@@ -199,6 +205,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                                 isWinner={isWinner}
                                 isSinglesWinner={isSinglesWinner}
                                 team={player.team}
+                                isPlayingHcp={player.isPlayingHcp}
                             />
                         );
                     })}
@@ -263,12 +270,14 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderScrambleRow = (team: 'red' | 'blue', players: any[], holeNumbers: number[]) => {
         if (!players.length) return null;
         const combinedName = players.map(p => p.playerName.split(' ')[0]).join(' / ');
-        const avgHcp = Math.round(players.reduce((a: any, b: any) => a + b.hcp, 0) / 2);
+        // Scramble team HCP = 30% of sum of both HCPs
+        const scrambleHcp = Math.round(players.reduce((a: any, b: any) => a + b.hcp, 0) * 0.3);
 
         return renderPlayerRow({
             playerId: `${team}_team`,
             playerName: combinedName,
-            hcp: avgHcp,
+            hcp: scrambleHcp,
+            isPlayingHcp: true,
             team: team,
             scores: players[0].scores
         }, holeNumbers);
