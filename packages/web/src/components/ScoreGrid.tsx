@@ -404,7 +404,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const matchSummaries = getMatchSummary();
 
     return (
-        <div className="flex flex-col gap-3 mx-3">
+        <div className="flex flex-col gap-2 mx-3 flex-1 min-h-0">
             <div className="cartoon-card overflow-hidden">
                 <div className="overflow-x-auto" ref={scrollRef}>
                     <div className="min-w-max">

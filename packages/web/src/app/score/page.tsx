@@ -122,7 +122,7 @@ export default function ScoresPage() {
                 </div>
             )}
 
-            <main className="flex-1 min-h-0 overflow-y-auto bg-cream">
+            <main className="flex-1 min-h-0 overflow-hidden">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-border mb-4"></div>
@@ -146,7 +146,7 @@ export default function ScoresPage() {
                         Error al cargar los datos de scores.
                     </div>
                 ) : (
-                    <div className="animate-in fade-in duration-500 pb-4">
+                    <div className="animate-in fade-in duration-500 h-full flex flex-col">
                         {/* Segment Toggle */}
                         <div className="flex gap-2 px-4 pt-3 pb-2">
                             <button
