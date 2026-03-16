@@ -119,20 +119,16 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.bluePlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                        <div className="flex flex-col items-center gap-1 flex-shrink-0" style={{ width: 'min(96px, 28vw)' }}>
                             {match.bluePlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
                                     <div
                                         key={i}
-                                        className="absolute rounded-full"
+                                        className="rounded-full"
                                         style={{
-                                            width: 'min(68px, 20vw)',
-                                            height: 'min(68px, 20vw)',
-                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
-                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
-                                            zIndex: i === 0 ? 1 : 2,
-                                            borderRadius: '50%',
+                                            width: 'min(52px, 15vw)',
+                                            height: 'min(52px, 15vw)',
                                         }}
                                     >
                                         <img
@@ -255,20 +251,16 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.redPlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                        <div className="flex flex-col items-center gap-1 flex-shrink-0" style={{ width: 'min(96px, 28vw)' }}>
                             {match.redPlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
                                     <div
                                         key={i}
-                                        className="absolute rounded-full"
+                                        className="rounded-full"
                                         style={{
-                                            width: 'min(68px, 20vw)',
-                                            height: 'min(68px, 20vw)',
-                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
-                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
-                                            zIndex: i === 0 ? 1 : 2,
-                                            borderRadius: '50%',
+                                            width: 'min(52px, 15vw)',
+                                            height: 'min(52px, 15vw)',
                                         }}
                                     >
                                         <img
