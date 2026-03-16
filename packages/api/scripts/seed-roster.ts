@@ -42,6 +42,20 @@ const COURSE_HOLES = [
     { hole: 18, par: 5, siMen: 12, siWomen: 8 },
 ];
 
+// Ventaja Mixta — mixed scramble stroke indexes for back 9 (holes 10-18)
+// Used when teams have both men and women playing scramble together
+const SCRAMBLE_MIXED_SI = [
+    { hole: 10, si: 8 },
+    { hole: 11, si: 2 },
+    { hole: 12, si: 4 },
+    { hole: 13, si: 5 },
+    { hole: 14, si: 16 },
+    { hole: 15, si: 18 },
+    { hole: 16, si: 14 },
+    { hole: 17, si: 12 },
+    { hole: 18, si: 11 },
+];
+
 // ── ROSTER ────────────────────────────────────────────────────────────────────
 // Each group: { blue: [Pos1, Pos2], red: [Pos1, Pos2] }
 // blue = Pitufos (left side in cards, gold border)
@@ -203,6 +217,17 @@ async function main() {
             await insertPlayer(group.red[0],  'red',  1);
             await insertPlayer(group.red[1],  'red',  2);
         }
+
+        // ── Seed mixed scramble stroke indexes (Ventaja Mixta) ────────────
+        await pool.query(`DELETE FROM mixed_scramble_stroke_index WHERE event_id = $1`, [eventId]);
+        for (const { hole, si } of SCRAMBLE_MIXED_SI) {
+            await pool.query(
+                `INSERT INTO mixed_scramble_stroke_index (event_id, hole_number, stroke_index)
+                 VALUES ($1, $2, $3)`,
+                [eventId, hole, si]
+            );
+        }
+        console.log(`Seeded ${SCRAMBLE_MIXED_SI.length} mixed scramble stroke indexes (Ventaja Mixta)`);
 
         console.log(`\n✅ Seeded ${GROUPS.length} flights and ${totalPlayers} players.`);
         console.log(`Event ID: ${eventId}`);

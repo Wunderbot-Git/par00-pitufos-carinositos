@@ -130,7 +130,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
-                    <p className="text-[10px] font-fredoka font-bold text-forest-deep/40 uppercase tracking-tighter">HCP {player.hcp}</p>
+                    <p className="text-[10px] font-fredoka font-bold text-forest-deep/40 uppercase tracking-tighter">HCP {player.hcp} <span className="text-forest-deep/25">({Math.round(player.hcp * 0.8)})</span></p>
 
                     {player.singlesStatus && (
                         <div className={`
