@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
@@ -106,96 +105,8 @@ export default function ScoresPage() {
 
     const currentPar = openHole && flightScore ? flightScore.parValues[openHole - 1] : 0;
 
-    let currentLeader: 'red' | 'blue' | null = null;
-    if (flightScore && flightScore.matchLeaders) {
-        let lastPlayedIdx = -1;
-        for (let i = 17; i >= 0; i--) {
-            if (flightScore.matchProgression[i]) {
-                lastPlayedIdx = i;
-                break;
-            }
-        }
-        if (lastPlayedIdx >= 0) {
-            currentLeader = flightScore.matchLeaders[lastPlayedIdx];
-        }
-    }
-
-    let headerBgClass = "bg-forest-deep";
-    if (currentLeader === 'red') headerBgClass = "bg-gradient-to-r from-team-red to-pink-700";
-    else if (currentLeader === 'blue') headerBgClass = "bg-gradient-to-r from-team-blue to-blue-700";
-
     return (
         <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden">
-            <header className={`${headerBgClass} text-white flex-shrink-0 z-50 shadow-md transition-colors duration-500 border-b-2 border-gold-border/50`}>
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="relative h-10 w-32 flex-shrink-0">
-                        <Image
-                            src="/images/Gemini_Generated_Image_6e37hu6e37hu6e37_1.webp"
-                            alt="Pitufos vs Cariñositos"
-                            fill
-                            className="object-contain object-left"
-                            priority
-                        />
-                    </div>
-                    {flightScore && (
-                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                            {activeSegment === 'bestball' ? (
-                                <>
-                                    {flightScore.redPlayers[0] && flightScore.bluePlayers[0] && (
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] text-white/70 font-fredoka font-medium truncate max-w-[100px]">
-                                                {flightScore.redPlayers[0].playerName.split(' ')[0]} vs {flightScore.bluePlayers[0].playerName.split(' ')[0]}
-                                            </span>
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.redPlayers[0].singlesResult === 'win' || flightScore.redPlayers[0].singlesStatus?.includes('UP') ? 'bg-team-red/30 text-white' :
-                                                    flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN') ? 'bg-team-blue/30 text-white' :
-                                                        'bg-white/20 text-white'
-                                                }`}>
-                                                {(flightScore.redPlayers[0].singlesResult === 'loss' || flightScore.redPlayers[0].singlesStatus?.includes('DN')
-                                                    ? flightScore.bluePlayers[0]?.singlesStatus
-                                                    : flightScore.redPlayers[0].singlesStatus) || 'A/S'}
-                                            </span>
-                                        </div>
-                                    )}
-                                    {flightScore.redPlayers[1] && flightScore.bluePlayers[1] && (
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] text-white/70 font-fredoka font-medium truncate max-w-[100px]">
-                                                {flightScore.redPlayers[1].playerName.split(' ')[0]} vs {flightScore.bluePlayers[1].playerName.split(' ')[0]}
-                                            </span>
-                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.redPlayers[1].singlesResult === 'win' || flightScore.redPlayers[1].singlesStatus?.includes('UP') ? 'bg-team-red/30 text-white' :
-                                                    flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN') ? 'bg-team-blue/30 text-white' :
-                                                        'bg-white/20 text-white'
-                                                }`}>
-                                                {(flightScore.redPlayers[1].singlesResult === 'loss' || flightScore.redPlayers[1].singlesStatus?.includes('DN')
-                                                    ? flightScore.bluePlayers[1]?.singlesStatus
-                                                    : flightScore.redPlayers[1].singlesStatus) || 'A/S'}
-                                            </span>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="text-[9px] text-white/70 font-fredoka font-medium">Mejor Bola</span>
-                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bangers uppercase ${flightScore.fourballStatus && flightScore.fourballStatus !== 'A/S' && flightScore.fourballStatus !== 'Not Started'
-                                                ? (currentLeader === 'blue' ? 'bg-team-blue/30 text-white' : 'bg-team-red/30 text-white')
-                                                : 'bg-white/20 text-white'
-                                            }`}>
-                                            {flightScore.fourballStatus || 'A/S'}
-                                        </span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] text-white/70 font-fredoka font-medium">Scramble </span>
-                                    <span className={`px-2 py-1 rounded text-[10px] font-bangers uppercase ${currentLeader === 'red' ? 'bg-team-red/30 text-white' :
-                                            currentLeader === 'blue' ? 'bg-team-blue/30 text-white' :
-                                                'bg-white/20 text-white'
-                                        }`}>
-                                        {flightScore.scrambleStatus || 'A/S'}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </header>
 
             {/* ERROR indicator */}
             {submitError && (
