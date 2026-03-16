@@ -227,8 +227,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderMatchStatusRow = (holeNumbers: number[]) => (
         <div className="flex bg-[#e8e4db] h-10 border-y border-gold-border/20 shadow-inner relative z-20">
             <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                <span className="text-[8px] font-bangers text-forest-deep/60 uppercase tracking-wider leading-tight">
-                    {flightScore.segmentType === 'scramble' ? 'Resultado Scramble' : flightScore.segmentType.startsWith('singles') ? 'Resultado Partido' : 'Resultado Mejor Bola'}
+                <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
+                    {flightScore.segmentType === 'scramble' ? 'Scramble' : flightScore.segmentType.startsWith('singles') ? 'Partido' : 'Mejor Bola'}
                 </span>
             </div>
             <div className="flex-1 flex overflow-hidden">
@@ -244,7 +244,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     return (
                         <div key={hole} className="min-w-[50px] flex items-center justify-center">
                             <div className={`
-                                flex items-center justify-center w-7 h-7 rounded-full text-[8px] font-bangers shadow-sm
+                                flex items-center justify-center w-8 h-7 rounded-full text-[10px] font-bangers shadow-sm
                                 ${isAS ? 'bg-forest-mid/20 text-forest-deep/60' : isRed ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'}
                             `}>
                                 {status.replace(' ', '')}
@@ -297,7 +297,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         return (
             <div className="flex bg-[#e8e4db] h-9 border-y border-gold-border/20 shadow-inner relative z-20">
                 <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                    <span className="text-[9px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
+                    <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                         {redName} vs {blueName}
                     </span>
                 </div>
@@ -315,7 +315,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         return (
                             <div key={hole} className="min-w-[50px] flex items-center justify-center">
                                 <div className={`
-                                    flex items-center justify-center w-7 h-6 rounded-full text-[7px] font-bangers shadow-sm
+                                    flex items-center justify-center w-8 h-7 rounded-full text-[10px] font-bangers shadow-sm
                                     ${isAS ? 'bg-forest-mid/20 text-forest-deep/60' : isRed ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'}
                                 `}>
                                     {state.status.replace(' ', '')}
@@ -346,36 +346,112 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         }, holeNumbers);
     };
 
+    // Compute current match statuses for the summary
+    const getMatchSummary = () => {
+        const summaries: { label: string; status: string; leader: 'red' | 'blue' | null }[] = [];
+
+        if (!isScramble) {
+            // Singles matches
+            for (let m = 0; m < 2; m++) {
+                const red = flightScore.redPlayers[m];
+                const blue = flightScore.bluePlayers[m];
+                if (!red || !blue) continue;
+
+                const redName = red.playerName.replace(/ -$/, '').split(' ')[0];
+                const blueName = blue.playerName.replace(/ -$/, '').split(' ')[0];
+                const singlesHoles = red.singlesHoles;
+
+                let score = 0;
+                let played = false;
+                if (singlesHoles) {
+                    for (const hole of visibleHoles) {
+                        const w = singlesHoles[hole - 1];
+                        if (w === 'red') { score++; played = true; }
+                        else if (w === 'blue') { score--; played = true; }
+                    }
+                }
+
+                const abs = Math.abs(score);
+                const status = !played ? 'N/S' : score === 0 ? 'A/S' : `${abs} UP`;
+                const leader = score > 0 ? 'red' as const : score < 0 ? 'blue' as const : null;
+                const winnerName = leader === 'red' ? redName : leader === 'blue' ? blueName : '';
+
+                summaries.push({
+                    label: `${redName} vs ${blueName}`,
+                    status: !played ? 'Not Started' : score === 0 ? 'All Square' : `${winnerName} ${abs} UP`,
+                    leader,
+                });
+            }
+
+            // Mejor Bola
+            let lastStatus = '';
+            let lastLeader: 'red' | 'blue' | null = null;
+            for (const hole of visibleHoles) {
+                const s = flightScore.matchProgression[hole - 1];
+                const l = flightScore.matchLeaders?.[hole - 1];
+                if (s) { lastStatus = s; lastLeader = l ?? null; }
+            }
+            summaries.push({
+                label: 'Mejor Bola',
+                status: lastStatus || 'Not Started',
+                leader: lastLeader,
+            });
+        }
+
+        return summaries;
+    };
+
+    const matchSummaries = getMatchSummary();
+
     return (
-        <div className="flex flex-col cartoon-card overflow-hidden mx-3">
-            <div className="overflow-x-auto" ref={scrollRef}>
-                <div className="min-w-max">
-                    {renderHoleHeaders(visibleHoles)}
+        <div className="flex flex-col gap-3 mx-3">
+            <div className="cartoon-card overflow-hidden">
+                <div className="overflow-x-auto" ref={scrollRef}>
+                    <div className="min-w-max">
+                        {renderHoleHeaders(visibleHoles)}
 
-                    {isScramble ? (
-                        <>
-                            {renderScrambleRow('red', flightScore.redPlayers, visibleHoles)}
-                            {renderMatchStatusRow(visibleHoles)}
-                            {renderScrambleRow('blue', flightScore.bluePlayers, visibleHoles)}
-                        </>
-                    ) : (
-                        <>
-                            {/* Match 1: Red[0] vs Blue[0] */}
-                            {flightScore.redPlayers[0] && renderPlayerRow({ ...flightScore.redPlayers[0], team: 'red' }, visibleHoles)}
-                            {flightScore.bluePlayers[0] && renderPlayerRow({ ...flightScore.bluePlayers[0], team: 'blue' }, visibleHoles)}
-                            {renderSinglesStatusRow(0, visibleHoles)}
+                        {isScramble ? (
+                            <>
+                                {renderScrambleRow('red', flightScore.redPlayers, visibleHoles)}
+                                {renderMatchStatusRow(visibleHoles)}
+                                {renderScrambleRow('blue', flightScore.bluePlayers, visibleHoles)}
+                            </>
+                        ) : (
+                            <>
+                                {/* Match 1: Red[0] vs Blue[0] */}
+                                {flightScore.redPlayers[0] && renderPlayerRow({ ...flightScore.redPlayers[0], team: 'red' }, visibleHoles)}
+                                {flightScore.bluePlayers[0] && renderPlayerRow({ ...flightScore.bluePlayers[0], team: 'blue' }, visibleHoles)}
+                                {renderSinglesStatusRow(0, visibleHoles)}
 
-                            {/* Match 2: Red[1] vs Blue[1] */}
-                            {flightScore.redPlayers[1] && renderPlayerRow({ ...flightScore.redPlayers[1], team: 'red' }, visibleHoles)}
-                            {flightScore.bluePlayers[1] && renderPlayerRow({ ...flightScore.bluePlayers[1], team: 'blue' }, visibleHoles)}
-                            {renderSinglesStatusRow(1, visibleHoles)}
+                                {/* Match 2: Red[1] vs Blue[1] */}
+                                {flightScore.redPlayers[1] && renderPlayerRow({ ...flightScore.redPlayers[1], team: 'red' }, visibleHoles)}
+                                {flightScore.bluePlayers[1] && renderPlayerRow({ ...flightScore.bluePlayers[1], team: 'blue' }, visibleHoles)}
+                                {renderSinglesStatusRow(1, visibleHoles)}
 
-                            {/* Fourball (Best Ball) overall result */}
-                            {renderMatchStatusRow(visibleHoles)}
-                        </>
-                    )}
+                                {/* Fourball (Best Ball) overall result */}
+                                {renderMatchStatusRow(visibleHoles)}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* Match Summary below scorecard */}
+            {matchSummaries.length > 0 && (
+                <div className="cartoon-card px-4 py-3 flex flex-col gap-2">
+                    {matchSummaries.map((m, i) => (
+                        <div key={i} className="flex items-center justify-between">
+                            <span className="text-xs font-bangers text-forest-deep/70 uppercase tracking-wider">{m.label}</span>
+                            <span className={`
+                                px-2.5 py-1 rounded-lg text-xs font-bangers uppercase tracking-wide
+                                ${!m.leader ? 'bg-forest-mid/15 text-forest-deep/60' : m.leader === 'red' ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'}
+                            `}>
+                                {m.status}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
