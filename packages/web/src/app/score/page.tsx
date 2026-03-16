@@ -106,7 +106,7 @@ export default function ScoresPage() {
     const currentPar = openHole && flightScore ? flightScore.parValues[openHole - 1] : 0;
 
     return (
-        <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden">
+        <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden bg-app-gradient">
 
             {/* ERROR indicator */}
             {submitError && (
