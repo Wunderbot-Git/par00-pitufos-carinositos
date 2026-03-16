@@ -85,7 +85,7 @@ function ScoreCell({
             </div>
 
             {strokes > 0 && (
-                <span className="absolute top-[2px] right-1 text-[8px] text-gold-border/40 tracking-[-0.1em]" style={{ lineHeight: '1' }}>
+                <span className="absolute top-[1px] right-0.5 text-[9px] text-forest-deep/30 tracking-[-0.05em]" style={{ lineHeight: '1' }}>
                     {dots}
                 </span>
             )}
@@ -269,6 +269,70 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
         </div>
     );
 
+    const renderSinglesStatusRow = (matchIndex: number, holeNumbers: number[]) => {
+        const redPlayer = flightScore.redPlayers[matchIndex];
+        const bluePlayer = flightScore.bluePlayers[matchIndex];
+        if (!redPlayer || !bluePlayer) return null;
+
+        const singlesHoles = redPlayer.singlesHoles;
+        if (!singlesHoles) return null;
+
+        // Compute running match state from hole winners
+        let runningScore = 0; // positive = red leading, negative = blue leading
+        const states: { status: string; leader: 'red' | 'blue' | null }[] = [];
+
+        for (const hole of holeNumbers) {
+            const winner = singlesHoles[hole - 1];
+            if (winner === 'red') runningScore++;
+            else if (winner === 'blue') runningScore--;
+
+            if (winner === null && states.length === 0 && runningScore === 0) {
+                states.push({ status: '', leader: null });
+            } else {
+                const absScore = Math.abs(runningScore);
+                const status = runningScore === 0 ? 'A/S' : `${absScore}UP`;
+                const leader = runningScore > 0 ? 'red' as const : runningScore < 0 ? 'blue' as const : null;
+                states.push({ status, leader });
+            }
+        }
+
+        const redName = redPlayer.playerName.replace(/ -$/, '').split(' ')[0];
+        const blueName = bluePlayer.playerName.replace(/ -$/, '').split(' ')[0];
+
+        return (
+            <div className="flex bg-forest-mid/10 h-9 border-y border-gold-border/20 shadow-inner relative z-20">
+                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-forest-mid/10 border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                    <span className="text-[7px] font-bangers text-forest-deep/60 uppercase tracking-wider leading-tight">
+                        {redName} vs {blueName}
+                    </span>
+                </div>
+                <div className="flex-1 flex overflow-hidden">
+                    {holeNumbers.map((hole, i) => {
+                        const state = states[i];
+                        if (!state || !state.status) {
+                            return <div key={hole} className="min-w-[50px] flex items-center justify-center"><div className="w-1.5 h-1.5 bg-gold-border/20 rounded-full" /></div>;
+                        }
+
+                        const isRed = state.leader === 'red';
+                        const isBlue = state.leader === 'blue';
+                        const isAS = !state.leader;
+
+                        return (
+                            <div key={hole} className="min-w-[50px] flex items-center justify-center">
+                                <div className={`
+                                    flex items-center justify-center w-7 h-6 rounded-full text-[7px] font-bangers shadow-sm
+                                    ${isAS ? 'bg-forest-mid/20 text-forest-deep/60' : isRed ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'}
+                                `}>
+                                    {state.status.replace(' ', '')}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     const renderScrambleRow = (team: 'red' | 'blue', players: any[], holeNumbers: number[]) => {
         if (!players.length) return null;
         const combinedName = players.map(p => p.playerName.split(' ')[0]).join(' / ');
@@ -293,17 +357,26 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     {renderHoleHeaders(visibleHoles)}
 
                     {isScramble ? (
-                        renderScrambleRow('red', flightScore.redPlayers, visibleHoles)
+                        <>
+                            {renderScrambleRow('red', flightScore.redPlayers, visibleHoles)}
+                            {renderMatchStatusRow(visibleHoles)}
+                            {renderScrambleRow('blue', flightScore.bluePlayers, visibleHoles)}
+                        </>
                     ) : (
-                        flightScore.redPlayers.map(p => renderPlayerRow({ ...p, team: 'red' }, visibleHoles))
-                    )}
+                        <>
+                            {/* Match 1: Red[0] vs Blue[0] */}
+                            {flightScore.redPlayers[0] && renderPlayerRow({ ...flightScore.redPlayers[0], team: 'red' }, visibleHoles)}
+                            {flightScore.bluePlayers[0] && renderPlayerRow({ ...flightScore.bluePlayers[0], team: 'blue' }, visibleHoles)}
+                            {renderSinglesStatusRow(0, visibleHoles)}
 
-                    {renderMatchStatusRow(visibleHoles)}
+                            {/* Match 2: Red[1] vs Blue[1] */}
+                            {flightScore.redPlayers[1] && renderPlayerRow({ ...flightScore.redPlayers[1], team: 'red' }, visibleHoles)}
+                            {flightScore.bluePlayers[1] && renderPlayerRow({ ...flightScore.bluePlayers[1], team: 'blue' }, visibleHoles)}
+                            {renderSinglesStatusRow(1, visibleHoles)}
 
-                    {isScramble ? (
-                        renderScrambleRow('blue', flightScore.bluePlayers, visibleHoles)
-                    ) : (
-                        flightScore.bluePlayers.map(p => renderPlayerRow({ ...p, team: 'blue' }, visibleHoles))
+                            {/* Fourball (Best Ball) overall result */}
+                            {renderMatchStatusRow(visibleHoles)}
+                        </>
                     )}
                 </div>
             </div>
