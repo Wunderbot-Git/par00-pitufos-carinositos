@@ -7,7 +7,7 @@
  * Run (from repo root):
  *   DATABASE_URL="postgresql://..." npx ts-node packages/api/scripts/seed-roster.ts
  *
- * NOTE: HCPs default to 0. Set real values via the admin section before play starts.
+ * HCPs are set per player in the GROUPS array below.
  */
 
 import { Pool } from 'pg';
@@ -16,26 +16,31 @@ const { v4: uuidv4 } = require('uuid');
 
 require('dotenv/config');
 
+// Strip accents: Vélez → Velez, Tomás → Tomas, Gaitán → Gaitan
+const stripAccents = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 // ── ROSTER ────────────────────────────────────────────────────────────────────
 // Each group: { blue: [Pos1, Pos2], red: [Pos1, Pos2] }
 // blue = Pitufos (left side in cards, gold border)
 // red  = Cariñositos (right side in cards, pink border)
-const GROUPS: Array<{ blue: [string, string]; red: [string, string] }> = [
-    { blue: ['Vélez',  'Rocha'],    red: ['Adri',    'Camilo']   }, // Group 1
-    { blue: ['Tomás',  'Burrowes'], red: ['Fito',    'Herrera']  }, // Group 2
-    { blue: ['Ana',    'Fercho'],   red: ['Camacho', 'Manu']     }, // Group 3
-    { blue: ['Pulido', 'Phil'],     red: ['Pocho',   'Gaitán']   }, // Group 4
-    { blue: ['Vargas', 'Pilarica'], red: ['Sardi',   'Bernie']   }, // Group 5
+// Each player: [name, handicap_index]
+type PlayerEntry = [string, number];
+const GROUPS: Array<{ blue: [PlayerEntry, PlayerEntry]; red: [PlayerEntry, PlayerEntry] }> = [
+    { blue: [['Vélez', 20],  ['Rocha', 27]],    red: [['Adri', 13],      ['Camilo', 30]]   }, // Group 1
+    { blue: [['Tomás', 14],  ['Burrowes', 15]], red: [['Fito', 12],      ['Herrera', 16]]  }, // Group 2
+    { blue: [['Ana', 11],    ['Fercho', 17]],   red: [['Camacho', 14],   ['Manu', 15]]     }, // Group 3
+    { blue: [['Pulido', 6],  ['Phil', 11]],     red: [['Pocho', 8],      ['Gaitán', 25]]   }, // Group 4
+    { blue: [['Vargas', 15], ['Pilarica', 14]], red: [['Sardi', 16],     ['Bernie', 21]]   }, // Group 5
 ];
 
-const EVENT_CODE = 'RYDER0';
+const EVENT_CODE = 'PC2026';
 
 async function main() {
     const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/ryder_cup_dev';
     console.log('Connecting to:', databaseUrl.replace(/:[^@]+@/, ':***@'));
 
     const pool = new Pool({ connectionString: databaseUrl });
-    const passwordHash = await bcrypt.hash('password', 10);
+    const passwordHash = await bcrypt.hash('Par00', 10);
 
     try {
         // ── Ensure organizer user ─────────────────────────────────────────────
@@ -44,7 +49,7 @@ async function main() {
              VALUES ($1, $2, 'Organizer', NOW())
              ON CONFLICT (email) DO UPDATE SET email = $1
              RETURNING id`,
-            ['organizer@ryder.test', passwordHash]
+            ['organizer@par00.com', passwordHash]
         );
         const organizerId = orgRes.rows[0].id;
 
@@ -54,7 +59,7 @@ async function main() {
              VALUES ($1, $2, $3, $4, NOW(), NOW())
              ON CONFLICT (event_code) DO UPDATE SET name = $1, updated_at = NOW()
              RETURNING id`,
-            ['Ryder Par 00', 'live', EVENT_CODE, organizerId]
+            ['Pitufos Carinositos 2026', 'live', EVENT_CODE, organizerId]
         );
         const eventId = eventRes.rows[0].id;
         console.log(`Event: ${eventId} (code: ${EVENT_CODE})`);
@@ -65,7 +70,7 @@ async function main() {
              VALUES ($1, $2, 'manual', NOW())
              ON CONFLICT (event_id) DO UPDATE SET name = $2
              RETURNING id`,
-            [eventId, 'Ryder Par 00 Course']
+            [eventId, 'Pitufos Carinositos 2026 Course']
         );
         const courseId = courseRes.rows[0].id;
 
@@ -118,10 +123,10 @@ async function main() {
             console.log(`  Flight ${flightNumber}: ${flightId}`);
 
             // Insert players: blue (Pitufos) positions 1 & 2, then red (Cariñositos) 1 & 2
-            const insertPlayer = async (name: string, team: 'blue' | 'red', position: number) => {
+            const insertPlayer = async ([name, hcp]: PlayerEntry, team: 'blue' | 'red', position: number) => {
                 const [firstName, ...rest] = name.split(' ');
                 const lastName = rest.join(' ') || '-';
-                const email = `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}@ryder.test`;
+                const email = `${stripAccents(name).toLowerCase().replace(/[^a-z0-9]/g, '.')}@par00.com`;
 
                 const userRes = await pool.query(
                     `INSERT INTO users (email, password_hash, name, created_at)
@@ -136,8 +141,9 @@ async function main() {
                     `INSERT INTO players
                        (event_id, user_id, first_name, last_name, handicap_index, team, flight_id, position, tee_id, created_at)
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
-                    [eventId, userId, firstName, lastName, 0, team, flightId, position, teeId]
+                    [eventId, userId, firstName, lastName, hcp, team, flightId, position, teeId]
                 );
+                console.log(`    ${team === 'blue' ? '🔵' : '🔴'} ${name} (HCP ${hcp}) — Pos ${position}`);
                 totalPlayers++;
             };
 
@@ -150,7 +156,7 @@ async function main() {
         console.log(`\n✅ Seeded ${GROUPS.length} flights and ${totalPlayers} players.`);
         console.log(`\nEvent ID: ${eventId}`);
         console.log(`\nNext steps:`);
-        console.log(`  1. Set real HCPs for each player via the admin section.`);
+        console.log(`  1. HCPs are already set for all players.`);
         console.log(`  2. Assign tee boxes if needed.`);
         console.log(`  3. The leaderboard will show all 20 matches as "SIN INICIAR" until scores are entered.`);
 
