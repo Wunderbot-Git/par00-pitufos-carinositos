@@ -286,7 +286,7 @@ export const getFlightScoreboardData = async (flightId: string) => {
         for (const tee of course.tees) {
             const sortedHoles = [...tee.holes].sort((a, b) => a.holeNumber - b.holeNumber);
             if (sortedHoles.length === 18) {
-                teeSiMap[tee.id] = sortedHoles.map(h => h.strokeIndex);
+                if (tee.id) teeSiMap[tee.id] = sortedHoles.map(h => h.strokeIndex);
                 // Use first tee for default par/SI
                 if (tee.id === course.tees[0].id) {
                     parValues = sortedHoles.map(h => h.par);
