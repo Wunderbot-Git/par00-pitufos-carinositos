@@ -127,14 +127,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     }, [scrollToHole]);
 
     const renderPlayerRow = (player: any, holeNumbers: number[]) => {
-        // Calculate total of entered scores for visible holes
-        const totalScore = holeNumbers.reduce((sum, hole) => {
-            const score = player.scores[hole - 1];
-            return score !== null ? sum + score : sum;
-        }, 0);
-        const holesPlayed = holeNumbers.filter(hole => player.scores[hole - 1] !== null).length;
-        const totalPar = holeNumbers.reduce((sum, hole) => sum + (flightScore.parValues[hole - 1] || 0), 0);
-
         return (
             <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-center">
                 <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-10 bg-cream border-r border-gold-border/20">
@@ -206,21 +198,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                             />
                         );
                     })}
-                    {/* TOT column */}
-                    <div className="min-w-[50px] flex flex-col items-center justify-center h-14 border-l border-gold-border/20 bg-forest-deep/5">
-                        {holesPlayed > 0 ? (
-                            <>
-                                <span className="text-lg font-fredoka font-bold text-forest-deep">{totalScore}</span>
-                                {totalScore !== totalPar && (
-                                    <span className={`text-[9px] font-fredoka font-bold ${totalScore - totalPar > 0 ? 'text-team-red/60' : 'text-team-blue/60'}`}>
-                                        {totalScore - totalPar > 0 ? '+' : ''}{totalScore - totalPar}
-                                    </span>
-                                )}
-                            </>
-                        ) : (
-                            <span className="text-gold-border/30">-</span>
-                        )}
-                    </div>
                 </div>
             </div>
         );
@@ -243,12 +220,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         <span className="text-[9px] font-fredoka font-bold text-forest-deep/40">P{flightScore.parValues[hole - 1]}</span>
                     </div>
                 ))}
-                <div className="min-w-[50px] flex flex-col items-center justify-center py-1.5 border-l border-gold-border/20 bg-forest-deep/5">
-                    <span className="text-xs font-bangers text-forest-deep">TOT</span>
-                    <span className="text-[9px] font-fredoka font-bold text-forest-deep/40">
-                        P{holeNumbers.reduce((s, h) => s + (flightScore.parValues[h - 1] || 0), 0)}
-                    </span>
-                </div>
             </div>
         </div>
     );
@@ -281,7 +252,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         </div>
                     );
                 })}
-                <div className="min-w-[50px] border-l border-gold-border/20" />
+
             </div>
         </div>
     );
@@ -352,7 +323,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                             </div>
                         );
                     })}
-                    <div className="min-w-[50px] border-l border-gold-border/20" />
+    
                 </div>
             </div>
         );
@@ -376,8 +347,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     };
 
     return (
-        <div className="flex flex-col cartoon-card overflow-hidden">
-            <div className="overflow-x-auto pb-4" ref={scrollRef}>
+        <div className="flex flex-col cartoon-card overflow-hidden mx-3">
+            <div className="overflow-x-auto" ref={scrollRef}>
                 <div className="min-w-max">
                     {renderHoleHeaders(visibleHoles)}
 
