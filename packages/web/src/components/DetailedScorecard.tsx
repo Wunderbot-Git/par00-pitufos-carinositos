@@ -10,19 +10,35 @@ interface DetailedScorecardProps {
     onClose?: () => void;
 }
 
+function getStrokes(siValues: number[], hcp: number, holeIdx: number): number {
+    const holeSI = siValues[holeIdx];
+    if (!holeSI) return 0;
+    const baseStrokes = Math.floor(hcp / 18);
+    const remainder = hcp % 18;
+    const extraStroke = remainder >= holeSI ? 1 : 0;
+    return baseStrokes + extraStroke;
+}
+
 function ScoreCell({
     score,
     team,
     isWinner,
+    strokes,
 }: {
     score: number | null;
     team: 'red' | 'blue';
     isWinner?: boolean;
+    strokes?: number;
 }) {
     if (score === null) {
         return (
-            <td className="p-0 text-center">
+            <td className="p-0 text-center relative">
                 <span className="text-gray-300 text-sm font-fredoka">-</span>
+                {(strokes ?? 0) > 0 && (
+                    <span className="absolute top-0 right-0 text-[7px] text-gray-300" style={{ lineHeight: '1' }}>
+                        {Array(strokes).fill('●').join('')}
+                    </span>
+                )}
             </td>
         );
     }
@@ -30,8 +46,8 @@ function ScoreCell({
     const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
 
     return (
-        <td className="p-0 text-center">
-            <div className="inline-flex items-center justify-center w-7 h-7 relative">
+        <td className="p-0 text-center relative">
+            <div className="inline-flex items-center justify-center w-7 h-8 relative">
                 {isWinner && (
                     <div
                         className="absolute w-6 h-6 rounded-md"
@@ -51,6 +67,11 @@ function ScoreCell({
                     {score}
                 </span>
             </div>
+            {(strokes ?? 0) > 0 && (
+                <span className="absolute top-0 right-0 text-[7px] text-gray-400" style={{ lineHeight: '1' }}>
+                    {Array(strokes).fill('●').join('')}
+                </span>
+            )}
         </td>
     );
 }
@@ -88,7 +109,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                 {holes.map(h => (
                                     <th key={h} className="p-1 text-center font-bangers text-xs w-[8%] min-w-[20px] text-white font-bold">{h}</th>
                                 ))}
-                                <th className="p-1.5 text-center font-bangers w-10 text-[10px] sm:text-xs text-white font-bold rounded-tr-lg">{isOut ? 'Out' : 'In'}</th>
+                                <th className="rounded-tr-lg" />
                             </tr>
                         </thead>
                         <tbody>
@@ -98,9 +119,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                 {pars.map((p, i) => (
                                     <td key={i} className="p-0.5 text-center text-gray-500 font-fredoka font-medium text-[10px]">{p}</td>
                                 ))}
-                                <td className="p-1.5 text-center font-fredoka text-gray-500 font-medium text-[10px]">
-                                    {pars.reduce((a, b) => a + b, 0)}
-                                </td>
+                                <td />
                             </tr>
 
                             {/* HCP row */}
@@ -109,67 +128,74 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                 {hcps.map((h, i) => (
                                     <td key={i} className="p-0.5 text-center text-gray-400 text-[10px] italic font-fredoka">{h}</td>
                                 ))}
-                                <td className="p-1.5 text-center text-gray-400"></td>
+                                <td />
                             </tr>
 
                             {/* Player Rows */}
                             {match.segmentType === 'scramble' ? (
                                 <>
-                                    <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                        <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
-                                            {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
-                                        </td>
-                                        {match.redPlayers[0]?.scores.slice(start, end).map((score, i) => (
-                                            <ScoreCell key={i} score={score} team="red" isWinner={holeWinnersChunk[i] === 'red'} />
-                                        ))}
-                                        <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#E75480' }}>
-                                            {match.redPlayers[0]?.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
-                                        </td>
-                                    </tr>
+                                    {(() => {
+                                        const scrambleHcp = Math.round(match.redPlayers.reduce((a, b) => a + b.hcp, 0) * 0.3);
+                                        return (
+                                            <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
+                                                    {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
+                                                </td>
+                                                {match.redPlayers[0]?.scores.slice(start, end).map((score, i) => (
+                                                    <ScoreCell key={i} score={score} team="red" isWinner={holeWinnersChunk[i] === 'red'} strokes={getStrokes(hcps, scrambleHcp, i)} />
+                                                ))}
+                                                <td />
+                                            </tr>
+                                        );
+                                    })()}
 
-                                    <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                        <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
-                                            {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
-                                        </td>
-                                        {match.bluePlayers[0]?.scores.slice(start, end).map((score, i) => (
-                                            <ScoreCell key={i} score={score} team="blue" isWinner={holeWinnersChunk[i] === 'blue'} />
-                                        ))}
-                                        <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#4A90D9' }}>
-                                            {match.bluePlayers[0]?.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
-                                        </td>
-                                    </tr>
+                                    {(() => {
+                                        const scrambleHcp = Math.round(match.bluePlayers.reduce((a, b) => a + b.hcp, 0) * 0.3);
+                                        return (
+                                            <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
+                                                    {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
+                                                </td>
+                                                {match.bluePlayers[0]?.scores.slice(start, end).map((score, i) => (
+                                                    <ScoreCell key={i} score={score} team="blue" isWinner={holeWinnersChunk[i] === 'blue'} strokes={getStrokes(hcps, scrambleHcp, i)} />
+                                                ))}
+                                                <td />
+                                            </tr>
+                                        );
+                                    })()}
                                 </>
                             ) : (
                                 <>
-                                    {match.redPlayers.map((player, pIdx) => (
-                                        <tr key={`red-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                            <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
-                                                {player.playerName.split(' ')[0]}
-                                            </td>
-                                            {player.scores.slice(start, end).map((score, i) => (
-                                                <ScoreCell key={i} score={score} team="red" isWinner={holeWinnersChunk[i] === 'red'} />
-                                            ))}
-                                            <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#E75480' }}>
-                                                {player.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {/* Update rowIdx after red players */}
+                                    {match.redPlayers.map((player, pIdx) => {
+                                        const playingHcp = Math.round(player.hcp * 0.8);
+                                        return (
+                                            <tr key={`red-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
+                                                    {player.playerName.split(' ')[0]}
+                                                </td>
+                                                {player.scores.slice(start, end).map((score, i) => (
+                                                    <ScoreCell key={i} score={score} team="red" isWinner={holeWinnersChunk[i] === 'red'} strokes={getStrokes(hcps, playingHcp, i)} />
+                                                ))}
+                                                <td />
+                                            </tr>
+                                        );
+                                    })}
                                     {(() => { rowIdx += match.redPlayers.length; return null; })()}
 
-                                    {match.bluePlayers.map((player, pIdx) => (
-                                        <tr key={`blue-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                            <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
-                                                {player.playerName.split(' ')[0]}
-                                            </td>
-                                            {player.scores.slice(start, end).map((score, i) => (
-                                                <ScoreCell key={i} score={score} team="blue" isWinner={holeWinnersChunk[i] === 'blue'} />
-                                            ))}
-                                            <td className="p-1.5 text-center font-bold text-xs font-fredoka" style={{ color: '#4A90D9' }}>
-                                                {player.scores.slice(start, end).filter(s => s !== null).reduce((a, b) => a! + b!, 0)}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {match.bluePlayers.map((player, pIdx) => {
+                                        const playingHcp = Math.round(player.hcp * 0.8);
+                                        return (
+                                            <tr key={`blue-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
+                                                    {player.playerName.split(' ')[0]}
+                                                </td>
+                                                {player.scores.slice(start, end).map((score, i) => (
+                                                    <ScoreCell key={i} score={score} team="blue" isWinner={holeWinnersChunk[i] === 'blue'} strokes={getStrokes(hcps, playingHcp, i)} />
+                                                ))}
+                                                <td />
+                                            </tr>
+                                        );
+                                    })}
                                 </>
                             )}
 
@@ -207,7 +233,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                         </td>
                                     );
                                 })}
-                                <td className="p-1.5 text-center rounded-br-lg"></td>
+                                <td className="rounded-br-lg" />
                             </tr>
                         </tbody>
                     </table>
