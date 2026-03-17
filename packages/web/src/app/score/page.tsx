@@ -146,7 +146,7 @@ export default function ScoresPage() {
                         Error al cargar los datos de scores.
                     </div>
                 ) : (
-                    <div className="animate-in fade-in duration-500 h-full flex flex-col">
+                    <div className="animate-in fade-in duration-500 h-full flex flex-col overflow-hidden">
                         {/* Segment Toggle */}
                         <div className="flex gap-2 px-4 pt-3 pb-2">
                             <button
