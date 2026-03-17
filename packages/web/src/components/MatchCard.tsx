@@ -181,22 +181,25 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
-                        {match.bluePlayers.map((p, i) => (
+                        {match.segmentType === 'scramble' ? (
                             <div
-                                key={i}
                                 className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
                                 style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
                             >
-                                {p.playerName.split(' ')[0]}
-                                {match.segmentType !== 'scramble' && (
-                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
-                                )}
+                                {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
+                                <span className="text-[11px] ml-1" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.bluePlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
                             </div>
-                        ))}
-                        {match.segmentType === 'scramble' && (
-                            <span className="text-[11px] font-bangers" style={{ color: isNotStarted ? '#bbb' : '#666' }}>
-                                HCP {Math.round(match.bluePlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)}
-                            </span>
+                        ) : (
+                            match.bluePlayers.map((p, i) => (
+                                <div
+                                    key={i}
+                                    className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
+                                    style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
+                                >
+                                    {p.playerName.split(' ')[0]}
+                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>
@@ -317,22 +320,25 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
 
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
-                        {match.redPlayers.map((p, i) => (
+                        {match.segmentType === 'scramble' ? (
                             <div
-                                key={i}
                                 className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
                                 style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
                             >
-                                {p.playerName.split(' ')[0]}
-                                {match.segmentType !== 'scramble' && (
-                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
-                                )}
+                                {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
+                                <span className="text-[11px] ml-1" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.redPlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
                             </div>
-                        ))}
-                        {match.segmentType === 'scramble' && (
-                            <span className="text-[11px] font-bangers" style={{ color: isNotStarted ? '#bbb' : '#666' }}>
-                                HCP {Math.round(match.redPlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)}
-                            </span>
+                        ) : (
+                            match.redPlayers.map((p, i) => (
+                                <div
+                                    key={i}
+                                    className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
+                                    style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
+                                >
+                                    {p.playerName.split(' ')[0]}
+                                    <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>
