@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
@@ -47,22 +46,7 @@ export default function ApuestasClient() {
 
     return (
         <div className="flex flex-col min-h-screen pb-20">
-            {/* Header */}
-            <header className="bg-[#1a1a3e] text-white flex-shrink-0 z-50 shadow-md border-b-2 border-gold-border/50">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="relative h-10 w-32 flex-shrink-0">
-                        <Image
-                            src="/images/Gemini_Generated_Image_6e37hu6e37hu6e37_1.webp"
-                            alt="Pitufos vs Cariñositos"
-                            fill
-                            className="object-contain object-left"
-                            priority
-                        />
-                    </div>
-                </div>
-            </header>
-
-            {/* Dashboard Banner */}
+{/* Dashboard Banner */}
             <DashboardBanner stats={stats || undefined} isLoading={isLoading} />
 
             {/* Tab Navigation */}
