@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface PlayerEntryInfo {
     playerId: string;
@@ -108,7 +109,7 @@ export function ScoreEntryModal({
 
     const activePlayer = players[activePlayerIndex];
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[100] flex flex-col bg-gradient-to-b from-forest-deep via-forest-mid to-forest-deep text-white h-[100dvh] overflow-hidden">
             {isSaving && (
                 <div className="absolute inset-0 z-[110] bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm transition-all duration-300">
@@ -223,6 +224,7 @@ export function ScoreEntryModal({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
