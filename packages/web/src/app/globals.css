@@ -40,26 +40,15 @@ h4,
   letter-spacing: 0.05em;
 }
 
-/* App gradient background — uses ::before pseudo-element instead of
-   background-attachment:fixed which is broken on iOS Safari */
+/* App background — golf course image directly on body, no pseudo-element.
+   Avoids z-index/-1 issues with overflow:hidden stacking contexts. */
 .bg-app-gradient {
   background-color: #147255;
-  min-height: 100vh;
-  position: relative;
-}
-
-.bg-app-gradient::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   background-image: url('/images/Gemini_Generated_Image_4q77n64q77n64q77.webp');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  z-index: -1;
+  min-height: 100vh;
 }
 
 /* Replaced by cartoon-card below */

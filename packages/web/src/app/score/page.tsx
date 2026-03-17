@@ -106,15 +106,7 @@ export default function ScoresPage() {
     const currentPar = openHole && flightScore ? flightScore.parValues[openHole - 1] : 0;
 
     return (
-        <div
-            className="flex flex-col h-[100dvh] pb-16 overflow-hidden"
-            style={{
-                backgroundImage: "url('/images/Gemini_Generated_Image_4q77n64q77n64q77.webp')",
-                backgroundSize: 'cover',
-                backgroundPosition: 'center top',
-                backgroundColor: '#147255',
-            }}
-        >
+        <div className="flex flex-col h-[100dvh] pb-16 overflow-hidden">
 
             {/* ERROR indicator */}
             {submitError && (
