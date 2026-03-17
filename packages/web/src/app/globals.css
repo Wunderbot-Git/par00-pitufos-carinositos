@@ -45,7 +45,8 @@ h4,
    Content must use position:relative + z-index:1 to sit above. */
 .bg-app-gradient {
   background-color: #147255;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
   position: relative;
 }
 
