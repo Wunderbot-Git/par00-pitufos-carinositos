@@ -52,6 +52,7 @@ function ScoreCell({
     // Filled circle for winners: solid team color bg + white text
     let winnerClasses = '';
     let scoreTextColor = 'text-forest-deep';
+    let mejorBolaRing = '';
 
     if (isPending) {
         scoreTextColor = 'text-gold-border';
@@ -63,6 +64,11 @@ function ScoreCell({
         scoreTextColor = team === 'red' ? 'text-team-red' : 'text-team-blue';
     }
 
+    // Gold bullseye ring when this score wins the mejor bola point
+    if (isWinner && !isPending) {
+        mejorBolaRing = 'ring-2 ring-offset-1 ring-[#fbbc05]';
+    }
+
     return (
         <div
             onClick={onClick}
@@ -72,7 +78,7 @@ function ScoreCell({
             `}
         >
             <div className={`
-                inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses}
+                inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses} ${mejorBolaRing}
                 ${isPending ? 'opacity-50' : ''}
             `}>
                 {score !== null ? (
