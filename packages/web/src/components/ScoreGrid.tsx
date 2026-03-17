@@ -391,9 +391,11 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                 const l = flightScore.matchLeaders?.[hole - 1];
                 if (s) { lastStatus = s; lastLeader = l ?? null; }
             }
+            const teamName = lastLeader === 'red' ? 'Cariñositos' : lastLeader === 'blue' ? 'Pitufos' : '';
+            const mejorBolaStatus = !lastStatus ? 'Not Started' : !lastLeader ? 'All Square' : `${teamName} ${lastStatus}`;
             summaries.push({
                 label: 'Mejor Bola',
-                status: lastStatus || 'Not Started',
+                status: mejorBolaStatus,
                 leader: lastLeader,
             });
         }
