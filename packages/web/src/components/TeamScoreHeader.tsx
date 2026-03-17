@@ -52,7 +52,7 @@ export function TeamScoreHeader({
     return (
         <div className="pt-8 px-4 pb-2 relative z-20">
             <div className="relative mt-2">
-                {/* 1. MARCADOR ACTUAL Ribbon directly clipping onto the panel */}
+                {/* 1. MARCADOR Ribbon directly clipping onto the panel */}
                 <div className="absolute -top-[20px] left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-[320px] flex justify-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]">
                     <div className="bg-gradient-to-b from-[#2D8B24] to-[#1B5E20] text-center font-bangers tracking-wider py-1.5 px-3 sm:px-6 border-[4px] border-[#1e293b] rounded-[16px] relative w-full shadow-[inset_0_4px_0_rgba(255,255,255,0.4),0_6px_0_#1e293b] z-20 flex items-center justify-between">
                         {/* Decorator Left (Star) */}
@@ -63,7 +63,7 @@ export function TeamScoreHeader({
                         <span className="text-[20px] sm:text-[24px] relative z-30 text-[#fffbeb] uppercase px-1 leading-tight flex-1" style={{
                             textShadow: '0 3px 0 #1e293b, 0 -1.5px 0 rgba(255,255,255,0.3), 2px 0 0 #1e293b, -2px 0 0 #1e293b, 2px 2px 0 #1e293b, -2px -2px 0 #1e293b'
                         }}>
-                            MARCADOR ACTUAL
+                            MARCADOR
                         </span>
 
                         {/* Decorator Right (Star) */}
