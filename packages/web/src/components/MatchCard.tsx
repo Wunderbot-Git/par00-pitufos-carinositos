@@ -182,12 +182,19 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
                         {match.segmentType === 'scramble' ? (
-                            <div
-                                className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
-                            >
-                                {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
-                                <span className="text-[11px] ml-1" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.bluePlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
+                            <div className="flex items-center justify-center gap-1 w-full">
+                                <div className="flex flex-col items-center">
+                                    {match.bluePlayers.map((p, i) => (
+                                        <div
+                                            key={i}
+                                            className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider uppercase"
+                                            style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
+                                        >
+                                            {p.playerName.split(' ')[0]}
+                                        </div>
+                                    ))}
+                                </div>
+                                <span className="font-bangers text-[11px]" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.bluePlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
                             </div>
                         ) : (
                             match.bluePlayers.map((p, i) => (
@@ -321,12 +328,19 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     {/* Player names */}
                     <div className="flex flex-col items-center w-full">
                         {match.segmentType === 'scramble' ? (
-                            <div
-                                className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
-                            >
-                                {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
-                                <span className="text-[11px] ml-1" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.redPlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
+                            <div className="flex items-center justify-center gap-1 w-full">
+                                <div className="flex flex-col items-center">
+                                    {match.redPlayers.map((p, i) => (
+                                        <div
+                                            key={i}
+                                            className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider uppercase"
+                                            style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
+                                        >
+                                            {p.playerName.split(' ')[0]}
+                                        </div>
+                                    ))}
+                                </div>
+                                <span className="font-bangers text-[11px]" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(match.redPlayers.reduce((sum, p) => sum + p.hcp, 0) * 0.3)})</span>
                             </div>
                         ) : (
                             match.redPlayers.map((p, i) => (
