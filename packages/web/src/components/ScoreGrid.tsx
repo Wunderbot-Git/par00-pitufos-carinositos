@@ -225,9 +225,9 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     );
 
     const renderMatchStatusRow = (holeNumbers: number[]) => (
-        <div className="flex bg-[#e8e4db] h-11 border-y border-gold-border/20 border-t-2 border-t-gold-border/40 shadow-inner relative z-20">
+        <div className="flex bg-[#e8e4db] h-10 border-y border-gold-border/20 shadow-inner relative z-20">
             <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                <span className="text-[11px] font-bangers text-[#b8860b] uppercase tracking-wider leading-tight">
+                <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                     {flightScore.segmentType === 'scramble' ? 'Scramble' : flightScore.segmentType.startsWith('singles') ? 'Partido' : 'Mejor Bola'}
                 </span>
             </div>
@@ -244,8 +244,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     return (
                         <div key={hole} className="min-w-[50px] flex items-center justify-center">
                             <div className={`
-                                flex items-center justify-center w-9 h-8 rounded-full text-[11px] font-bangers font-bold shadow-md
-                                ${isAS ? 'bg-gradient-to-b from-forest-mid/25 to-forest-mid/40 text-white' : isRed ? 'bg-gradient-to-b from-[#E75480] to-[#C44470] text-white' : 'bg-gradient-to-b from-[#4A90D9] to-[#2E6AB0] text-white'}
+                                flex items-center justify-center w-8 h-7 rounded-full text-[10px] font-bangers shadow-sm
+                                ${isAS ? 'bg-forest-mid/20 text-forest-deep/60' : isRed ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'}
                             `}>
                                 {status.replace(' ', '')}
                             </div>
