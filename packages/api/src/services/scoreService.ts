@@ -60,33 +60,26 @@ export const validateEventLive = async (eventId: string): Promise<void> => {
 };
 
 /**
- * Validate player belongs to flight.
+ * Validate player belongs to flight via the players table.
  */
 export const validatePlayerInFlight = async (playerId: string, flightId: string): Promise<void> => {
     const pool = getPool();
     const res = await pool.query(
-        `SELECT fm.id FROM flight_members fm 
-         JOIN players p ON p.user_id = fm.user_id 
-         WHERE p.id = $1 AND fm.flight_id = $2`,
-        [playerId, flightId]
-    );
-    // Also check if player is directly associated via flight_id on players table
-    const directRes = await pool.query(
         `SELECT id FROM players WHERE id = $1 AND flight_id = $2`,
         [playerId, flightId]
     );
-    if (res.rows.length === 0 && directRes.rows.length === 0) {
-        // Check if player exists at all
+    if (res.rows.length === 0) {
         const playerExists = await pool.query('SELECT id FROM players WHERE id = $1', [playerId]);
         if (playerExists.rows.length === 0) {
             throw new Error('Player not found');
         }
-        // For now, allow scoring if player exists (organizer override)
+        // Allow scoring if player exists (organizer override)
     }
 };
 
 /**
  * Submit hole scores (front 9 or any hole 1-18).
+ * Entire batch runs in a single transaction for atomicity.
  */
 export const submitHoleScores = async (input: SubmitScoresInput): Promise<SubmitScoresResult> => {
     console.log(`[ScoreService] submitHoleScores input:`, JSON.stringify(input.scores));
@@ -94,13 +87,14 @@ export const submitHoleScores = async (input: SubmitScoresInput): Promise<Submit
 
     const conflicts: SubmitScoresResult['conflicts'] = [];
     const createInputs: CreateHoleScoreInput[] = [];
+    const deletions: SubmitScoreInput[] = [];
 
     for (const score of input.scores) {
         if (score.holeNumber < 1 || score.holeNumber > 18) {
             throw new Error(`Invalid hole number: ${score.holeNumber}. Must be between 1 and 18.`);
         }
         if (score.grossScore === null || score.grossScore === 0) {
-            // 0 indicates deletion/clearing - skip validation and don't add to upsert batch
+            deletions.push(score);
             continue;
         }
         if (typeof score.grossScore === 'number' && score.grossScore < 0) {
@@ -119,35 +113,49 @@ export const submitHoleScores = async (input: SubmitScoresInput): Promise<Submit
         });
     }
 
-    const result = await upsertHoleScoresBatch(createInputs);
+    const pool = getPool();
+    const client = await pool.connect();
+    let result: { scores: HoleScore[]; created: number; updated: number };
 
-    // Handle deletions (scores with 0 or null)
-    for (const score of input.scores) {
-        if (score.grossScore === null || score.grossScore === 0) {
+    try {
+        await client.query('BEGIN');
+
+        result = await upsertHoleScoresBatch(createInputs, client);
+
+        // Handle deletions inside the same transaction
+        for (const score of deletions) {
             console.log(`[ScoreService] Deleting hole score. Flight: ${input.flightId}, Player: ${score.playerId}, Hole: ${score.holeNumber}`);
 
-            const pool = getPool();
-            const res = await pool.query(
-                `DELETE FROM hole_scores 
+            const res = await client.query(
+                `DELETE FROM hole_scores
                  WHERE event_id = $1 AND flight_id = $2 AND player_id = $3 AND hole_number = $4`,
                 [input.eventId, input.flightId, score.playerId, score.holeNumber]
             );
             console.log(`[ScoreService] Deleted rows: ${res.rowCount}`);
-
-            await createAuditLog({
-                eventId: input.eventId,
-                entityType: 'hole_score',
-                entityId: score.playerId,
-                action: 'delete',
-                previousValue: { grossScore: 'unknown', holeNumber: score.holeNumber },
-                newValue: { grossScore: null, holeNumber: score.holeNumber },
-                source: input.source || 'online',
-                byUserId: input.userId
-            });
         }
+
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
     }
 
-    // Invalidate leaderboard cache
+    // Audit and cache invalidation after successful commit
+    for (const score of deletions) {
+        await createAuditLog({
+            eventId: input.eventId,
+            entityType: 'hole_score',
+            entityId: score.playerId,
+            action: 'delete',
+            previousValue: { grossScore: 'unknown', holeNumber: score.holeNumber },
+            newValue: { grossScore: null, holeNumber: score.holeNumber },
+            source: input.source || 'online',
+            byUserId: input.userId
+        });
+    }
+
     invalidateLeaderboardCache(input.eventId);
 
     return {
@@ -161,6 +169,7 @@ export const submitHoleScores = async (input: SubmitScoresInput): Promise<Submit
 
 /**
  * Submit scramble scores (back 9, holes 10-18).
+ * Entire batch runs in a single transaction for atomicity.
  */
 export const submitScrambleScores = async (input: SubmitScrambleScoresInput): Promise<SubmitScoresResult> => {
     console.log(`[ScoreService] submitScrambleScores input:`, JSON.stringify(input.scores));
@@ -168,13 +177,14 @@ export const submitScrambleScores = async (input: SubmitScrambleScoresInput): Pr
 
     const conflicts: SubmitScoresResult['conflicts'] = [];
     const createInputs: CreateScrambleScoreInput[] = [];
+    const deletions: SubmitScrambleScoreInput[] = [];
 
     for (const score of input.scores) {
         if (score.holeNumber < 10 || score.holeNumber > 18) {
             throw new Error(`Invalid scramble hole number: ${score.holeNumber}. Must be between 10 and 18.`);
         }
         if (score.grossScore === null || score.grossScore === 0) {
-            // 0 indicates deletion - skip validation and upsert
+            deletions.push(score);
             continue;
         }
         if (typeof score.grossScore === 'number' && score.grossScore < 0) {
@@ -193,23 +203,27 @@ export const submitScrambleScores = async (input: SubmitScrambleScoresInput): Pr
         });
     }
 
-    const result = await upsertScrambleScoresBatch(createInputs);
+    const pool = getPool();
+    const client = await pool.connect();
+    let result: { scores: ScrambleScore[]; created: number; updated: number };
 
-    // Handle deletions (scores with 0 or null)
-    for (const score of input.scores) {
-        if (score.grossScore === null || score.grossScore === 0) {
+    try {
+        await client.query('BEGIN');
+
+        result = await upsertScrambleScoresBatch(createInputs, client);
+
+        // Handle deletions inside the same transaction
+        for (const score of deletions) {
             console.log(`[ScoreService] Deleting scramble score. Flight: ${input.flightId}, Team: ${score.team}, Hole: ${score.holeNumber}`);
 
-            const pool = getPool();
-            const res = await pool.query(
-                `DELETE FROM scramble_team_scores 
+            const res = await client.query(
+                `DELETE FROM scramble_team_scores
                  WHERE event_id = $1 AND flight_id = $2 AND team = $3 AND hole_number = $4`,
                 [input.eventId, input.flightId, score.team, score.holeNumber]
             );
-            // Also delete from hole_scores to prevent phantom scores from reappearing (fallback logic)
-            // We delete for ALL players in that team for this hole
-            await pool.query(
-                `DELETE FROM hole_scores 
+            // Also delete from hole_scores to prevent phantom scores from reappearing
+            await client.query(
+                `DELETE FROM hole_scores
                  WHERE flight_id = $1 AND hole_number = $2 AND player_id IN (
                      SELECT id FROM players WHERE flight_id = $1 AND team = $3
                  )`,
@@ -218,9 +232,16 @@ export const submitScrambleScores = async (input: SubmitScrambleScoresInput): Pr
 
             console.log(`[ScoreService] Deleted rows: ${res.rowCount}`);
         }
+
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
     }
 
-    // Invalidate leaderboard cache
+    // Cache invalidation after successful commit
     invalidateLeaderboardCache(input.eventId);
 
     return {
