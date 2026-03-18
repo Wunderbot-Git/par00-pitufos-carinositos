@@ -119,7 +119,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.bluePlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                        <div className="relative flex-shrink-0" style={{ width: 'min(88px, 25vw)', height: 'min(80px, 23vw)' }}>
                             {match.bluePlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
@@ -127,10 +127,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         key={i}
                                         className="absolute rounded-full"
                                         style={{
-                                            width: 'min(68px, 20vw)',
-                                            height: 'min(68px, 20vw)',
-                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
-                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
+                                            width: 'min(62px, 18vw)',
+                                            height: 'min(62px, 18vw)',
+                                            top: i === 0 ? 0 : 'min(18px, 5vw)',
+                                            left: i === 0 ? 0 : 'min(26px, 7vw)',
                                             zIndex: i === 0 ? 2 : 1,
                                             borderRadius: '50%',
                                         }}
@@ -265,7 +265,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.redPlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(96px, 28vw)', height: 'min(88px, 26vw)' }}>
+                        <div className="relative flex-shrink-0" style={{ width: 'min(88px, 25vw)', height: 'min(80px, 23vw)' }}>
                             {match.redPlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
@@ -273,10 +273,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         key={i}
                                         className="absolute rounded-full"
                                         style={{
-                                            width: 'min(68px, 20vw)',
-                                            height: 'min(68px, 20vw)',
-                                            top: i === 0 ? 0 : 'min(20px, 6vw)',
-                                            left: i === 0 ? 0 : 'min(28px, 8vw)',
+                                            width: 'min(62px, 18vw)',
+                                            height: 'min(62px, 18vw)',
+                                            top: i === 0 ? 0 : 'min(18px, 5vw)',
+                                            left: i === 0 ? 0 : 'min(26px, 7vw)',
                                             zIndex: i === 0 ? 2 : 1,
                                             borderRadius: '50%',
                                         }}
