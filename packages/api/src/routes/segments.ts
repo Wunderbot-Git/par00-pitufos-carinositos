@@ -3,6 +3,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { getSegmentStatus, completeSegment, reopenSegment, SegmentType } from '../services/segmentService';
 import { authenticate } from '../middleware/auth';
+import { requireOrganizer } from '../middleware/authExtensions';
 
 interface SegmentParams {
     eventId: string;
@@ -37,11 +38,11 @@ export default async function segmentRoutes(fastify: FastifyInstance) {
     // Complete segment
     fastify.post<{ Params: SegmentParams }>(
         '/events/:eventId/flights/:flightId/segment/:segment/complete',
-        { preHandler: [authenticate] },
+        { preHandler: [authenticate, requireOrganizer] },
         async (request: FastifyRequest<{ Params: SegmentParams }>, reply: FastifyReply) => {
             try {
                 const { flightId, segment } = request.params;
-                const userId = (request.user as any).id;
+                const userId = (request.user as any).userId;
 
                 if (segment !== 'front' && segment !== 'back') {
                     return reply.status(400).send({ error: 'Segment must be "front" or "back"' });
@@ -67,11 +68,11 @@ export default async function segmentRoutes(fastify: FastifyInstance) {
     // Reopen segment
     fastify.post<{ Params: SegmentParams }>(
         '/events/:eventId/flights/:flightId/segment/:segment/reopen',
-        { preHandler: [authenticate] },
+        { preHandler: [authenticate, requireOrganizer] },
         async (request: FastifyRequest<{ Params: SegmentParams }>, reply: FastifyReply) => {
             try {
                 const { flightId, segment } = request.params;
-                const userId = (request.user as any).id;
+                const userId = (request.user as any).userId;
 
                 if (segment !== 'front' && segment !== 'back') {
                     return reply.status(400).send({ error: 'Segment must be "front" or "back"' });

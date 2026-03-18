@@ -6,6 +6,7 @@ import { getLeaderboard } from '../services/leaderboardService';
 import { getFlightMatchHistory } from '../services/leaderboardService';
 import { getTokensForEvent, revokeToken } from '../repositories/spectatorRepository';
 import { authenticate } from '../middleware/auth';
+import { requireOrganizer } from '../middleware/authExtensions';
 
 interface CreateLinkParams {
     eventId: string;
@@ -24,11 +25,11 @@ export default async function spectatorRoutes(fastify: FastifyInstance) {
     // Create spectator link (organizer only)
     fastify.post<{ Params: CreateLinkParams; Body: { expiresInDays?: number } }>(
         '/events/:eventId/spectator-link',
-        { preHandler: [authenticate] },
+        { preHandler: [authenticate, requireOrganizer] },
         async (request: FastifyRequest<{ Params: CreateLinkParams; Body: { expiresInDays?: number } }>, reply: FastifyReply) => {
             try {
                 const { eventId } = request.params;
-                const userId = (request.user as any).id;
+                const userId = (request.user as any).userId;
                 const { expiresInDays } = request.body || {};
 
                 let expiresAt: Date | undefined;
@@ -48,7 +49,7 @@ export default async function spectatorRoutes(fastify: FastifyInstance) {
     // Get all spectator links for event (organizer only)
     fastify.get<{ Params: CreateLinkParams }>(
         '/events/:eventId/spectator-links',
-        { preHandler: [authenticate] },
+        { preHandler: [authenticate, requireOrganizer] },
         async (request: FastifyRequest<{ Params: CreateLinkParams }>, reply: FastifyReply) => {
             try {
                 const { eventId } = request.params;
@@ -63,7 +64,7 @@ export default async function spectatorRoutes(fastify: FastifyInstance) {
     // Revoke spectator link (organizer only)
     fastify.delete<{ Params: { eventId: string; tokenId: string } }>(
         '/events/:eventId/spectator-links/:tokenId',
-        { preHandler: [authenticate] },
+        { preHandler: [authenticate, requireOrganizer] },
         async (request: FastifyRequest<{ Params: { eventId: string; tokenId: string } }>, reply: FastifyReply) => {
             try {
                 const { tokenId } = request.params;
