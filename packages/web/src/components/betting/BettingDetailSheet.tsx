@@ -122,7 +122,9 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                             <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
                                 <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
                                 <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
-                                    Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.
+                                    {match.currentHole === 0
+                                        ? 'Puedes cambiar tu apuesta hasta que se registre el primer score.'
+                                        : 'Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.'}
                                 </p>
                             </div>
 

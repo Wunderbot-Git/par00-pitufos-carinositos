@@ -69,14 +69,20 @@ export function MatchBettingCard({ match, userBet, onClick }: Props) {
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-[10px] text-forest-deep/40 font-bangers uppercase tracking-wide">
-                                {isClosed ? 'Resultado' : 'Potencial'}
-                            </div>
-                            <div className={`text-sm font-bangers ${isClosed ? (userBet.potentialPayout && userBet.potentialPayout > 0 ? 'text-green-600' : 'text-forest-deep/40') : 'text-brass'}`}>
-                                {isClosed && (!userBet.potentialPayout || userBet.potentialPayout === 0)
-                                    ? 'Perdida'
-                                    : (userBet.potentialPayout ? formatCurrency(userBet.potentialPayout) : 'Calculando...')}
-                            </div>
+                            {match.currentHole === 0 ? (
+                                <div className="text-xs font-bangers text-brass uppercase tracking-wide">Cambiar ✎</div>
+                            ) : (
+                                <>
+                                    <div className="text-[10px] text-forest-deep/40 font-bangers uppercase tracking-wide">
+                                        {isClosed ? 'Resultado' : 'Potencial'}
+                                    </div>
+                                    <div className={`text-sm font-bangers ${isClosed ? (userBet.potentialPayout && userBet.potentialPayout > 0 ? 'text-green-600' : 'text-forest-deep/40') : 'text-brass'}`}>
+                                        {isClosed && (!userBet.potentialPayout || userBet.potentialPayout === 0)
+                                            ? 'Perdida'
+                                            : (userBet.potentialPayout ? formatCurrency(userBet.potentialPayout) : 'Calculando...')}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

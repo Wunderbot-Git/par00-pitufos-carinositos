@@ -29,16 +29,7 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             throw new Error('Betting is not enabled for this event.');
         }
 
-        // 2. Check for duplicate bet using FOR UPDATE to prevent race conditions on the same flight/segment/bettor
-        const existingBetRes = await client.query(
-            'SELECT id FROM bets WHERE flight_id = $1 AND segment_type = $2 AND bettor_id = $3 FOR UPDATE',
-            [input.flightId, input.segmentType, input.bettorId]
-        );
-        if (existingBetRes.rows.length > 0) {
-            throw new Error('You have already placed a bet on this match.');
-        }
-
-        // 3. Get Match State
+        // 2. Get Match State first (needed to check if bet is replaceable)
         const board = await getFlightScoreboardData(input.flightId);
 
         let currentHole = 0;
@@ -103,7 +94,21 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             }
         }
 
-        // 6. Calculate Factors
+        // 6. Check for existing bet — allow replacement if no scores recorded yet
+        const existingBetRes = await client.query(
+            'SELECT id FROM bets WHERE flight_id = $1 AND segment_type = $2 AND bettor_id = $3 FOR UPDATE',
+            [input.flightId, input.segmentType, input.bettorId]
+        );
+        if (existingBetRes.rows.length > 0) {
+            if (currentHole === 0) {
+                // No scores yet — delete old bet so it can be replaced
+                await client.query('DELETE FROM bets WHERE id = $1', [existingBetRes.rows[0].id]);
+            } else {
+                throw new Error('You have already placed a bet on this match.');
+            }
+        }
+
+        // 7. Calculate Factors
         let timingFactor = 1;
         if (currentHole === 0) timingFactor = 3;
         else if (currentHole <= 3) timingFactor = 2;

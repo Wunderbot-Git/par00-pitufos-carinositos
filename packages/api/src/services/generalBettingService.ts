@@ -64,15 +64,23 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
             throw new Error(`Bet type '${input.betType}' requires a flight_id.`);
         }
 
-        // 4. Check for duplicate bet
+        // 4. Get leaderboard for timing factor and validation
+        const leaderboard = await getLeaderboard(input.eventId);
+
+        // 5. Check for duplicate bet — allow replacement if no scores recorded yet
         const existing = await checkExistingBet(
             input.eventId, input.bettorId, input.betType,
             input.flightId || null, input.segmentType || null
         );
-        if (existing) throw new Error('You have already placed this type of bet.');
-
-        // 5. Get leaderboard for timing factor and validation
-        const leaderboard = await getLeaderboard(input.eventId);
+        if (existing) {
+            const started = leaderboard.matches.filter(m => m.status !== 'not_started').length;
+            if (started === 0) {
+                // No scores yet — delete old bet so it can be replaced
+                await client.query('DELETE FROM general_bets WHERE id = $1', [existing.id]);
+            } else {
+                throw new Error('You have already placed this type of bet.');
+            }
+        }
 
         // 6. Tournament winner can't be bet on if already decided
         if (input.betType === 'tournament_winner') {
