@@ -22,6 +22,7 @@ const VALID_OUTCOMES: Record<GeneralBetType, string[]> = {
     flight_sweep: ['red', 'blue'],
     biggest_blowout: [], // dynamic — any flight+segment id
     any_halve: ['yes', 'no'],
+    early_close: ['yes', 'no'], // whether any match ends before hole 9/18
 
     mvp: [], // dynamic — any player id
     worst_player: [], // dynamic — any player id
@@ -67,10 +68,11 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         // 4. Get leaderboard for timing factor and validation
         const leaderboard = await getLeaderboard(input.eventId);
 
-        // 5. Check for duplicate bet — allow replacement if no scores recorded yet
+        // 5. Check for duplicate bet (FOR UPDATE on same client) — allow replacement if no scores recorded yet
         const existing = await checkExistingBet(
             input.eventId, input.bettorId, input.betType,
-            input.flightId || null, input.segmentType || null
+            input.flightId || null, input.segmentType || null,
+            client
         );
         if (existing) {
             const started = leaderboard.matches.filter(m => m.status !== 'not_started').length;
