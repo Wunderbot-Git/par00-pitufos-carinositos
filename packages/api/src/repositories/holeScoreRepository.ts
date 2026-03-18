@@ -1,6 +1,7 @@
 // Hole Score Repository - CRUD operations for individual hole scores
 
 import { getPool } from '../config/database';
+import { Pool, PoolClient } from 'pg';
 
 export interface HoleScore {
     id: string;
@@ -45,15 +46,16 @@ const mapRowToHoleScore = (row: any): HoleScore => ({
 });
 
 /**
- * Upsert a single hole score with idempotency.
+ * Upsert a single hole score with idempotency via ON CONFLICT.
+ * Accepts optional PoolClient for transactional use.
  */
-export const upsertHoleScore = async (input: CreateHoleScoreInput): Promise<{ score: HoleScore; wasCreated: boolean; previousValue?: number }> => {
-    const pool = getPool();
+export const upsertHoleScore = async (input: CreateHoleScoreInput, client?: PoolClient): Promise<{ score: HoleScore; wasCreated: boolean; previousValue?: number }> => {
+    const db: Pool | PoolClient = client || getPool();
     const source = input.source || 'online';
     const clientTimestamp = input.clientTimestamp || new Date();
 
-    // Check for existing score by mutation_id first (idempotency)
-    const existingByMutation = await pool.query(
+    // Check for existing score by mutation_id first (idempotency replay)
+    const existingByMutation = await db.query(
         `SELECT * FROM hole_scores WHERE mutation_id = $1`,
         [input.mutationId]
     );
@@ -62,48 +64,47 @@ export const upsertHoleScore = async (input: CreateHoleScoreInput): Promise<{ sc
         return { score: mapRowToHoleScore(existingByMutation.rows[0]), wasCreated: false };
     }
 
-    // Check for existing score by player/hole
-    const existing = await pool.query(
-        `SELECT * FROM hole_scores WHERE event_id = $1 AND player_id = $2 AND hole_number = $3`,
-        [input.eventId, input.playerId, input.holeNumber]
+    // Atomic upsert: INSERT or UPDATE on conflict of (event_id, player_id, hole_number)
+    // We capture the previous gross_score via a CTE for audit purposes
+    const res = await db.query(
+        `WITH prev AS (
+            SELECT id, gross_score FROM hole_scores
+            WHERE event_id = $1 AND player_id = $3 AND hole_number = $4
+        )
+        INSERT INTO hole_scores (event_id, flight_id, player_id, hole_number, gross_score, mutation_id, version, source, entered_by_user_id, client_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6, 1, $7, $8, $9)
+        ON CONFLICT (event_id, player_id, hole_number)
+        DO UPDATE SET
+            gross_score = EXCLUDED.gross_score,
+            mutation_id = EXCLUDED.mutation_id,
+            version = hole_scores.version + 1,
+            source = EXCLUDED.source,
+            entered_by_user_id = EXCLUDED.entered_by_user_id,
+            client_timestamp = EXCLUDED.client_timestamp,
+            server_timestamp = NOW()
+        RETURNING *,
+            (SELECT gross_score FROM prev) AS _previous_gross_score,
+            (xmax = 0) AS _was_created`,
+        [input.eventId, input.flightId, input.playerId, input.holeNumber, input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp]
     );
 
-    if (existing.rows.length === 0) {
-        // Create new
-        const res = await pool.query(
-            `INSERT INTO hole_scores (event_id, flight_id, player_id, hole_number, gross_score, mutation_id, version, source, entered_by_user_id, client_timestamp)
-             VALUES ($1, $2, $3, $4, $5, $6, 1, $7, $8, $9)
-             RETURNING *`,
-            [input.eventId, input.flightId, input.playerId, input.holeNumber, input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp]
-        );
-        return { score: mapRowToHoleScore(res.rows[0]), wasCreated: true };
-    }
+    const row = res.rows[0];
+    const wasCreated = row._was_created;
+    const previousValue = row._previous_gross_score != null ? Number(row._previous_gross_score) : undefined;
 
-    const existingScore = mapRowToHoleScore(existing.rows[0]);
-    const previousValue = existingScore.grossScore;
-
-    // Update with new mutationId
-    const res = await pool.query(
-        `UPDATE hole_scores 
-         SET gross_score = $1, mutation_id = $2, version = version + 1, source = $3, entered_by_user_id = $4, client_timestamp = $5, server_timestamp = NOW()
-         WHERE id = $6
-         RETURNING *`,
-        [input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp, existingScore.id]
-    );
-
-    return { score: mapRowToHoleScore(res.rows[0]), wasCreated: false, previousValue };
+    return { score: mapRowToHoleScore(row), wasCreated, previousValue };
 };
 
 /**
- * Batch upsert hole scores.
+ * Batch upsert hole scores. Accepts optional PoolClient for transactional use.
  */
-export const upsertHoleScoresBatch = async (inputs: CreateHoleScoreInput[]): Promise<{ scores: HoleScore[]; created: number; updated: number }> => {
+export const upsertHoleScoresBatch = async (inputs: CreateHoleScoreInput[], client?: PoolClient): Promise<{ scores: HoleScore[]; created: number; updated: number }> => {
     const results: HoleScore[] = [];
     let created = 0;
     let updated = 0;
 
     for (const input of inputs) {
-        const result = await upsertHoleScore(input);
+        const result = await upsertHoleScore(input, client);
         results.push(result.score);
         if (result.wasCreated) created++;
         else if (result.previousValue !== undefined) updated++;

@@ -1,6 +1,7 @@
 // Scramble Score Repository - CRUD for team scramble scores (back 9)
 
 import { getPool } from '../config/database';
+import { Pool, PoolClient } from 'pg';
 
 export interface ScrambleScore {
     id: string;
@@ -45,19 +46,20 @@ const mapRowToScrambleScore = (row: any): ScrambleScore => ({
 });
 
 /**
- * Upsert a scramble score with idempotency.
+ * Upsert a scramble score with idempotency via ON CONFLICT.
+ * Accepts optional PoolClient for transactional use.
  */
-export const upsertScrambleScore = async (input: CreateScrambleScoreInput): Promise<{ score: ScrambleScore; wasCreated: boolean; previousValue?: number }> => {
+export const upsertScrambleScore = async (input: CreateScrambleScoreInput, client?: PoolClient): Promise<{ score: ScrambleScore; wasCreated: boolean; previousValue?: number }> => {
     if (input.holeNumber < 10 || input.holeNumber > 18) {
         throw new Error('Scramble scores must be for holes 10-18');
     }
 
-    const pool = getPool();
+    const db: Pool | PoolClient = client || getPool();
     const source = input.source || 'online';
     const clientTimestamp = input.clientTimestamp || new Date();
 
-    // Check idempotency by mutation_id
-    const existingByMutation = await pool.query(
+    // Check idempotency by mutation_id (replay-safe)
+    const existingByMutation = await db.query(
         `SELECT * FROM scramble_team_scores WHERE mutation_id = $1`,
         [input.mutationId]
     );
@@ -66,46 +68,46 @@ export const upsertScrambleScore = async (input: CreateScrambleScoreInput): Prom
         return { score: mapRowToScrambleScore(existingByMutation.rows[0]), wasCreated: false };
     }
 
-    // Check existing by flight/team/hole
-    const existing = await pool.query(
-        `SELECT * FROM scramble_team_scores WHERE event_id = $1 AND flight_id = $2 AND team = $3 AND hole_number = $4`,
-        [input.eventId, input.flightId, input.team, input.holeNumber]
+    // Atomic upsert on unique constraint (event_id, flight_id, team, hole_number)
+    const res = await db.query(
+        `WITH prev AS (
+            SELECT id, gross_score FROM scramble_team_scores
+            WHERE event_id = $1 AND flight_id = $2 AND team = $3 AND hole_number = $4
+        )
+        INSERT INTO scramble_team_scores (event_id, flight_id, team, hole_number, gross_score, mutation_id, version, source, entered_by_user_id, client_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6, 1, $7, $8, $9)
+        ON CONFLICT (event_id, flight_id, team, hole_number)
+        DO UPDATE SET
+            gross_score = EXCLUDED.gross_score,
+            mutation_id = EXCLUDED.mutation_id,
+            version = scramble_team_scores.version + 1,
+            source = EXCLUDED.source,
+            entered_by_user_id = EXCLUDED.entered_by_user_id,
+            client_timestamp = EXCLUDED.client_timestamp,
+            server_timestamp = NOW()
+        RETURNING *,
+            (SELECT gross_score FROM prev) AS _previous_gross_score,
+            (xmax = 0) AS _was_created`,
+        [input.eventId, input.flightId, input.team, input.holeNumber, input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp]
     );
 
-    if (existing.rows.length === 0) {
-        const res = await pool.query(
-            `INSERT INTO scramble_team_scores (event_id, flight_id, team, hole_number, gross_score, mutation_id, version, source, entered_by_user_id, client_timestamp)
-             VALUES ($1, $2, $3, $4, $5, $6, 1, $7, $8, $9)
-             RETURNING *`,
-            [input.eventId, input.flightId, input.team, input.holeNumber, input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp]
-        );
-        return { score: mapRowToScrambleScore(res.rows[0]), wasCreated: true };
-    }
+    const row = res.rows[0];
+    const wasCreated = row._was_created;
+    const previousValue = row._previous_gross_score != null ? Number(row._previous_gross_score) : undefined;
 
-    const existingScore = mapRowToScrambleScore(existing.rows[0]);
-    const previousValue = existingScore.grossScore;
-
-    const res = await pool.query(
-        `UPDATE scramble_team_scores 
-         SET gross_score = $1, mutation_id = $2, version = version + 1, source = $3, entered_by_user_id = $4, client_timestamp = $5, server_timestamp = NOW()
-         WHERE id = $6
-         RETURNING *`,
-        [input.grossScore, input.mutationId, source, input.enteredByUserId, clientTimestamp, existingScore.id]
-    );
-
-    return { score: mapRowToScrambleScore(res.rows[0]), wasCreated: false, previousValue };
+    return { score: mapRowToScrambleScore(row), wasCreated, previousValue };
 };
 
 /**
- * Batch upsert scramble scores.
+ * Batch upsert scramble scores. Accepts optional PoolClient for transactional use.
  */
-export const upsertScrambleScoresBatch = async (inputs: CreateScrambleScoreInput[]): Promise<{ scores: ScrambleScore[]; created: number; updated: number }> => {
+export const upsertScrambleScoresBatch = async (inputs: CreateScrambleScoreInput[], client?: PoolClient): Promise<{ scores: ScrambleScore[]; created: number; updated: number }> => {
     const results: ScrambleScore[] = [];
     let created = 0;
     let updated = 0;
 
     for (const input of inputs) {
-        const result = await upsertScrambleScore(input);
+        const result = await upsertScrambleScore(input, client);
         results.push(result.score);
         if (result.wasCreated) created++;
         else if (result.previousValue !== undefined) updated++;
