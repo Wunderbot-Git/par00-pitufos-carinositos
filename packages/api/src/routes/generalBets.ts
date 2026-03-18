@@ -3,7 +3,7 @@ import { authenticate } from '../middleware/auth';
 import {
     placeGeneralBet, getGeneralBetPools, getPersonalGeneralStats
 } from '../services/generalBettingService';
-import { getUserGeneralBets } from '../repositories/generalBetRepository';
+import { getUserGeneralBets, VALID_BET_TYPES, GeneralBetType } from '../repositories/generalBetRepository';
 
 export const generalBetRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
@@ -35,11 +35,15 @@ export const generalBetRoutes: FastifyPluginAsync = async (fastify: FastifyInsta
             const { betType, pickedOutcome, flightId, segmentType, comment } = request.body;
             const bettorId = (request as any).user.userId;
 
+            if (!VALID_BET_TYPES.includes(betType as GeneralBetType)) {
+                return reply.code(400).send({ error: `Invalid bet type: '${betType}'. Must be one of: ${VALID_BET_TYPES.join(', ')}` });
+            }
+
             try {
                 const bet = await placeGeneralBet({
                     eventId,
                     bettorId,
-                    betType: betType as any,
+                    betType: betType as GeneralBetType,
                     pickedOutcome,
                     flightId,
                     segmentType,

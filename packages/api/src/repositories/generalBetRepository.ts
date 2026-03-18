@@ -1,6 +1,12 @@
 import { getPool } from '../config/database';
+import { Pool, PoolClient } from 'pg';
 
-export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'mvp' | 'worst_player';
+export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'early_close' | 'mvp' | 'worst_player';
+
+export const VALID_BET_TYPES: GeneralBetType[] = [
+    'tournament_winner', 'flight_winner', 'flight_sweep',
+    'biggest_blowout', 'any_halve', 'early_close', 'mvp', 'worst_player'
+];
 
 export interface GeneralBet {
     id: string;
@@ -77,10 +83,11 @@ export const getGeneralBetsByType = async (eventId: string, betType: GeneralBetT
 
 export const checkExistingBet = async (
     eventId: string, bettorId: string, betType: GeneralBetType,
-    flightId: string | null, segmentType: string | null
+    flightId: string | null, segmentType: string | null,
+    client?: PoolClient
 ): Promise<GeneralBet | null> => {
-    const pool = getPool();
-    const res = await pool.query(
+    const db: Pool | PoolClient = client || getPool();
+    const res = await db.query(
         `SELECT * FROM general_bets
          WHERE event_id = $1 AND bettor_id = $2 AND bet_type = $3
            AND COALESCE(flight_id, '00000000-0000-0000-0000-000000000000') = COALESCE($4::uuid, '00000000-0000-0000-0000-000000000000')
