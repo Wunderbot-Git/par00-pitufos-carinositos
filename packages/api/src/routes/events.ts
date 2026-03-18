@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import * as eventService from '../services/eventService';
 import { authenticate } from '../middleware/auth';
+import { isOrganizer } from '../repositories/eventMemberRepository';
 import { CreateEventRequest, UpdateEventRequest, Event } from '@ryder-cup/shared';
 
 export const eventRoutes = async (fastify: FastifyInstance) => {
@@ -104,6 +105,10 @@ export const eventRoutes = async (fastify: FastifyInstance) => {
         { onRequest: [authenticate] },
         async (request, reply) => {
             try {
+                const user = request.user as { userId: string };
+                const organizer = await isOrganizer(request.params.id, user.userId);
+                if (!organizer) return reply.status(403).send({ error: 'Requires organizer privileges' });
+
                 const event = await eventService.updateEvent(request.params.id, request.body);
                 if (!event) return reply.status(404).send({ error: 'Event not found' });
                 return event;
@@ -118,6 +123,10 @@ export const eventRoutes = async (fastify: FastifyInstance) => {
         '/events/:id',
         { onRequest: [authenticate] },
         async (request, reply) => {
+            const user = request.user as { userId: string };
+            const organizer = await isOrganizer(request.params.id, user.userId);
+            if (!organizer) return reply.status(403).send({ error: 'Requires organizer privileges' });
+
             await eventService.deleteEvent(request.params.id);
             return { message: 'Event deleted successfully' };
         }

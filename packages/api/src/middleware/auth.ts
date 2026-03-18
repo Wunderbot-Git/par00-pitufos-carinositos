@@ -5,5 +5,6 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
         await request.jwtVerify();
     } catch (err) {
         reply.status(401).send({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+        return;
     }
 };
