@@ -22,7 +22,7 @@ const VALID_OUTCOMES: Record<GeneralBetType, string[]> = {
     flight_sweep: ['red', 'blue'],
     biggest_blowout: [], // dynamic — any flight+segment id
     any_halve: ['yes', 'no'],
-    early_close: ['yes', 'no'],
+
     mvp: [], // dynamic — any player id
     worst_player: [], // dynamic — any player id
 };
@@ -60,7 +60,7 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         }
 
         // 3. Validate flight-scoped bets have a flight_id
-        if (['flight_winner', 'flight_sweep', 'early_close'].includes(input.betType) && !input.flightId) {
+        if (['flight_winner', 'flight_sweep'].includes(input.betType) && !input.flightId) {
             throw new Error(`Bet type '${input.betType}' requires a flight_id.`);
         }
 
@@ -225,16 +225,6 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
             isResolved: flightCompleted
         });
 
-        // Early Close: any match in flight decided by 3&2 or bigger (margin >= 3)
-        const hasEarlyClose = flightMatches.some(m =>
-            m.status === 'completed' && parseMargin(m.matchStatus) >= 4
-        );
-        outcomes.push({
-            betType: 'early_close',
-            flightId, segmentType: null,
-            winningOutcome: flightCompleted ? (hasEarlyClose ? 'yes' : 'no') : (hasEarlyClose ? 'yes' : null),
-            isResolved: flightCompleted || hasEarlyClose // "yes" resolves early
-        });
     }
 
     // ── Biggest Blowout ──
@@ -402,7 +392,7 @@ export const getGeneralBetPools = async (eventId: string): Promise<GeneralBetPoo
 
     // Flight-level pools
     for (const flightId of flightIds) {
-        for (const bt of ['flight_winner', 'flight_sweep', 'early_close'] as GeneralBetType[]) {
+        for (const bt of ['flight_winner', 'flight_sweep'] as GeneralBetType[]) {
             const key = `${bt}|${flightId}|`;
             const bets = poolMap[key] || [];
             const resolution = resolutions.find(r => r.betType === bt && r.flightId === flightId);

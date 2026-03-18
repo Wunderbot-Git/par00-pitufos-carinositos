@@ -14,10 +14,10 @@ interface Props {
 
 const BET_TYPE_LABELS: Record<string, { title: string; description: string }> = {
     tournament_winner: { title: 'Ganador del Torneo', description: '¿Quién se lleva el torneo?' },
-    flight_winner: { title: 'Dominador del Día', description: '¿Qué equipo gana más puntos en este grupo?' },
+    flight_winner: { title: 'Dominio Total', description: '¿Qué equipo gana más puntos en todo el día?' },
     flight_sweep: { title: 'Barrida Total', description: '¿Alguien barre limpio?' },
     biggest_blowout: { title: 'Más Aplastante', description: '¿Cuál partida tendrá el mayor margen de victoria?' },
-    early_close: { title: 'Cierre Rápido', description: '¿Alguien cierra en el hoyo 6 o antes?' },
+
     mvp: { title: 'MVP', description: '¿Quién será el mejor jugador del torneo?' },
     worst_player: { title: 'Peor Jugador', description: '¿Quién será el peor jugador del torneo?' },
 };
@@ -91,7 +91,6 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
 
     const outcomes = isPlayerBet ? allPlayers.map(p => p.id)
         : pool.betType === 'tournament_winner' ? ['red', 'blue']
-        : pool.betType === 'early_close' ? ['yes', 'no']
         : pool.betType === 'flight_winner' ? ['red', 'blue', 'tie']
         : pool.betType === 'flight_sweep' ? ['red', 'blue']
         : ['red', 'blue'];
@@ -248,7 +247,7 @@ export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter
 
     const tournamentPools = pools.filter(p => ['tournament_winner', 'any_halve', 'biggest_blowout', 'mvp', 'worst_player'].includes(p.betType)).filter(filterPool);
 
-    const flightPools = pools.filter(p => ['flight_winner', 'flight_sweep', 'early_close'].includes(p.betType)).filter(filterPool);
+    const flightPools = pools.filter(p => ['flight_winner', 'flight_sweep'].includes(p.betType)).filter(filterPool);
     const flightGroups: Record<string, { name: string; redPlayers: string[]; bluePlayers: string[]; pools: GeneralBetPool[] }> = {};
     flightPools.forEach(p => {
         if (!p.flightId) return;
