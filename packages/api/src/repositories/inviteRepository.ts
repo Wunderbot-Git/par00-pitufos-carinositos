@@ -63,14 +63,31 @@ export const claimInvite = async (inviteId: string, userId: string, playerId: st
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        await client.query(
-            `UPDATE player_invites SET claimed_by_user_id = $1 WHERE id = $2`,
+
+        // Atomic claim: only succeeds if not already claimed and not expired
+        const claimRes = await client.query(
+            `UPDATE player_invites
+             SET claimed_by_user_id = $1
+             WHERE id = $2
+               AND claimed_by_user_id IS NULL
+               AND expires_at > NOW()
+             RETURNING event_id, player_id`,
             [userId, inviteId]
         );
-        await client.query(
+
+        if (claimRes.rowCount === 0) {
+            throw new Error('Invite already claimed or expired');
+        }
+
+        const updateRes = await client.query(
             `UPDATE players SET user_id = $1 WHERE id = $2`,
             [userId, playerId]
         );
+
+        if (updateRes.rowCount === 0) {
+            throw new Error('Player not found');
+        }
+
         await client.query('COMMIT');
     } catch (e) {
         await client.query('ROLLBACK');

@@ -17,7 +17,7 @@
         "@fastify/rate-limit": "^9.1.0",
         "@ryder-cup/shared": "*",
         "bcrypt": "^6.0.0",
-        "better-sqlite3": "^12.6.2",
+
         "dotenv": "^17.2.3",
         "fastify": "^4.24.3",
         "pg": "^8.17.2",
@@ -26,7 +26,7 @@
     },
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
-        "@types/better-sqlite3": "^7.6.13",
+
         "@types/node": "^20.0.0",
         "@types/pg": "^8.16.0",
         "@types/uuid": "^10.0.0",
