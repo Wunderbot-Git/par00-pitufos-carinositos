@@ -136,12 +136,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         }}
                                     >
                                         <img
-                                            src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                            src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
                                             alt={p.playerName}
                                             loading="lazy"
                                             onError={(e) => {
                                                 const img = e.target as HTMLImageElement;
-                                                if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                                if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
                                                     img.src = `/images/${avatarName}.webp`;
                                                 } else {
                                                     img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
@@ -160,12 +160,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 const avatarName = normalizeName(match.bluePlayers[0]?.playerName || '');
                                 return (
                                     <img
-                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
                                         alt={match.bluePlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
-                                            if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                            if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
                                                 img.src = `/images/${avatarName}.webp`;
                                             } else {
                                                 img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
@@ -282,12 +282,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         }}
                                     >
                                         <img
-                                            src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                            src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
                                             alt={p.playerName}
                                             loading="lazy"
                                             onError={(e) => {
                                                 const img = e.target as HTMLImageElement;
-                                                if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                                if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
                                                     img.src = `/images/${avatarName}.webp`;
                                                 } else {
                                                     img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
@@ -306,12 +306,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 const avatarName = normalizeName(match.redPlayers[0]?.playerName || '');
                                 return (
                                     <img
-                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}_loser.webp` : `/images/${avatarName}.webp`}
+                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
                                         alt={match.redPlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
-                                            if (img.src.includes('-winner.webp') || img.src.includes('_loser.webp')) {
+                                            if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
                                                 img.src = `/images/${avatarName}.webp`;
                                             } else {
                                                 img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
