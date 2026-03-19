@@ -1,11 +1,16 @@
 import { getPool } from '../config/database';
 import { Pool, PoolClient } from 'pg';
 
-export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'early_close' | 'mvp' | 'worst_player';
+export type GeneralBetType = 'tournament_winner' | 'flight_winner' | 'flight_sweep' | 'biggest_blowout' | 'any_halve' | 'early_close' | 'mvp' | 'worst_player' | 'exact_score';
 
 export const VALID_BET_TYPES: GeneralBetType[] = [
     'tournament_winner', 'flight_winner', 'flight_sweep',
-    'biggest_blowout', 'any_halve', 'early_close', 'mvp', 'worst_player'
+    'biggest_blowout', 'any_halve', 'early_close', 'mvp', 'worst_player', 'exact_score'
+];
+
+// Bet types no longer shown or accepted — kept in DB for historical data
+export const REMOVED_BET_TYPES: GeneralBetType[] = [
+    'flight_winner', 'flight_sweep', 'biggest_blowout', 'any_halve', 'early_close'
 ];
 
 export interface GeneralBet {

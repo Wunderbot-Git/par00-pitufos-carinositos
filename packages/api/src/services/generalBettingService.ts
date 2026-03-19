@@ -1,6 +1,6 @@
 import { getPool } from '../config/database';
 import {
-    GeneralBet, GeneralBetType,
+    GeneralBet, GeneralBetType, REMOVED_BET_TYPES,
     createGeneralBet, getGeneralBetsForEvent, getUserGeneralBets,
     getGeneralBetsByType, checkExistingBet
 } from '../repositories/generalBetRepository';
@@ -16,16 +16,17 @@ interface PlaceGeneralBetInput {
     comment?: string;
 }
 
-const VALID_OUTCOMES: Record<GeneralBetType, string[]> = {
+const VALID_OUTCOMES: Record<string, string[]> = {
     tournament_winner: ['red', 'blue'],
-    flight_winner: ['red', 'blue', 'tie'],
-    flight_sweep: ['red', 'blue'],
-    biggest_blowout: [], // dynamic — any flight+segment id
-    any_halve: ['yes', 'no'],
-    early_close: ['yes', 'no'], // whether any match ends before hole 9/18
-
     mvp: [], // dynamic — any player id
     worst_player: [], // dynamic — any player id
+    exact_score: [], // dynamic — validated via regex
+    // Removed types kept for historical resolution
+    flight_winner: ['red', 'blue', 'tie'],
+    flight_sweep: ['red', 'blue'],
+    biggest_blowout: [],
+    any_halve: ['yes', 'no'],
+    early_close: ['yes', 'no'],
 };
 
 /**
@@ -53,16 +54,27 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         const betAmount = eventRes.rows[0].bet_amount ? parseFloat(eventRes.rows[0].bet_amount) : null;
         if (!betAmount || betAmount <= 0) throw new Error('Betting is not enabled for this event.');
 
-        // 2. Validate bet type and outcome
-        const dynamicBetTypes: GeneralBetType[] = ['biggest_blowout', 'mvp', 'worst_player'];
-        const validOutcomes = VALID_OUTCOMES[input.betType];
+        // 2. Reject removed bet types
+        if (REMOVED_BET_TYPES.includes(input.betType)) {
+            throw new Error(`Bet type '${input.betType}' is no longer available.`);
+        }
+
+        // 3. Validate bet type and outcome
+        const dynamicBetTypes: GeneralBetType[] = ['mvp', 'worst_player', 'exact_score'];
+        const validOutcomes = VALID_OUTCOMES[input.betType] || [];
         if (!dynamicBetTypes.includes(input.betType) && !validOutcomes.includes(input.pickedOutcome)) {
             throw new Error(`Invalid outcome '${input.pickedOutcome}' for bet type '${input.betType}'.`);
         }
 
-        // 3. Validate flight-scoped bets have a flight_id
-        if (['flight_winner', 'flight_sweep'].includes(input.betType) && !input.flightId) {
-            throw new Error(`Bet type '${input.betType}' requires a flight_id.`);
+        // 4. Validate exact_score format: "X-Y" where X+Y=25, 0.5 increments
+        if (input.betType === 'exact_score') {
+            const match = input.pickedOutcome.match(/^(\d+\.?5?)-(\d+\.?5?)$/);
+            if (!match) throw new Error('Formato inválido. Esperado: "X-Y" como "14-11".');
+            const pitufos = parseFloat(match[1]);
+            const cariniositos = parseFloat(match[2]);
+            if (pitufos + cariniositos !== 25) throw new Error('Los marcadores deben sumar 25.');
+            if (pitufos < 0 || pitufos > 25 || cariniositos < 0 || cariniositos > 25) throw new Error('Marcador fuera de rango (0-25).');
+            if (pitufos % 0.5 !== 0 || cariniositos % 0.5 !== 0) throw new Error('Los marcadores deben ser en incrementos de 0.5.');
         }
 
         // 4. Get leaderboard for timing factor and validation
@@ -169,6 +181,23 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
         winningOutcome: tournamentWinner,
         isResolved: tournamentWinner !== null
     });
+
+    // ── Exact Score ── (format: "Pitufos-Cariñositos" = "blue-red")
+    if (allCompleted) {
+        outcomes.push({
+            betType: 'exact_score',
+            flightId: null, segmentType: null,
+            winningOutcome: `${blue}-${red}`,
+            isResolved: true
+        });
+    } else {
+        outcomes.push({
+            betType: 'exact_score',
+            flightId: null, segmentType: null,
+            winningOutcome: null,
+            isResolved: false
+        });
+    }
 
     // ── Any Halve ──
     const anyHalve = leaderboard.matches.some(m => m.status === 'completed' && m.matchStatus === 'Halved');
@@ -372,8 +401,8 @@ export const getGeneralBetPools = async (eventId: string): Promise<GeneralBetPoo
 
     const pools: GeneralBetPool[] = [];
 
-    // Create pools for all defined bet types (even if no bets yet)
-    const betTypes: GeneralBetType[] = ['tournament_winner'];
+    // Create pools for active bet types (even if no bets yet)
+    const betTypes: GeneralBetType[] = ['tournament_winner', 'exact_score'];
     const flightIds = [...new Set(leaderboard.matches.map(m => m.flightId))];
 
     // Tournament-level pools
@@ -398,33 +427,6 @@ export const getGeneralBetPools = async (eventId: string): Promise<GeneralBetPoo
             redPlayerNames: [],
             bluePlayerNames: []
         });
-    }
-
-    // Flight-level pools
-    for (const flightId of flightIds) {
-        for (const bt of ['flight_winner', 'flight_sweep'] as GeneralBetType[]) {
-            const key = `${bt}|${flightId}|`;
-            const bets = poolMap[key] || [];
-            const resolution = resolutions.find(r => r.betType === bt && r.flightId === flightId);
-
-            const outcomePartes: Record<string, number> = {};
-            bets.forEach(b => {
-                outcomePartes[b.pickedOutcome] = (outcomePartes[b.pickedOutcome] || 0) + b.partes;
-            });
-
-            pools.push({
-                betType: bt,
-                flightId, flightName: flightNameMap[flightId] || flightId,
-                segmentType: null,
-                pot: bets.reduce((s, b) => s + b.amount, 0),
-                betsCount: bets.length,
-                outcomePartes,
-                isResolved: resolution?.isResolved || false,
-                winningOutcome: resolution?.winningOutcome || null,
-                redPlayerNames: [...(flightRedPlayers[flightId] || [])],
-                bluePlayerNames: [...(flightBluePlayers[flightId] || [])]
-            });
-        }
     }
 
     // MVP & Worst Player pools (tournament-level, player-based)
@@ -455,30 +457,6 @@ export const getGeneralBetPools = async (eventId: string): Promise<GeneralBetPoo
             winningOutcome: resolution?.winningOutcome || null,
             redPlayerNames: [...new Set(leaderboard.matches.flatMap(m => m.redPlayers.map(p => `${p.playerId}:${p.playerName}`)))],
             bluePlayerNames: [...new Set(leaderboard.matches.flatMap(m => m.bluePlayers.map(p => `${p.playerId}:${p.playerName}`)))]
-        });
-    }
-
-    // Biggest blowout pool (tournament-level)
-    {
-        const key = `biggest_blowout||`;
-        const bets = poolMap[key] || [];
-        const resolution = resolutions.find(r => r.betType === 'biggest_blowout');
-
-        const outcomePartes: Record<string, number> = {};
-        bets.forEach(b => {
-            outcomePartes[b.pickedOutcome] = (outcomePartes[b.pickedOutcome] || 0) + b.partes;
-        });
-
-        pools.push({
-            betType: 'biggest_blowout',
-            flightId: null, flightName: null, segmentType: null,
-            pot: bets.reduce((s, b) => s + b.amount, 0),
-            betsCount: bets.length,
-            outcomePartes,
-            isResolved: resolution?.isResolved || false,
-            winningOutcome: resolution?.winningOutcome || null,
-            redPlayerNames: [],
-            bluePlayerNames: []
         });
     }
 
@@ -524,13 +502,46 @@ export const getGeneralBetSettlement = async (eventId: string) => {
             isPartial = true;
         }
 
+        // Initialize balances for all bettors in this pool
         bets.forEach(bet => {
             if (!balances[bet.bettorId]) balances[bet.bettorId] = 0;
             if (!openWagered[bet.bettorId]) openWagered[bet.bettorId] = 0;
             if (!closedWagered[bet.bettorId]) closedWagered[bet.bettorId] = 0;
             if (!closedRecovered[bet.bettorId]) closedRecovered[bet.bettorId] = 0;
             if (!openPotential[bet.bettorId]) openPotential[bet.bettorId] = 0;
+        });
 
+        // Exact score: closest-guess fallback when no one guesses exactly
+        if (betType === 'exact_score' && resolution?.isResolved && resolution.winningOutcome) {
+            const winOutcome = resolution.winningOutcome;
+            const exactWinners = bets.filter(b => b.pickedOutcome === winOutcome);
+
+            if (exactWinners.length === 0 && bets.length > 0) {
+                // Find closest guesses by Manhattan distance
+                const [actualBlue, actualRed] = winOutcome.split('-').map(Number);
+                const distances = bets.map(b => {
+                    const [bBlue, bRed] = b.pickedOutcome.split('-').map(Number);
+                    return { bet: b, distance: Math.abs(bBlue - actualBlue) + Math.abs(bRed - actualRed) };
+                });
+                const minDistance = Math.min(...distances.map(d => d.distance));
+                const closestBetIds = new Set(distances.filter(d => d.distance === minDistance).map(d => d.bet.id));
+                const closestPartes = distances.filter(d => d.distance === minDistance).reduce((s, d) => s + d.bet.partes, 0);
+
+                bets.forEach(bet => {
+                    closedWagered[bet.bettorId] += bet.amount;
+                    balances[bet.bettorId] -= bet.amount;
+
+                    if (closestBetIds.has(bet.id) && closestPartes > 0) {
+                        const payout = (bet.partes / closestPartes) * potSize;
+                        balances[bet.bettorId] += payout;
+                        closedRecovered[bet.bettorId] += payout;
+                    }
+                });
+                continue; // Skip generic settlement for this pool
+            }
+        }
+
+        bets.forEach(bet => {
             if (resolution?.isResolved) {
                 closedWagered[bet.bettorId] += bet.amount;
                 balances[bet.bettorId] -= bet.amount;
