@@ -31,6 +31,7 @@ export interface Match {
     matchProgression: string[]; // Status at each hole
     parValues: number[];
     hcpValues: number[];
+    scrambleSiValues?: number[];
     holeWinners: ('red' | 'blue' | null)[];
     redTeamStrokes?: number[];
     blueTeamStrokes?: number[];
@@ -93,16 +94,27 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
     let parValues = Array(18).fill(4);
     let hcpValues = Array.from({ length: 18 }, (_, i) => i + 1); // 1..18 default
 
+    let scrambleSiValues: number[] | null = null;
+
     if (course && course.tees.length > 0) {
         // Use the first tee as the reference for scorecard display
-        // ideally matches use specific tee SI, but for leaderboard display we typically show one common card
         const tee = course.tees[0];
-        // Ensure holes are sorted 1-18
         const sortedHoles = [...tee.holes].sort((a, b) => a.holeNumber - b.holeNumber);
 
         if (sortedHoles.length === 18) {
             parValues = sortedHoles.map(h => h.par);
             hcpValues = sortedHoles.map(h => h.strokeIndex);
+        }
+
+        // Find Mujeres tee SI for scramble (matches scoreService logic)
+        for (const t of course.tees) {
+            if (t.name === 'Mujeres') {
+                const sorted = [...t.holes].sort((a, b) => a.holeNumber - b.holeNumber);
+                if (sorted.length === 18) {
+                    scrambleSiValues = sorted.map(h => h.strokeIndex);
+                }
+                break;
+            }
         }
     }
 
@@ -281,6 +293,7 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
                     holeWinners: isUnstarted ? [] : prepareWinners(matchDetails.holes.map((h: any) => h.winner)),
                     parValues,
                     hcpValues,
+                    ...(scrambleSiValues ? { scrambleSiValues } : {}),
                     redTeamStrokes: redStrokes,
                     blueTeamStrokes: blueStrokes
                 };

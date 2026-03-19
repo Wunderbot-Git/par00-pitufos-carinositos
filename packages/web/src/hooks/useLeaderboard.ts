@@ -26,6 +26,7 @@ interface Match {
     bluePlayers: PlayerScore[];
     parValues: number[];
     hcpValues: number[];
+    scrambleSiValues?: number[];
     matchProgression: string[]; // Status at each hole
     holeWinners: ('red' | 'blue' | null)[];
     matchLeaders: ('red' | 'blue' | null)[];

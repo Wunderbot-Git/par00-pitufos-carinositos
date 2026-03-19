@@ -91,7 +91,10 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
     const renderHalfTable = (start: number, end: number, label: string) => {
         const holes = holeNumbers.slice(start, end);
         const pars = match.parValues.slice(start, end);
-        const hcps = match.hcpValues.slice(start, end);
+        const hcps = (match.segmentType === 'scramble' && match.scrambleSiValues
+            ? match.scrambleSiValues
+            : match.hcpValues
+        ).slice(start, end);
         const progression = match.matchProgression.slice(start, end);
         const holeWinnersChunk = match.holeWinners ? match.holeWinners.slice(start, end) : [];
         const isOut = label.includes('FRONT');
