@@ -233,13 +233,14 @@ export function usePlaceBet() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const placeBet = async ({ eventId, flightId, segmentType, pickedOutcome, comment }: { eventId: string, flightId: string, segmentType: string, pickedOutcome: 'A' | 'B' | 'AS', comment?: string }): Promise<boolean> => {
+    const placeBet = async ({ eventId, flightId, segmentType, pickedOutcome, comment, amount }: { eventId: string, flightId: string, segmentType: string, pickedOutcome: 'A' | 'B' | 'AS', comment?: string, amount?: number }): Promise<boolean> => {
         try {
             setIsSubmitting(true);
             setError(null);
             await api.post(`/events/${eventId}/flights/${flightId}/segments/${segmentType}/bets`, {
                 pickedOutcome,
-                comment
+                comment,
+                ...(amount ? { amount } : {})
             });
             return true;
         } catch (err) {

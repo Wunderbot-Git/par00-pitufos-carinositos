@@ -11,6 +11,7 @@ interface PlaceBetInput {
     bettorId: string;
     pickedOutcome: 'A' | 'B' | 'AS';
     comment?: string;
+    customAmount?: number; // For additional bets — if omitted, uses event bet_amount
 }
 
 export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
@@ -94,18 +95,28 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             }
         }
 
-        // 6. Check for existing bet — allow replacement if no scores recorded yet
+        // 6. Check for existing mandatory bet
         const existingBetRes = await client.query(
-            'SELECT id FROM bets WHERE flight_id = $1 AND segment_type = $2 AND bettor_id = $3 FOR UPDATE',
+            'SELECT id FROM bets WHERE flight_id = $1 AND segment_type = $2 AND bettor_id = $3 AND is_additional = false FOR UPDATE',
             [input.flightId, input.segmentType, input.bettorId]
         );
-        if (existingBetRes.rows.length > 0) {
+        const hasMandatoryBet = existingBetRes.rows.length > 0;
+        const isAdditional = hasMandatoryBet && (input.customAmount !== undefined || currentHole > 0);
+
+        if (hasMandatoryBet && !isAdditional) {
             if (currentHole === 0) {
-                // No scores yet — delete old bet so it can be replaced
+                // No scores yet — delete old mandatory bet so it can be replaced
                 await client.query('DELETE FROM bets WHERE id = $1', [existingBetRes.rows[0].id]);
             } else {
-                throw new Error('You have already placed a bet on this match.');
+                // Match in progress — this must be an additional bet
+                // (falls through to insert as additional)
             }
+        }
+
+        // Validate custom amount for additional bets
+        const finalAmount = isAdditional && input.customAmount ? input.customAmount : betAmount;
+        if (isAdditional && input.customAmount && input.customAmount < 1000) {
+            throw new Error('El monto mínimo para apuestas adicionales es COP 1,000.');
         }
 
         // 7. Calculate Factors
@@ -127,16 +138,17 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
         // 7. Insert Bet manually to use the transaction client
         const res = await client.query(
             `INSERT INTO bets (
-                event_id, flight_id, segment_type, bettor_id, picked_outcome, 
-                timing_factor, risk_factor, partes, amount, 
-                score_at_bet, hole_at_bet, comment
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+                event_id, flight_id, segment_type, bettor_id, picked_outcome,
+                timing_factor, risk_factor, partes, amount,
+                score_at_bet, hole_at_bet, comment, is_additional
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
             [
                 input.eventId, input.flightId, input.segmentType, input.bettorId, input.pickedOutcome,
-                timingFactor, riskFactor, partes, betAmount,
+                timingFactor, riskFactor, partes, finalAmount,
                 currentLeader === 'AS' ? 0 : currentUp,
                 currentHole === 0 ? null : currentHole,
-                input.comment || null
+                input.comment || null,
+                isAdditional
             ]
         );
 

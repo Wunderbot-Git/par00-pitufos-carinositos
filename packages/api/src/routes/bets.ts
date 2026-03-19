@@ -15,12 +15,12 @@ export const betRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
     );
 
     // POST place a bet (requires authentication)
-    fastify.post<{ Params: { eventId: string; flightId: string; segmentType: 'singles1' | 'singles2' | 'fourball' | 'scramble' }, Body: { pickedOutcome: 'A' | 'B' | 'AS'; comment?: string } }>(
+    fastify.post<{ Params: { eventId: string; flightId: string; segmentType: 'singles1' | 'singles2' | 'fourball' | 'scramble' }, Body: { pickedOutcome: 'A' | 'B' | 'AS'; comment?: string; amount?: number } }>(
         '/events/:eventId/flights/:flightId/segments/:segmentType/bets',
         { preHandler: [authenticate] },
         async (request, reply) => {
             const { eventId, flightId, segmentType } = request.params;
-            const { pickedOutcome, comment } = request.body;
+            const { pickedOutcome, comment, amount } = request.body;
             const bettorId = (request as any).user.userId;
 
             try {
@@ -30,7 +30,8 @@ export const betRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
                     segmentType,
                     bettorId,
                     pickedOutcome,
-                    comment
+                    comment,
+                    customAmount: amount
                 });
                 return reply.code(201).send(bet);
             } catch (error: any) {

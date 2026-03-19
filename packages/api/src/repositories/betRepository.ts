@@ -14,6 +14,7 @@ export interface Bet {
     scoreAtBet: number | null;
     holeAtBet: number | null;
     comment: string | null;
+    isAdditional: boolean;
     createdAt: Date;
 }
 
@@ -31,6 +32,7 @@ const mapRowToBet = (row: any): Bet => ({
     scoreAtBet: row.score_at_bet,
     holeAtBet: row.hole_at_bet,
     comment: row.comment,
+    isAdditional: row.is_additional || false,
     createdAt: row.created_at
 });
 
