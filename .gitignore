@@ -11,3 +11,4 @@ build
 tmp_*
 get_data.js
 current_run_config.json
+avatar/
