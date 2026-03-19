@@ -67,22 +67,9 @@ const getBestNet = (net1: number | null, net2: number | null): number | null => 
 };
 
 /**
- * Calculate differential strokes for a player.
- */
-const calculatePlayerStrokes = (
-    playerPH: number,
-    lowestPH: number,
-    strokeIndex: number
-): number => {
-    const differential = playerPH - lowestPH;
-    if (differential <= 0) return 0;
-    return getStrokesForHole(differential, strokeIndex);
-};
-
-/**
  * Calculate a complete fourball match.
  * In fourball, each player plays their own ball, team takes best net on each hole.
- * Strokes are based on differential from lowest handicap player in the match.
+ * Each player receives strokes independently based on their own playing handicap.
  */
 export const calculateFourballMatch = (input: FourballMatchInput): FourballMatchOutput => {
     const totalHoles = input.totalHoles ?? 18;

@@ -42,7 +42,7 @@ export interface SinglesMatchOutput {
 
 /**
  * Calculate a complete singles match.
- * Uses differential playing handicaps (higher handicap gets strokes).
+ * Uses full independent playing handicaps (each player gets strokes based on own PH).
  */
 export const calculateSinglesMatch = (input: SinglesMatchInput): SinglesMatchOutput => {
     const totalHoles = input.totalHoles ?? 18;
