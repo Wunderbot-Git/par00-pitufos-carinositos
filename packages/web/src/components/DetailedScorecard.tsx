@@ -34,9 +34,9 @@ function ScoreCell({
     const strokeCount = strokes ?? 0;
 
     const strokeLines = strokeCount > 0 && (
-        <div className="absolute top-0 left-1 right-1 flex flex-col gap-[1px]">
+        <div className="absolute top-0 left-1 right-1 flex flex-col gap-[1px] z-10">
             {Array.from({ length: strokeCount }).map((_, i) => (
-                <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.6 }} />
+                <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.7 }} />
             ))}
         </div>
     );
