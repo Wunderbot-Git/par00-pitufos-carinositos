@@ -30,23 +30,29 @@ function ScoreCell({
     isWinner?: boolean;
     strokes?: number;
 }) {
+    const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
+    const strokeCount = strokes ?? 0;
+
+    const strokeLines = strokeCount > 0 && (
+        <div className="absolute top-0 left-1 right-1 flex flex-col gap-[1px]">
+            {Array.from({ length: strokeCount }).map((_, i) => (
+                <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.6 }} />
+            ))}
+        </div>
+    );
+
     if (score === null) {
         return (
             <td className="p-0 text-center relative">
                 <span className="text-gray-300 text-sm font-fredoka">-</span>
-                {(strokes ?? 0) > 0 && (
-                    <span className="absolute top-0 right-0 text-[7px] text-gray-300" style={{ lineHeight: '1' }}>
-                        {Array(strokes).fill('●').join('')}
-                    </span>
-                )}
+                {strokeLines}
             </td>
         );
     }
 
-    const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
-
     return (
         <td className="p-0 text-center relative">
+            {strokeLines}
             <div className="inline-flex items-center justify-center w-7 h-8 relative">
                 {isWinner && (
                     <div
@@ -67,11 +73,6 @@ function ScoreCell({
                     {score}
                 </span>
             </div>
-            {(strokes ?? 0) > 0 && (
-                <span className="absolute top-0 right-0 text-[7px] text-gray-400" style={{ lineHeight: '1' }}>
-                    {Array(strokes).fill('●').join('')}
-                </span>
-            )}
         </td>
     );
 }

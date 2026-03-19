@@ -47,7 +47,7 @@ function ScoreCell({
     const strokes = getStrokes(siValues, playingHcp, holeIdx);
     const net = score !== null ? score - strokes : null;
 
-    const dots = Array(strokes).fill('●').join('');
+    const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
 
     // Filled circle for winners: solid team color bg + white text
     let winnerClasses = '';
@@ -77,6 +77,14 @@ function ScoreCell({
                 ${isPending ? 'bg-gold-light/10' : ''}
             `}
         >
+            {strokes > 0 && (
+                <div className="absolute top-0 left-2 right-2 flex flex-col gap-[1px]">
+                    {Array.from({ length: strokes }).map((_, i) => (
+                        <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.6 }} />
+                    ))}
+                </div>
+            )}
+
             <div className={`
                 inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses} ${mejorBolaRing}
                 ${isPending ? 'opacity-50' : ''}
@@ -89,12 +97,6 @@ function ScoreCell({
                     <span className="text-gold-border/30">-</span>
                 )}
             </div>
-
-            {strokes > 0 && (
-                <span className="absolute top-[1px] right-0.5 text-[9px] text-forest-deep/30 tracking-[-0.05em]" style={{ lineHeight: '1' }}>
-                    {dots}
-                </span>
-            )}
 
             {score !== null && strokes > 0 && (
                 <span className="text-[10px] font-fredoka font-bold text-forest-deep/40 absolute -bottom-0.5 right-[3px]">
