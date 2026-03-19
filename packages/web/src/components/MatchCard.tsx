@@ -105,7 +105,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 borderRadius: 16,
             }}
         >
-            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[140px]">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[120px]">
 
                 {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
                 <div
@@ -155,7 +155,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             })}
                         </div>
                     ) : (
-                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(110px, 32vw)', height: 'min(110px, 32vw)', aspectRatio: '1' }}>
+                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(88px, 26vw)', height: 'min(88px, 26vw)', aspectRatio: '1' }}>
                             {(() => {
                                 const avatarName = normalizeName(match.bluePlayers[0]?.playerName || '');
                                 return (
@@ -212,7 +212,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 </div>
 
                 {/* ── CENTER STATUS BADGE ──────────────────────────────────── */}
-                <div className="relative flex items-center justify-center px-2 py-2 min-w-[90px] sm:min-w-[140px]">
+                <div className="relative flex items-center justify-center px-1.5 py-1.5 min-w-[80px] sm:min-w-[120px]">
                     <div
                         className={`relative w-full py-2.5 rounded-2xl border-[3px] flex flex-col items-center justify-center overflow-hidden ${centerGradient} ${isNotStarted ? 'border-[#3a3a5e] shadow-none' : 'border-[#1e293b] shadow-[0_5px_0_#1e293b]'}`}
                     >
@@ -301,7 +301,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             })}
                         </div>
                     ) : (
-                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(110px, 32vw)', height: 'min(110px, 32vw)', aspectRatio: '1' }}>
+                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(88px, 26vw)', height: 'min(88px, 26vw)', aspectRatio: '1' }}>
                             {(() => {
                                 const avatarName = normalizeName(match.redPlayers[0]?.playerName || '');
                                 return (
