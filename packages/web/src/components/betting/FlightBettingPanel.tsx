@@ -16,10 +16,11 @@ const SEGMENT_LABELS: Record<string, string> = {
 type Outcome = 'A' | 'B' | 'AS';
 
 function getMatchNames(match: Match) {
-    const red = (match.segmentType === 'scramble'
+    const isTeam = match.segmentType === 'scramble' || match.segmentType === 'fourball';
+    const red = (isTeam
         ? match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')
         : match.redPlayers[0]?.playerName?.split(' ')[0] || '?').replace(/\s*-\s*$/, '');
-    const blue = (match.segmentType === 'scramble'
+    const blue = (isTeam
         ? match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')
         : match.bluePlayers[0]?.playerName?.split(' ')[0] || '?').replace(/\s*-\s*$/, '');
     return { red, blue };
@@ -210,19 +211,21 @@ function OutcomeBtn({ label, outcome, team, selected, existingPick, disabled, on
 }) {
     const isAS = outcome === 'AS';
 
-    let bg = 'bg-white border-gold-border/20';
-    let text = 'text-forest-deep/60';
+    let bg = team === 'red' ? 'bg-team-red/5 border-team-red/20'
+        : team === 'blue' ? 'bg-team-blue/5 border-team-blue/20'
+        : 'bg-forest-deep/5 border-forest-deep/15';
+    let text = team === 'red' ? 'text-team-red/70' : team === 'blue' ? 'text-team-blue/70' : 'text-forest-deep/50';
 
     if (selected) {
-        bg = team === 'red' ? 'bg-team-red/15 border-team-red ring-1 ring-team-red/30'
-            : team === 'blue' ? 'bg-team-blue/15 border-team-blue ring-1 ring-team-blue/30'
-            : 'bg-forest-deep/10 border-forest-deep ring-1 ring-forest-deep/20';
-        text = team === 'red' ? 'text-team-red' : team === 'blue' ? 'text-team-blue' : 'text-forest-deep';
+        bg = team === 'red' ? 'bg-team-red/20 border-team-red ring-1 ring-team-red/30'
+            : team === 'blue' ? 'bg-team-blue/20 border-team-blue ring-1 ring-team-blue/30'
+            : 'bg-forest-deep/15 border-forest-deep ring-1 ring-forest-deep/20';
+        text = team === 'red' ? 'text-team-red font-extrabold' : team === 'blue' ? 'text-team-blue font-extrabold' : 'text-forest-deep font-extrabold';
     } else if (existingPick) {
-        bg = team === 'red' ? 'bg-team-red/5 border-team-red/30'
-            : team === 'blue' ? 'bg-team-blue/5 border-team-blue/30'
-            : 'bg-forest-deep/5 border-forest-deep/20';
-        text = team === 'red' ? 'text-team-red/70' : team === 'blue' ? 'text-team-blue/70' : 'text-forest-deep/50';
+        bg = team === 'red' ? 'bg-team-red/10 border-team-red/40'
+            : team === 'blue' ? 'bg-team-blue/10 border-team-blue/40'
+            : 'bg-forest-deep/10 border-forest-deep/30';
+        text = team === 'red' ? 'text-team-red' : team === 'blue' ? 'text-team-blue' : 'text-forest-deep/70';
     }
 
     if (disabled) {
