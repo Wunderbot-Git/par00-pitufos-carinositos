@@ -57,7 +57,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
         <div className="fixed inset-0 z-[100] flex flex-col justify-end">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="bg-cream relative w-full rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-up">
+            <div className="bg-cream relative w-full rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-slide-up mb-[72px]">
                 <div className="flex justify-center pt-3 pb-2">
                     <div className="w-12 h-1.5 bg-gold-border/40 rounded-full" />
                 </div>
