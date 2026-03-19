@@ -134,7 +134,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderPlayerRow = (player: any, holeNumbers: number[]) => {
         return (
             <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-center">
-                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20 shadow-[15px_0_0_0_#ffffff]">
+                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20 relative">
+                    <div className="absolute top-0 -right-4 w-4 h-full bg-cream z-10" />
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
@@ -142,7 +143,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         HCP {player.hcp}
                         {!player.playerName.includes('/') && <span className="text-forest-deep/25"> ({Math.round(player.hcp * 0.8)})</span>}
                     </p>
-
                 </div>
                 <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole) => {
@@ -210,7 +210,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderHoleHeaders = (holeNumbers: number[]) => (
         <div className="flex bg-forest-deep/10 border-y border-gold-border/20 sticky top-0 z-30">
-            <div className="flex-shrink-0 w-32 px-3 py-2 bg-cream sticky left-0 z-30 border-r border-gold-border/20 shadow-[15px_0_0_0_#ffffff]">
+            <div className="flex-shrink-0 w-32 px-3 py-2 bg-cream sticky left-0 z-30 border-r border-gold-border/20 relative">
+                <div className="absolute top-0 -right-4 w-4 h-full bg-cream z-10" />
                 <span className="text-[10px] font-bangers text-forest-deep/60 uppercase tracking-widest">Hoyo / Par</span>
             </div>
             <div className="flex-1 flex overflow-hidden">
@@ -231,7 +232,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderMatchStatusRow = (holeNumbers: number[]) => (
         <div className="flex bg-[#e8e4db] h-10 border-y border-gold-border/20 shadow-inner relative z-20">
-            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center" style={{ boxShadow: '15px 0 0 0 #e8e4db, 2px 0 5px -2px rgba(0,0,0,0.05)' }}>
+            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center relative shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                <div className="absolute top-0 -right-4 w-4 h-full bg-[#e8e4db] z-10" />
                 <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                     {flightScore.segmentType === 'scramble' ? 'Scramble' : flightScore.segmentType.startsWith('singles') ? 'Partido' : 'Mejor Bola'}
                 </span>
@@ -301,7 +303,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
         return (
             <div className="flex bg-[#e8e4db] h-9 border-y border-gold-border/20 shadow-inner relative z-20">
-                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center" style={{ boxShadow: '15px 0 0 0 #e8e4db, 2px 0 5px -2px rgba(0,0,0,0.05)' }}>
+                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center relative shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                <div className="absolute top-0 -right-4 w-4 h-full bg-[#e8e4db] z-10" />
                     <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                         {redName} vs {blueName}
                     </span>
