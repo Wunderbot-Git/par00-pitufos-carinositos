@@ -66,22 +66,24 @@ function ScoreCell({
         mejorBolaRing = 'ring-2 ring-offset-1 ring-[#fbbc05]';
     }
 
+    // Build an inset box-shadow for stroke indicators (top of cell)
+    // Each stroke = a 2px colored line. We stack them using multiple shadows.
+    const strokeShadow = strokes > 0
+        ? Array.from({ length: strokes }).map((_, i) => {
+            const y = i * 3 + 1; // 1px, 4px, 7px, ...
+            return `inset 0 ${y}px 0 0 ${teamColor}70`;
+        }).join(', ')
+        : undefined;
+
     return (
         <div
             onClick={onClick}
             className={`
-                flex flex-col items-center justify-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative overflow-hidden
+                flex flex-col items-center justify-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative
                 ${isPending ? 'bg-gold-light/10' : ''}
             `}
+            style={strokeShadow ? { boxShadow: strokeShadow } : undefined}
         >
-            {strokes > 0 && (
-                <div className="absolute top-0 left-2 right-2 flex flex-col gap-[1px]">
-                    {Array.from({ length: strokes }).map((_, i) => (
-                        <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.7 }} />
-                    ))}
-                </div>
-            )}
-
             <div className={`
                 inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses} ${mejorBolaRing}
                 ${isPending ? 'opacity-50' : ''}
@@ -134,7 +136,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderPlayerRow = (player: any, holeNumbers: number[]) => {
         return (
             <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-center">
-                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20" style={{ transform: 'translateZ(0)' }}>
+                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20">
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
@@ -144,7 +146,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     </p>
 
                 </div>
-                <div className="flex-1 flex overflow-hidden z-10">
+                <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole) => {
                         const holeIdx = hole - 1;
                         const score = (pendingScores[player.playerId]?.[hole]) ?? player.scores[holeIdx];
@@ -210,10 +212,10 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderHoleHeaders = (holeNumbers: number[]) => (
         <div className="flex bg-forest-deep/10 border-y border-gold-border/20 sticky top-0 z-30">
-            <div className="flex-shrink-0 w-32 px-3 py-2 bg-cream sticky left-0 z-30 border-r border-gold-border/20" style={{ transform: 'translateZ(0)' }}>
+            <div className="flex-shrink-0 w-32 px-3 py-2 bg-cream sticky left-0 z-30 border-r border-gold-border/20">
                 <span className="text-[10px] font-bangers text-forest-deep/60 uppercase tracking-widest">Hoyo / Par</span>
             </div>
-            <div className="flex-1 flex overflow-hidden z-10">
+            <div className="flex-1 flex overflow-hidden">
                 {holeNumbers.map((hole) => (
                     <div
                         key={hole}
@@ -231,12 +233,12 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderMatchStatusRow = (holeNumbers: number[]) => (
         <div className="flex bg-[#e8e4db] h-10 border-y border-gold-border/20 shadow-inner relative z-20">
-            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ transform: 'translateZ(0)' }}>
+            <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                 <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                     {flightScore.segmentType === 'scramble' ? 'Scramble' : flightScore.segmentType.startsWith('singles') ? 'Partido' : 'Mejor Bola'}
                 </span>
             </div>
-            <div className="flex-1 flex overflow-hidden z-10">
+            <div className="flex-1 flex overflow-hidden">
                 {holeNumbers.map((hole) => {
                     const status = flightScore.matchProgression[hole - 1];
                     if (!status) return <div key={hole} className="min-w-[50px] flex items-center justify-center"><div className="w-1.5 h-1.5 bg-gold-border/20 rounded-full" /></div>;
@@ -301,12 +303,12 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
         return (
             <div className="flex bg-[#e8e4db] h-9 border-y border-gold-border/20 shadow-inner relative z-20">
-                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ transform: 'translateZ(0)' }}>
+                <div className="flex-shrink-0 w-32 px-2 sticky left-0 z-30 bg-[#e8e4db] border-r border-gold-border/20 flex items-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                     <span className="text-[10px] font-bangers text-forest-deep/70 uppercase tracking-wider leading-tight">
                         {redName} vs {blueName}
                     </span>
                 </div>
-                <div className="flex-1 flex overflow-hidden z-10">
+                <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole, i) => {
                         const state = states[i];
                         if (!state || !state.played) {
