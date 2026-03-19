@@ -134,7 +134,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     const renderPlayerRow = (player: any, holeNumbers: number[]) => {
         return (
             <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-center">
-                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-10 bg-cream border-r border-gold-border/20">
+                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20">
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
