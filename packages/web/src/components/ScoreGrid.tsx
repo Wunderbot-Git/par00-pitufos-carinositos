@@ -70,20 +70,22 @@ function ScoreCell({
         <div
             onClick={onClick}
             className={`
-                flex flex-col items-center justify-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative overflow-hidden
+                flex flex-col items-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative
                 ${isPending ? 'bg-gold-light/10' : ''}
             `}
         >
-            {strokes > 0 && (
-                <div className="absolute top-0 left-2 right-2 flex flex-col gap-[1px]">
+            {strokes > 0 ? (
+                <div className="flex flex-col gap-[1px] w-full px-2 pt-[1px]">
                     {Array.from({ length: strokes }).map((_, i) => (
                         <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.7 }} />
                     ))}
                 </div>
+            ) : (
+                <div className="pt-[1px]" />
             )}
 
             <div className={`
-                inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses} ${mejorBolaRing}
+                flex-1 inline-flex flex-col items-center justify-center w-8 ${winnerClasses} ${mejorBolaRing}
                 ${isPending ? 'opacity-50' : ''}
             `}>
                 {score !== null ? (
