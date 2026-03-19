@@ -102,22 +102,22 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
                 </div>
             </div>
 
-            {/* Stepper buttons */}
+            {/* Stepper buttons: blue + on left (Pitufos), pink + on right (Cariñositos) */}
             <div className="flex items-center gap-3">
                 <button
-                    onClick={() => adjust(-0.5)}
-                    disabled={disabled || pitufos <= 0}
-                    className="w-10 h-10 rounded-full border-2 border-team-red/40 bg-team-red/10 text-team-red font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-red/20"
+                    onClick={() => adjust(0.5)}
+                    disabled={disabled || pitufos >= 25}
+                    className="w-10 h-10 rounded-full border-2 border-team-blue/40 bg-team-blue/10 text-team-blue font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-blue/20"
                 >
-                    −
+                    +
                 </button>
                 <span className="text-[10px] text-forest-deep/40 font-fredoka w-16 text-center">
                     {pitufos === cariniositos ? 'Empate' : pitufos > cariniositos ? 'Pitufos' : 'Cariñositos'}
                 </span>
                 <button
-                    onClick={() => adjust(0.5)}
-                    disabled={disabled || pitufos >= 25}
-                    className="w-10 h-10 rounded-full border-2 border-team-blue/40 bg-team-blue/10 text-team-blue font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-blue/20"
+                    onClick={() => adjust(-0.5)}
+                    disabled={disabled || pitufos <= 0}
+                    className="w-10 h-10 rounded-full border-2 border-team-red/40 bg-team-red/10 text-team-red font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-red/20"
                 >
                     +
                 </button>
