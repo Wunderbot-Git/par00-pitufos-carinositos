@@ -202,7 +202,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                         <button
                             onClick={handleConfirm}
                             disabled={isSubmitting}
-                            className={`w-full font-bangers text-lg py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
+                            className={`w-full font-bangers text-lg py-4 rounded-xl flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none'}`}
                         >
                             {isSubmitting ? 'Cargando...' : isAdditionalBet ? `Apostar ${formatCurrency(5000)}` : 'Confirmar Apuesta'}
                         </button>

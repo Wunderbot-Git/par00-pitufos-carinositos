@@ -316,7 +316,7 @@ export function MandatoryBetWizard({ eventId, onComplete, onDismiss }: Props) {
           <p className="text-team-red font-fredoka text-sm mb-4">{loadError}</p>
           <button
             onClick={fetchStatus}
-            className="bevel-button font-bangers px-6 py-2 rounded-xl text-sm"
+            className="gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers px-6 py-2 rounded-xl text-sm"
           >
             Reintentar
           </button>
@@ -336,7 +336,7 @@ export function MandatoryBetWizard({ eventId, onComplete, onDismiss }: Props) {
           </p>
           <button
             onClick={onComplete}
-            className="bevel-button font-bangers px-8 py-3 rounded-xl text-sm"
+            className="gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers px-8 py-3 rounded-xl text-sm"
           >
             Cerrar
           </button>
@@ -359,7 +359,7 @@ export function MandatoryBetWizard({ eventId, onComplete, onDismiss }: Props) {
           </p>
           <button
             onClick={onComplete}
-            className="bevel-button font-bangers px-10 py-3 rounded-xl text-base w-full max-w-xs"
+            className="gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers px-10 py-3 rounded-xl text-base w-full max-w-xs"
           >
             Cerrar
           </button>
@@ -455,7 +455,7 @@ export function MandatoryBetWizard({ eventId, onComplete, onDismiss }: Props) {
               className={`flex-1 py-3 rounded-xl font-bangers text-sm shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                 isSubmitting
                   ? 'bg-forest-mid text-cream/50 cursor-wait'
-                  : 'bevel-button'
+                  : 'gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none'
               }`}
             >
               {isSubmitting

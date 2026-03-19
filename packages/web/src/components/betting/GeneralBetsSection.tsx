@@ -326,7 +326,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                                 <button
                                     onClick={handlePlace}
                                     disabled={isSubmitting}
-                                    className="w-full py-3 rounded-xl bevel-button font-bangers text-sm disabled:opacity-50 shadow-lg"
+                                    className="w-full py-3 rounded-xl gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers text-sm disabled:opacity-50"
                                 >
                                     {isSubmitting ? 'Guardando...' : 'Confirmar Apuesta'}
                                 </button>
