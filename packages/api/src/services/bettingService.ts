@@ -113,23 +113,21 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             }
         }
 
-        // Validate custom amount for additional bets
-        const finalAmount = isAdditional && input.customAmount ? input.customAmount : betAmount;
-        if (isAdditional && input.customAmount && input.customAmount < 1000) {
-            throw new Error('El monto mínimo para apuestas adicionales es COP 1,000.');
-        }
+        // Additional bets are fixed at the event bet_amount (no custom amount)
+        const finalAmount = betAmount;
 
-        // 7. Calculate Factors
-        let timingFactor = 1;
-        if (currentHole === 0) timingFactor = 3;
-        else if (currentHole <= 3) timingFactor = 2;
-        else timingFactor = 1;
+        // 7. Calculate Factors (×2 scale for integer storage: 2/1.5/1 → 4/3/2)
+        let timingFactor = 2;
+        if (currentHole === 0) timingFactor = 4;
+        else if (currentHole <= 3) timingFactor = 3;
+        else timingFactor = 2;
 
-        let riskFactor = 1;
+        // Risk factors (×2 scale: 1/2/3 → 2/4/6)
+        let riskFactor = 2;
         if (currentHole > 0 && currentLeader !== 'AS') {
             if (input.pickedOutcome !== 'AS' && input.pickedOutcome !== currentLeader) {
-                if (currentUp === 1) riskFactor = 2;
-                else if (currentUp === 2) riskFactor = 3;
+                if (currentUp === 1) riskFactor = 4;
+                else if (currentUp === 2) riskFactor = 6;
             }
         }
 
@@ -438,5 +436,81 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
         closedRecovered,
         bets: userBets,
         generalBetsCount: generalBets.length
+    };
+};
+
+const ACTIVE_GENERAL_BET_TYPES = ['tournament_winner', 'exact_score', 'mvp', 'worst_player'];
+
+export const getMandatoryBetStatus = async (eventId: string, bettorId: string) => {
+    const pool = getPool();
+
+    // Get placed mandatory match bets (is_additional = false)
+    const matchBetsResult = await pool.query(
+        `SELECT DISTINCT flight_id, segment_type FROM bets
+         WHERE event_id = $1 AND bettor_id = $2 AND is_additional = false`,
+        [eventId, bettorId]
+    );
+    const placedMatchBets = new Set(
+        matchBetsResult.rows.map((r: any) => `${r.flight_id}:${r.segment_type}`)
+    );
+
+    // Get placed general bets
+    const generalBetsResult = await pool.query(
+        `SELECT bet_type FROM general_bets
+         WHERE event_id = $1 AND bettor_id = $2 AND bet_type = ANY($3)`,
+        [eventId, bettorId, ACTIVE_GENERAL_BET_TYPES]
+    );
+    const placedGeneralTypes = new Set(generalBetsResult.rows.map((r: any) => r.bet_type));
+
+    // Get all flights with their segments and player info
+    const flightsResult = await pool.query(
+        `SELECT f.id as flight_id, f.flight_number,
+                u1.display_name as red1_name, u2.display_name as red2_name,
+                u3.display_name as blue1_name, u4.display_name as blue2_name
+         FROM flights f
+         JOIN users u1 ON f.red_player1_id = u1.id
+         LEFT JOIN users u2 ON f.red_player2_id = u2.id
+         JOIN users u3 ON f.blue_player1_id = u3.id
+         LEFT JOIN users u4 ON f.blue_player2_id = u4.id
+         WHERE f.event_id = $1
+         ORDER BY f.flight_number`,
+        [eventId]
+    );
+
+    // Each flight has 4 segments: singles1, singles2, fourball, scramble
+    const allSegments = ['singles1', 'singles2', 'fourball', 'scramble'];
+    const missingMatches: any[] = [];
+
+    for (const flight of flightsResult.rows) {
+        for (const seg of allSegments) {
+            const key = `${flight.flight_id}:${seg}`;
+            if (!placedMatchBets.has(key)) {
+                let players = '';
+                if (seg === 'singles1') players = `${flight.red1_name} vs ${flight.blue1_name}`;
+                else if (seg === 'singles2') players = `${flight.red2_name} vs ${flight.blue2_name}`;
+                else if (seg === 'fourball') players = `${flight.red1_name}/${flight.red2_name} vs ${flight.blue1_name}/${flight.blue2_name}`;
+                else players = `${flight.red1_name}/${flight.red2_name} vs ${flight.blue1_name}/${flight.blue2_name}`;
+
+                missingMatches.push({
+                    flightId: flight.flight_id,
+                    flightNumber: flight.flight_number,
+                    segmentType: seg,
+                    players
+                });
+            }
+        }
+    }
+
+    const missingGeneral = ACTIVE_GENERAL_BET_TYPES.filter(t => !placedGeneralTypes.has(t));
+    const totalRequired = ACTIVE_GENERAL_BET_TYPES.length + (flightsResult.rows.length * allSegments.length);
+    const placed = totalRequired - missingGeneral.length - missingMatches.length;
+
+    return {
+        total: totalRequired,
+        placed,
+        missing: {
+            general: missingGeneral,
+            matches: missingMatches
+        }
     };
 };

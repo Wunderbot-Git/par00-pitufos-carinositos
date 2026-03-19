@@ -14,7 +14,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
     const { placeBet, isSubmitting, error } = usePlaceBet();
 
     const [selectedPick, setSelectedPick] = useState<'A' | 'B' | 'AS' | null>(null);
-    const [betAmount, setBetAmount] = useState(5000);
+    // betAmount is fixed at 5000 COP for all bets
 
     const isClosed = match.currentHole > 8 || match.status === 'completed' || match.matchStatus.includes('Won') || match.matchStatus.includes('Lost') || match.matchStatus.includes('&');
     const isLive = match.currentHole > 0 && !isClosed;
@@ -43,7 +43,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
             flightId: match.flightId,
             segmentType: match.segmentType,
             pickedOutcome: selectedPick,
-            ...(isAdditionalBet ? { amount: betAmount } : {})
+            ...(isAdditionalBet ? { amount: 5000 } : {})
         });
 
         if (success) {
@@ -52,10 +52,6 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
         }
     };
 
-    const adjustAmount = (delta: number) => {
-        const next = betAmount + delta;
-        if (next >= 1000 && next <= 100000) setBetAmount(next);
-    };
 
     return (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end">
@@ -134,29 +130,11 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
 
                             {selectedPick && (
                                 <div className="mt-6 flex flex-col gap-4">
-                                    {/* Amount input for additional bets */}
+                                    {/* Fixed amount display for additional bets */}
                                     {isAdditionalBet && (
-                                        <div className="bg-white border border-gold-border/30 rounded-xl p-4">
-                                            <div className="text-xs font-bangers uppercase tracking-wider text-forest-deep/50 mb-2">Monto de apuesta</div>
-                                            <div className="flex items-center justify-center gap-4">
-                                                <button
-                                                    onClick={() => adjustAmount(-5000)}
-                                                    disabled={betAmount <= 1000}
-                                                    className="w-10 h-10 rounded-full border-2 border-gold-border/40 bg-gold-light/20 font-bangers text-lg text-forest-deep disabled:opacity-30"
-                                                >
-                                                    −
-                                                </button>
-                                                <div className="text-center min-w-[120px]">
-                                                    <span className="text-2xl font-bangers text-forest-deep">{formatCurrency(betAmount)}</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => adjustAmount(5000)}
-                                                    disabled={betAmount >= 100000}
-                                                    className="w-10 h-10 rounded-full border-2 border-gold-border/40 bg-gold-light/20 font-bangers text-lg text-forest-deep disabled:opacity-30"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
+                                        <div className="bg-white border border-gold-border/30 rounded-xl p-4 text-center">
+                                            <div className="text-xs font-bangers uppercase tracking-wider text-forest-deep/50 mb-1">Monto de apuesta</div>
+                                            <span className="text-2xl font-bangers text-forest-deep">{formatCurrency(5000)}</span>
                                         </div>
                                     )}
 
@@ -176,7 +154,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                                         disabled={isSubmitting}
                                         className={`w-full font-bangers text-lg py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
                                     >
-                                        {isSubmitting ? 'Cargando...' : isAdditionalBet ? `Apostar ${formatCurrency(betAmount)}` : 'Confirmar Apuesta'}
+                                        {isSubmitting ? 'Cargando...' : isAdditionalBet ? `Apostar ${formatCurrency(5000)}` : 'Confirmar Apuesta'}
                                     </button>
                                 </div>
                             )}

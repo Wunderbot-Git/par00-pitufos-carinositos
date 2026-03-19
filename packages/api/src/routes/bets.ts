@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import { authenticate } from '../middleware/auth';
-import { placeBet, getMatchBets, getPersonalStats, getTournamentSettlements } from '../services/bettingService';
+import { placeBet, getMatchBets, getPersonalStats, getTournamentSettlements, getMandatoryBetStatus } from '../services/bettingService';
 
 export const betRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
@@ -49,6 +49,18 @@ export const betRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
             const bettorId = (request as any).user.userId;
             const stats = await getPersonalStats(eventId, bettorId);
             return reply.send(stats);
+        }
+    );
+
+    // GET mandatory bet status for current user
+    fastify.get<{ Params: { eventId: string } }>(
+        '/events/:eventId/bets/mandatory-status',
+        { preHandler: [authenticate] },
+        async (request, reply) => {
+            const { eventId } = request.params;
+            const bettorId = (request as any).user.userId;
+            const status = await getMandatoryBetStatus(eventId, bettorId);
+            return reply.send(status);
         }
     );
 

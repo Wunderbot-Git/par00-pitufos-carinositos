@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
@@ -10,8 +10,10 @@ import { DashboardBanner } from '@/components/betting/DashboardBanner';
 import { MatchBettingCard } from '@/components/betting/MatchBettingCard';
 import { GeneralBetsSection } from '@/components/betting/GeneralBetsSection';
 import { formatCurrency } from '@/lib/currency';
+import { api } from '@/lib/api';
 
 const BettingDetailSheet = dynamic(() => import('@/components/betting/BettingDetailSheet').then(m => ({ default: m.BettingDetailSheet })), { ssr: false });
+const MandatoryBetWizard = dynamic(() => import('@/components/betting/MandatoryBetWizard').then(m => ({ default: m.MandatoryBetWizard })), { ssr: false });
 
 export default function ApuestasClient() {
     const { user } = useAuth();
@@ -33,8 +35,27 @@ export default function ApuestasClient() {
     const [activeTab, setActiveTab] = useState<'general' | 'overview' | 'leaderboard' | 'settlement'>('general');
     const [betFilter, setBetFilter] = useState<'all' | 'placed' | 'pending'>('all');
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+    const [showWizard, setShowWizard] = useState(false);
+    const [wizardDismissed, setWizardDismissed] = useState(false);
 
     const isLoading = eventsLoading || (!!eventId && statsLoading) || (!!eventId && matchesLoading) || (!!eventId && settlementLoading);
+
+    // Check mandatory bet status and show wizard if incomplete
+    const checkMandatoryStatus = useCallback(async () => {
+        if (!eventId || !user || wizardDismissed) return;
+        try {
+            const status = await api.get<{ total: number; placed: number }>(`/events/${eventId}/bets/mandatory-status`);
+            if (status.placed < status.total) {
+                setShowWizard(true);
+            }
+        } catch {
+            // Silently ignore — don't block the page if endpoint fails
+        }
+    }, [eventId, user, wizardDismissed]);
+
+    useEffect(() => {
+        checkMandatoryStatus();
+    }, [checkMandatoryStatus]);
 
     if (!user) {
         return <div className="p-4 text-center text-cream/60 font-fredoka">Por favor, inicia sesión para acceder a las apuestas.</div>;
@@ -46,6 +67,24 @@ export default function ApuestasClient() {
 
     return (
         <div className="flex flex-col min-h-screen pb-20">
+            {/* Mandatory Bet Wizard */}
+            {showWizard && eventId && (
+                <MandatoryBetWizard
+                    eventId={eventId}
+                    onComplete={() => {
+                        setShowWizard(false);
+                        setWizardDismissed(true);
+                        // Refresh data after all bets placed
+                        refetchPools();
+                        refetchMyBets();
+                    }}
+                    onDismiss={() => {
+                        setShowWizard(false);
+                        setWizardDismissed(true);
+                    }}
+                />
+            )}
+
 {/* Dashboard Banner */}
             <DashboardBanner stats={stats || undefined} isLoading={isLoading} />
 
