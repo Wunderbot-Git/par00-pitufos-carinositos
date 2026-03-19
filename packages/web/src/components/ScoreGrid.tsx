@@ -56,12 +56,9 @@ function ScoreCell({
 
     if (isPending) {
         scoreTextColor = 'text-gold-border';
-    } else if (isSinglesWinner) {
+    } else if (isSinglesWinner || isWinner) {
         winnerClasses = team === 'red' ? 'rounded-full bg-team-red' : 'rounded-full bg-team-blue';
         scoreTextColor = 'text-white';
-    } else if (isWinner) {
-        winnerClasses = team === 'red' ? 'rounded-full bg-team-red/20 border-2 border-team-red' : 'rounded-full bg-team-blue/20 border-2 border-team-blue';
-        scoreTextColor = team === 'red' ? 'text-team-red' : 'text-team-blue';
     }
 
     // Gold bullseye ring when this score wins the mejor bola point
