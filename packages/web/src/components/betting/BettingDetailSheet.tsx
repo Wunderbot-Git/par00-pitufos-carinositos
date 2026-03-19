@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Match } from '@/hooks/useLeaderboard';
 import { useMatchBets, usePlaceBet } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
+import { Toast } from '@/components/ui/Toast';
+
+const HONOR_KEY = 'betting_honor_shown';
+
+function isHonorShown(): boolean {
+    try { return sessionStorage.getItem(HONOR_KEY) === '1'; } catch { return false; }
+}
+function markHonorShown() {
+    try { sessionStorage.setItem(HONOR_KEY, '1'); } catch { /* noop */ }
+}
 
 interface Props {
     eventId: string;
@@ -14,7 +24,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
     const { placeBet, isSubmitting, error } = usePlaceBet();
 
     const [selectedPick, setSelectedPick] = useState<'A' | 'B' | 'AS' | null>(null);
-    // betAmount is fixed at 5000 COP for all bets
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const isClosed = match.currentHole > 8 || match.status === 'completed' || match.matchStatus.includes('Won') || match.matchStatus.includes('Lost') || match.matchStatus.includes('&');
     const isLive = match.currentHole > 0 && !isClosed;
@@ -22,10 +32,10 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
         ? match.matchLeaders[match.currentHole > 0 ? match.currentHole - 1 : 0]
         : (match.matchStatus.includes('UP') ? 'red' : match.matchStatus.includes('DN') ? 'blue' : null);
 
-    // Check if user already has a mandatory bet (non-additional) — detected by checking betsData
-    // We can't check isAdditional from public bets data, so we track via the "already bet" state
     const hasMandatoryBet = betsData?.bets && betsData.bets.length > 0;
     const isAdditionalBet = !!hasMandatoryBet;
+
+    const showFullHonor = !isHonorShown();
 
     const redName = (match.segmentType === 'scramble'
         ? match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')
@@ -38,6 +48,8 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
     const handleConfirm = async () => {
         if (!selectedPick) return;
 
+        markHonorShown();
+
         const success = await placeBet({
             eventId,
             flightId: match.flightId,
@@ -48,10 +60,14 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
 
         if (success) {
             setSelectedPick(null);
+            setToast({ message: 'Apuesta registrada', type: 'success' });
             refetch();
+        } else {
+            setToast({ message: 'Error al registrar apuesta', type: 'error' });
         }
     };
 
+    const clearToast = useCallback(() => setToast(null), []);
 
     return (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end">
@@ -62,7 +78,8 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                     <div className="w-12 h-1.5 bg-gold-border/40 rounded-full" />
                 </div>
 
-                <div className="px-5 pb-5 overflow-y-auto">
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto px-5 pb-4">
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <h3 className="font-bangers text-lg text-forest-deep">
@@ -86,7 +103,7 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                     {/* Pick Selection */}
                     {!isClosed && (
                         <>
-                            <div className="text-xs font-bangers uppercase tracking-wider text-gold-border mb-3 mt-6">Tu Pronóstico</div>
+                            <div className="text-xs font-bangers uppercase tracking-wider text-gold-border mb-3 mt-4">Tu Pronóstico</div>
 
                             <div className="flex flex-col gap-3">
                                 <button
@@ -128,41 +145,22 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                                 </button>
                             </div>
 
-                            {selectedPick && (
-                                <div className="mt-6 flex flex-col gap-4">
-                                    {/* Fixed amount display for additional bets */}
-                                    {isAdditionalBet && (
-                                        <div className="bg-white border border-gold-border/30 rounded-xl p-4 text-center">
-                                            <div className="text-xs font-bangers uppercase tracking-wider text-forest-deep/50 mb-1">Monto de apuesta</div>
-                                            <span className="text-2xl font-bangers text-forest-deep">{formatCurrency(5000)}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
-                                        <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
-                                        <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
-                                            {!isAdditionalBet && match.currentHole === 0
-                                                ? 'Puedes cambiar tu apuesta hasta que se registre el primer score.'
-                                                : 'Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.'}
-                                        </p>
-                                    </div>
-
-                                    {error && <div className="text-team-red text-sm font-fredoka font-medium text-center">{error}</div>}
-
-                                    <button
-                                        onClick={handleConfirm}
-                                        disabled={isSubmitting}
-                                        className={`w-full font-bangers text-lg py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
-                                    >
-                                        {isSubmitting ? 'Cargando...' : isAdditionalBet ? `Apostar ${formatCurrency(5000)}` : 'Confirmar Apuesta'}
-                                    </button>
+                            {/* Full honor warning — only on first bet of session */}
+                            {selectedPick && showFullHonor && (
+                                <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3 mt-4">
+                                    <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
+                                    <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
+                                        {!isAdditionalBet && match.currentHole === 0
+                                            ? 'Puedes cambiar tu apuesta hasta que se registre el primer score.'
+                                            : 'Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.'}
+                                    </p>
                                 </div>
                             )}
                         </>
                     )}
 
                     {betsData && betsData.bets.length > 0 && (
-                        <div className="mt-8">
+                        <div className="mt-6">
                             <div className="text-xs font-bangers uppercase tracking-wider text-forest-deep/50 mb-3 flex justify-between">
                                 <span>Apuestas en esta partida</span>
                                 <span className="text-brass font-bold">Pozo: {formatCurrency(betsData.pot)}</span>
@@ -184,7 +182,35 @@ export function BettingDetailSheet({ eventId, match, onClose }: Props) {
                         </div>
                     )}
                 </div>
+
+                {/* Sticky footer — always visible confirm button */}
+                {!isClosed && selectedPick && (
+                    <div className="flex-shrink-0 px-5 pb-5 pt-3 border-t border-gold-border/20 bg-cream">
+                        {isAdditionalBet && (
+                            <div className="text-center mb-2">
+                                <span className="text-xs font-bangers text-forest-deep/50 uppercase tracking-wider">Monto: </span>
+                                <span className="text-sm font-bangers text-forest-deep">{formatCurrency(5000)}</span>
+                            </div>
+                        )}
+
+                        {!showFullHonor && (
+                            <p className="text-[10px] text-brass/70 font-fredoka text-center mb-2">Compromiso de honor aplica</p>
+                        )}
+
+                        {error && <div className="text-team-red text-sm font-fredoka font-medium text-center mb-2">{error}</div>}
+
+                        <button
+                            onClick={handleConfirm}
+                            disabled={isSubmitting}
+                            className={`w-full font-bangers text-lg py-4 rounded-xl shadow-lg flex justify-center items-center ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
+                        >
+                            {isSubmitting ? 'Cargando...' : isAdditionalBet ? `Apostar ${formatCurrency(5000)}` : 'Confirmar Apuesta'}
+                        </button>
+                    </div>
+                )}
             </div>
+
+            {toast && <Toast message={toast.message} type={toast.type} onDone={clearToast} />}
         </div>
     );
 }

@@ -1,8 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { GeneralBetPool, GeneralBet, usePlaceGeneralBet } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
+import { Toast } from '@/components/ui/Toast';
+
+const HONOR_KEY = 'betting_honor_shown';
+
+function isHonorShown(): boolean {
+    try { return sessionStorage.getItem(HONOR_KEY) === '1'; } catch { return false; }
+}
+function markHonorShown() {
+    try { sessionStorage.setItem(HONOR_KEY, '1'); } catch { /* noop */ }
+}
 
 interface Props {
     eventId: string;
@@ -82,7 +92,6 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
     return (
         <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-4 w-full justify-center">
-                {/* Pitufos side */}
                 <div className="flex flex-col items-center gap-1 flex-1">
                     <span className="text-[10px] font-bangers text-team-blue uppercase tracking-wider">Pitufos</span>
                     <div className="bg-team-blue/10 border-2 border-team-blue/30 rounded-xl px-4 py-2 min-w-[80px] text-center">
@@ -90,10 +99,8 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
                     </div>
                 </div>
 
-                {/* VS */}
                 <span className="text-forest-deep/30 font-bangers text-lg mt-4">vs</span>
 
-                {/* Cariñositos side */}
                 <div className="flex flex-col items-center gap-1 flex-1">
                     <span className="text-[10px] font-bangers text-team-red uppercase tracking-wider">Cariñositos</span>
                     <div className="bg-team-red/10 border-2 border-team-red/30 rounded-xl px-4 py-2 min-w-[80px] text-center">
@@ -102,7 +109,6 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
                 </div>
             </div>
 
-            {/* Stepper buttons: blue + on left (Pitufos), pink + on right (Cariñositos) */}
             <div className="flex items-center gap-3">
                 <button
                     onClick={() => adjust(0.5)}
@@ -132,9 +138,11 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
     const [expanded, setExpanded] = useState(false);
     const [selectedOutcome, setSelectedOutcome] = useState<string | null>(null);
     const { placeGeneralBet, isSubmitting, error } = usePlaceGeneralBet();
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const meta = BET_TYPE_LABELS[pool.betType] || { title: pool.betType, description: '' };
     const hasBet = !!myBet;
+    const showFullHonor = !isHonorShown();
 
     const isPlayerBet = pool.betType === 'mvp' || pool.betType === 'worst_player';
     const isExactScore = pool.betType === 'exact_score';
@@ -155,6 +163,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
 
     const handlePlace = async () => {
         if (!selectedOutcome) return;
+        markHonorShown();
         const success = await placeGeneralBet({
             eventId,
             betType: pool.betType,
@@ -165,158 +174,170 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
         if (success) {
             setSelectedOutcome(null);
             setExpanded(false);
+            setToast({ message: 'Apuesta registrada', type: 'success' });
             onBetPlaced();
+        } else {
+            setToast({ message: 'Error al registrar apuesta', type: 'error' });
         }
     };
 
-    // Format exact_score display: "14-11" → "Pitufos 14 - 11 Cariñositos"
+    const clearToast = useCallback(() => setToast(null), []);
+
     const formatExactScore = (outcome: string) => {
         const [p, c] = outcome.split('-');
         return { pitufos: p, cariniositos: c };
     };
 
     return (
-        <div className={`bg-cream gold-border rounded-xl overflow-hidden ${pool.isResolved ? 'opacity-80' : ''}`}>
-            <button
-                onClick={() => !pool.isResolved && setExpanded(!expanded)}
-                className="w-full flex items-center justify-between p-4 text-left"
-            >
-                <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bangers text-forest-deep">{meta.title}</h3>
+        <>
+            <div className={`bg-cream gold-border rounded-xl overflow-hidden ${pool.isResolved ? 'opacity-80' : ''}`}>
+                <button
+                    onClick={() => !pool.isResolved && setExpanded(!expanded)}
+                    className="w-full flex items-center justify-between p-4 text-left"
+                >
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bangers text-forest-deep">{meta.title}</h3>
+                        </div>
+                        <p className="text-[11px] text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
                     </div>
-                    <p className="text-[11px] text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 ml-3">
-                    {pool.pot > 0 && (
-                        <span className="text-xs font-bangers text-brass">{formatCurrency(pool.pot)}</span>
-                    )}
-                    {pool.betsCount > 0
-                        ? <span className="text-[10px] text-green-600 font-bangers">Apostado ✓</span>
-                        : <span className="text-[10px] text-forest-deep/30 font-fredoka">Pendiente</span>
-                    }
-                    {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
-                        if (isExactScore) {
-                            const { pitufos, cariniositos } = formatExactScore(pool.winningOutcome);
+                    <div className="flex flex-col items-end gap-1 ml-3">
+                        {pool.pot > 0 && (
+                            <span className="text-xs font-bangers text-brass">{formatCurrency(pool.pot)}</span>
+                        )}
+                        {pool.betsCount > 0
+                            ? <span className="text-[10px] text-green-600 font-bangers">Apostado ✓</span>
+                            : <span className="text-[10px] text-forest-deep/30 font-fredoka">Pendiente</span>
+                        }
+                        {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
+                            if (isExactScore) {
+                                const { pitufos, cariniositos } = formatExactScore(pool.winningOutcome);
+                                return (
+                                    <span className="text-[9px] font-bangers uppercase px-2 py-0.5 rounded bg-forest-mid/20 text-forest-deep/60">
+                                        {pitufos} - {cariniositos}
+                                    </span>
+                                );
+                            }
+                            const winTeam = isPlayerBet ? getPlayerTeam(pool.winningOutcome) : null;
+                            const winLabel = isPlayerBet ? getPlayerName(pool.winningOutcome) : (OUTCOME_LABELS[pool.winningOutcome] || pool.winningOutcome);
+                            const winColor = isPlayerBet
+                                ? (winTeam === 'red' ? 'bg-team-red/15 text-team-red' : winTeam === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60')
+                                : (pool.winningOutcome === 'red' ? 'bg-team-red/15 text-team-red' : pool.winningOutcome === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60');
                             return (
-                                <span className="text-[9px] font-bangers uppercase px-2 py-0.5 rounded bg-forest-mid/20 text-forest-deep/60">
-                                    {pitufos} - {cariniositos}
+                                <span className={`text-[9px] font-bangers uppercase px-2 py-0.5 rounded ${winColor}`}>
+                                    {winLabel}
                                 </span>
                             );
-                        }
-                        const winTeam = isPlayerBet ? getPlayerTeam(pool.winningOutcome) : null;
-                        const winLabel = isPlayerBet ? getPlayerName(pool.winningOutcome) : (OUTCOME_LABELS[pool.winningOutcome] || pool.winningOutcome);
-                        const winColor = isPlayerBet
-                            ? (winTeam === 'red' ? 'bg-team-red/15 text-team-red' : winTeam === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60')
-                            : (pool.winningOutcome === 'red' ? 'bg-team-red/15 text-team-red' : pool.winningOutcome === 'blue' ? 'bg-team-blue/15 text-team-blue' : 'bg-forest-mid/20 text-forest-deep/60');
-                        return (
-                            <span className={`text-[9px] font-bangers uppercase px-2 py-0.5 rounded ${winColor}`}>
-                                {winLabel}
-                            </span>
-                        );
-                    })()}
-                </div>
-            </button>
+                        })()}
+                    </div>
+                </button>
 
-            {hasBet && !expanded && (() => {
-                if (isExactScore) {
-                    const { pitufos, cariniositos } = formatExactScore(myBet.pickedOutcome);
+                {hasBet && !expanded && (() => {
+                    if (isExactScore) {
+                        const { pitufos, cariniositos } = formatExactScore(myBet.pickedOutcome);
+                        return (
+                            <div className="px-4 pb-3 -mt-1">
+                                <div className="inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded bg-forest-mid/10 text-forest-deep/60">
+                                    Tu apuesta: <span className="text-team-blue">{pitufos}</span> - <span className="text-team-red">{cariniositos}</span>
+                                </div>
+                            </div>
+                        );
+                    }
+                    const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
+                    const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
+                    const colorKey = isPlayerBet ? (pickedTeam || 'neutral') : myBet.pickedOutcome;
+                    const bgClass = colorKey === 'red' ? 'bg-team-red/10 text-team-red' : colorKey === 'blue' ? 'bg-team-blue/10 text-team-blue' : 'bg-forest-mid/10 text-forest-deep/60';
+                    const dotClass = colorKey === 'red' ? 'bg-team-red' : colorKey === 'blue' ? 'bg-team-blue' : 'bg-forest-mid';
                     return (
                         <div className="px-4 pb-3 -mt-1">
-                            <div className="inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded bg-forest-mid/10 text-forest-deep/60">
-                                Tu apuesta: <span className="text-team-blue">{pitufos}</span> - <span className="text-team-red">{cariniositos}</span>
+                            <div className={`inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded ${bgClass}`}>
+                                <div className={`w-1.5 h-4 rounded-full ${dotClass}`} />
+                                Tu apuesta: {displayOutcome}
                             </div>
                         </div>
                     );
-                }
-                const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
-                const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
-                const colorKey = isPlayerBet ? (pickedTeam || 'neutral') : myBet.pickedOutcome;
-                const bgClass = colorKey === 'red' ? 'bg-team-red/10 text-team-red' : colorKey === 'blue' ? 'bg-team-blue/10 text-team-blue' : 'bg-forest-mid/10 text-forest-deep/60';
-                const dotClass = colorKey === 'red' ? 'bg-team-red' : colorKey === 'blue' ? 'bg-team-blue' : 'bg-forest-mid';
-                return (
-                    <div className="px-4 pb-3 -mt-1">
-                        <div className={`inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded ${bgClass}`}>
-                            <div className={`w-1.5 h-4 rounded-full ${dotClass}`} />
-                            Tu apuesta: {displayOutcome}
-                        </div>
-                    </div>
-                );
-            })()}
+                })()}
 
-            {expanded && !hasBet && !pool.isResolved && (
-                <div className="px-4 pb-4 border-t border-gold-border/20 pt-3">
-                    {isExactScore ? (
-                        <div className="mb-3">
-                            <ExactScorePicker
-                                onSelect={setSelectedOutcome}
-                                disabled={isSubmitting}
-                            />
-                        </div>
-                    ) : isPlayerBet ? (
-                        <div className="flex flex-col gap-1.5 mb-3 max-h-60 overflow-y-auto">
-                            {allPlayers.map(p => {
-                                const isSelected = selectedOutcome === p.id;
-                                return (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => setSelectedOutcome(p.id)}
-                                        disabled={isSubmitting}
-                                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-all text-left
-                                            ${isSelected
-                                                ? p.team === 'red' ? 'border-team-red/50 bg-team-red/5' : 'border-team-blue/50 bg-team-blue/5'
-                                                : 'border-gold-border/20 bg-white hover:border-gold-border/40'
-                                            }
-                                        `}
-                                    >
-                                        <span className={`text-sm font-fredoka font-bold ${p.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>{p.name}</span>
-                                        {(pool.outcomePartes[p.id] || 0) > 0 && (
-                                            <span className="text-[10px] text-forest-deep/40 font-fredoka">{pool.outcomePartes[p.id]} partes</span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                    <div className="flex gap-2 mb-3">
-                        {outcomes.map(o => (
-                            <OutcomeButton
-                                key={o}
-                                outcome={o}
-                                label={OUTCOME_LABELS[o] || o}
-                                isSelected={selectedOutcome === o}
-                                isMyPick={false}
-                                partes={pool.outcomePartes[o] || 0}
-                                onClick={() => setSelectedOutcome(o)}
-                                disabled={isSubmitting}
-                            />
-                        ))}
-                    </div>
-                    )}
-
-                    {selectedOutcome && (
-                        <div className="flex flex-col gap-3 mt-2">
-                            <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
-                                <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
-                                <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
-                                    Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.
-                                </p>
+                {expanded && !hasBet && !pool.isResolved && (
+                    <div className="px-4 pb-4 border-t border-gold-border/20 pt-3">
+                        {isExactScore ? (
+                            <div className="mb-3">
+                                <ExactScorePicker
+                                    onSelect={setSelectedOutcome}
+                                    disabled={isSubmitting}
+                                />
                             </div>
-
-                            {error && <p className="text-team-red text-xs text-center font-fredoka">{error}</p>}
-
-                            <button
-                                onClick={handlePlace}
-                                disabled={isSubmitting}
-                                className="w-full py-3 rounded-xl bevel-button font-bangers text-sm disabled:opacity-50 shadow-lg"
-                            >
-                                {isSubmitting ? 'Guardando...' : 'Confirmar Apuesta'}
-                            </button>
+                        ) : isPlayerBet ? (
+                            <div className="flex flex-col gap-1.5 mb-3 max-h-60 overflow-y-auto">
+                                {allPlayers.map(p => {
+                                    const isSelected = selectedOutcome === p.id;
+                                    return (
+                                        <button
+                                            key={p.id}
+                                            onClick={() => setSelectedOutcome(p.id)}
+                                            disabled={isSubmitting}
+                                            className={`flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-all text-left
+                                                ${isSelected
+                                                    ? p.team === 'red' ? 'border-team-red/50 bg-team-red/5' : 'border-team-blue/50 bg-team-blue/5'
+                                                    : 'border-gold-border/20 bg-white hover:border-gold-border/40'
+                                                }
+                                            `}
+                                        >
+                                            <span className={`text-sm font-fredoka font-bold ${p.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>{p.name}</span>
+                                            {(pool.outcomePartes[p.id] || 0) > 0 && (
+                                                <span className="text-[10px] text-forest-deep/40 font-fredoka">{pool.outcomePartes[p.id]} partes</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                        <div className="flex gap-2 mb-3">
+                            {outcomes.map(o => (
+                                <OutcomeButton
+                                    key={o}
+                                    outcome={o}
+                                    label={OUTCOME_LABELS[o] || o}
+                                    isSelected={selectedOutcome === o}
+                                    isMyPick={false}
+                                    partes={pool.outcomePartes[o] || 0}
+                                    onClick={() => setSelectedOutcome(o)}
+                                    disabled={isSubmitting}
+                                />
+                            ))}
                         </div>
-                    )}
-                </div>
-            )}
-        </div>
+                        )}
+
+                        {selectedOutcome && (
+                            <div className="flex flex-col gap-3 mt-2">
+                                {showFullHonor ? (
+                                    <div className="bg-gold-light/20 border border-gold-border/40 rounded-xl p-3">
+                                        <p className="text-xs text-brass font-bangers">Compromiso de Honor</p>
+                                        <p className="text-[11px] text-forest-deep/60 mt-1 font-fredoka">
+                                            Al confirmar, te comprometes a aportar el monto al pozo final. No se permiten cancelaciones.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-[10px] text-brass/70 font-fredoka text-center">Compromiso de honor aplica</p>
+                                )}
+
+                                {error && <p className="text-team-red text-xs text-center font-fredoka">{error}</p>}
+
+                                <button
+                                    onClick={handlePlace}
+                                    disabled={isSubmitting}
+                                    className="w-full py-3 rounded-xl bevel-button font-bangers text-sm disabled:opacity-50 shadow-lg"
+                                >
+                                    {isSubmitting ? 'Guardando...' : 'Confirmar Apuesta'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {toast && <Toast message={toast.message} type={toast.type} onDone={clearToast} />}
+        </>
     );
 }
 
