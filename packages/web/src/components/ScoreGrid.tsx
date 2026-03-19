@@ -133,8 +133,8 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
 
     const renderPlayerRow = (player: any, holeNumbers: number[]) => {
         return (
-            <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-center">
-                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20">
+            <div key={player.playerId} className="flex border-b border-gold-border/10 last:border-0 items-stretch">
+                <div className="flex-shrink-0 w-32 px-3 py-2 sticky left-0 z-20 bg-cream border-r border-gold-border/20 flex flex-col justify-center">
                     <p className={`text-sm font-fredoka font-bold truncate ${player.team === 'red' ? 'text-team-red' : 'text-team-blue'}`}>
                         {player.playerName.replace(/ -$/, '')}
                     </p>
@@ -142,7 +142,6 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         HCP {player.hcp}
                         {!player.playerName.includes('/') && <span className="text-forest-deep/25"> ({Math.round(player.hcp * 0.8)})</span>}
                     </p>
-
                 </div>
                 <div className="flex-1 flex overflow-hidden">
                     {holeNumbers.map((hole) => {
