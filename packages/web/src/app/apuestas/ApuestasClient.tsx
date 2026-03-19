@@ -4,15 +4,14 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
-import { usePersonalStats, useTournamentSettlement, useGeneralBetPools, useMyGeneralBets } from '@/hooks/useBetting';
+import { Bet, usePersonalStats, useTournamentSettlement, useGeneralBetPools, useMyGeneralBets } from '@/hooks/useBetting';
 import { useLeaderboard, Match } from '@/hooks/useLeaderboard';
 import { DashboardBanner } from '@/components/betting/DashboardBanner';
-import { MatchBettingCard } from '@/components/betting/MatchBettingCard';
+import { FlightBettingPanel } from '@/components/betting/FlightBettingPanel';
 import { GeneralBetsSection } from '@/components/betting/GeneralBetsSection';
 import { formatCurrency } from '@/lib/currency';
 import { api } from '@/lib/api';
 
-const BettingDetailSheet = dynamic(() => import('@/components/betting/BettingDetailSheet').then(m => ({ default: m.BettingDetailSheet })), { ssr: false });
 const MandatoryBetWizard = dynamic(() => import('@/components/betting/MandatoryBetWizard').then(m => ({ default: m.MandatoryBetWizard })), { ssr: false });
 
 export default function ApuestasClient() {
@@ -26,7 +25,7 @@ export default function ApuestasClient() {
 
     const eventId = activeEvent?.id || '';
 
-    const { data: stats, isLoading: statsLoading } = usePersonalStats(eventId);
+    const { data: stats, isLoading: statsLoading, refetch: refetchStats } = usePersonalStats(eventId);
     const { data: leaderboard, isLoading: matchesLoading } = useLeaderboard(eventId);
     const { data: settlement, isLoading: settlementLoading } = useTournamentSettlement(eventId);
     const { data: generalPools, isLoading: generalPoolsLoading, refetch: refetchPools } = useGeneralBetPools(eventId);
@@ -34,7 +33,6 @@ export default function ApuestasClient() {
 
     const [activeTab, setActiveTab] = useState<'general' | 'overview' | 'leaderboard' | 'settlement'>('general');
     const [betFilter, setBetFilter] = useState<'all' | 'placed' | 'pending'>('all');
-    const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
     const [showWizard, setShowWizard] = useState(false);
     const [wizardDismissed, setWizardDismissed] = useState(false);
 
@@ -179,26 +177,23 @@ export default function ApuestasClient() {
                                     flightGroups[match.flightId].matches.push(match);
                                 });
 
-                            return Object.entries(flightGroups).map(([flightId, group]) => (
-                                <div key={flightId} className="bg-[#0a4030] thick-border rounded-2xl p-3 pt-3">
-                                    <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest mb-3 px-1">
-                                        {group.name}
-                                    </h3>
-                                    <div className="flex flex-col gap-2">
-                                        {group.matches.map(match => {
-                                            const userBet = stats?.bets?.find(b => b.flightId === match.flightId && b.segmentType === match.segmentType);
-                                            return (
-                                                <MatchBettingCard
-                                                    key={`${match.flightId}-${match.segmentType}`}
-                                                    match={match}
-                                                    userBet={userBet}
-                                                    onClick={() => setSelectedMatch(match)}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ));
+                            return Object.entries(flightGroups).map(([flightId, group]) => {
+                                const betsMap: Record<string, Bet | undefined> = {};
+                                group.matches.forEach(m => {
+                                    betsMap[m.segmentType] = stats?.bets?.find(b => b.flightId === m.flightId && b.segmentType === m.segmentType);
+                                });
+
+                                return (
+                                    <FlightBettingPanel
+                                        key={flightId}
+                                        eventId={eventId}
+                                        flightName={group.name}
+                                        matches={group.matches}
+                                        userBets={betsMap}
+                                        onBetsPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
+                                    />
+                                );
+                            });
                         })()}
                     </div>
                 )}
@@ -285,14 +280,6 @@ export default function ApuestasClient() {
                 )}
             </div>
 
-            {/* Slide-up Detail Sheet */}
-            {selectedMatch && (
-                <BettingDetailSheet
-                    eventId={eventId}
-                    match={selectedMatch}
-                    onClose={() => setSelectedMatch(null)}
-                />
-            )}
         </div>
     );
 }
