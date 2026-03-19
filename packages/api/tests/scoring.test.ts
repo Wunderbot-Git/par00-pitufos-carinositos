@@ -44,12 +44,12 @@ describe('Scoring Module', () => {
     });
 
     describe('Scramble Team Handicap', () => {
-        it('should calculate (10 + 15) * 0.20 = 5', () => {
-            expect(calculateScrambleTeamHandicap(10, 15)).toBe(5);
+        it('should calculate (10 + 15) * 0.30 = 7.5 → 8', () => {
+            expect(calculateScrambleTeamHandicap(10, 15)).toBe(8);
         });
 
-        it('should calculate (5 + 7) * 0.20 = 2.4 → 2', () => {
-            expect(calculateScrambleTeamHandicap(5, 7)).toBe(2);
+        it('should calculate (5 + 7) * 0.30 = 3.6 → 4', () => {
+            expect(calculateScrambleTeamHandicap(5, 7)).toBe(4);
         });
     });
 

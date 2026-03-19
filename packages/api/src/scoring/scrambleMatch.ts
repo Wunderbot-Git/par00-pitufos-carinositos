@@ -46,12 +46,12 @@ export interface ScrambleMatchOutput {
  * Calculate a complete scramble match.
  * In scramble, teams share a single ball and take the best shot each time.
  * Team handicap = (HCP_A + HCP_B) × allowance (default 20%)
- * Strokes are based on differential from lowest team handicap.
+ * Each team receives strokes independently based on their own team handicap.
  */
 export const calculateScrambleMatch = (input: ScrambleMatchInput): ScrambleMatchOutput => {
     const totalHoles = input.totalHoles ?? 9; // Scramble typically back 9
     const matchPoints = input.matchPoints ?? 2; // Scramble worth 2 points
-    const allowance = input.scrambleAllowance ?? 0.20;
+    const allowance = input.scrambleAllowance ?? 0.30;
 
     // Calculate team handicaps
     const redTH = calculateScrambleTeamHandicap(
@@ -65,10 +65,7 @@ export const calculateScrambleMatch = (input: ScrambleMatchInput): ScrambleMatch
         allowance
     );
 
-    // Differential: lower team plays off scratch
-    const lowestTH = Math.min(redTH, blueTH);
-    const redDiff = redTH - lowestTH;
-    const blueDiff = blueTH - lowestTH;
+    // Full independent handicaps: each team receives strokes based on own TH
 
     const holes: ScrambleHoleDetail[] = [];
     const holeResults: HoleResult[] = [];
@@ -90,8 +87,8 @@ export const calculateScrambleMatch = (input: ScrambleMatchInput): ScrambleMatch
         // Stop processing if scores are missing (0 or null)
         if (!redGross || !blueGross) break;
 
-        const redStrokes = getStrokesForHole(redDiff, redSI);
-        const blueStrokes = getStrokesForHole(blueDiff, blueSI);
+        const redStrokes = getStrokesForHole(redTH, redSI);
+        const blueStrokes = getStrokesForHole(blueTH, blueSI);
 
         const redNet = calculateNetScore(redGross as number, redStrokes);
         const blueNet = calculateNetScore(blueGross as number, blueStrokes);
