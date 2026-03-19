@@ -106,8 +106,9 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
             }
         }
 
-        const timingFactor = getTimingFactor(leaderboard);
-        const partes = timingFactor; // No risk factor for general bets — just timing
+        // General bets: flat partes (no timing/risk factors — those only apply to match bets)
+        const timingFactor = 1;
+        const partes = 1;
 
         // 7. Insert via raw query to use transaction client
         const res = await client.query(
