@@ -177,9 +177,20 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
                                                     {player.playerName.split(' ')[0]}
                                                 </td>
-                                                {player.scores.slice(start, end).map((score, i) => (
-                                                    <ScoreCell key={i} score={score} team="red" isWinner={holeWinnersChunk[i] === 'red'} strokes={getStrokes(hcps, playingHcp, i)} />
-                                                ))}
+                                                {player.scores.slice(start, end).map((score, i) => {
+                                                    const strokes = getStrokes(hcps, playingHcp, i);
+                                                    // In fourball, only highlight the best ball (lowest net) on the winning team
+                                                    let isBestBall = holeWinnersChunk[i] === 'red';
+                                                    if (isBestBall && match.redPlayers.length > 1 && score !== null) {
+                                                        const myNet = score - strokes;
+                                                        const partnerScore = match.redPlayers[1 - pIdx]?.scores[start + i];
+                                                        const partnerHcp = Math.round(match.redPlayers[1 - pIdx]?.hcp * 0.8);
+                                                        const partnerStrokes = getStrokes(hcps, partnerHcp, i);
+                                                        const partnerNet = partnerScore !== null ? partnerScore - partnerStrokes : 999;
+                                                        isBestBall = myNet <= partnerNet;
+                                                    }
+                                                    return <ScoreCell key={i} score={score} team="red" isWinner={isBestBall} strokes={strokes} />;
+                                                })}
                                                 <td />
                                             </tr>
                                         );
@@ -193,9 +204,19 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                                 <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
                                                     {player.playerName.split(' ')[0]}
                                                 </td>
-                                                {player.scores.slice(start, end).map((score, i) => (
-                                                    <ScoreCell key={i} score={score} team="blue" isWinner={holeWinnersChunk[i] === 'blue'} strokes={getStrokes(hcps, playingHcp, i)} />
-                                                ))}
+                                                {player.scores.slice(start, end).map((score, i) => {
+                                                    const strokes = getStrokes(hcps, playingHcp, i);
+                                                    let isBestBall = holeWinnersChunk[i] === 'blue';
+                                                    if (isBestBall && match.bluePlayers.length > 1 && score !== null) {
+                                                        const myNet = score - strokes;
+                                                        const partnerScore = match.bluePlayers[1 - pIdx]?.scores[start + i];
+                                                        const partnerHcp = Math.round(match.bluePlayers[1 - pIdx]?.hcp * 0.8);
+                                                        const partnerStrokes = getStrokes(hcps, partnerHcp, i);
+                                                        const partnerNet = partnerScore !== null ? partnerScore - partnerStrokes : 999;
+                                                        isBestBall = myNet <= partnerNet;
+                                                    }
+                                                    return <ScoreCell key={i} score={score} team="blue" isWinner={isBestBall} strokes={strokes} />;
+                                                })}
                                                 <td />
                                             </tr>
                                         );
