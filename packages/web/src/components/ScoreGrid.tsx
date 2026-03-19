@@ -144,7 +144,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     </p>
 
                 </div>
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex overflow-hidden z-10">
                     {holeNumbers.map((hole) => {
                         const holeIdx = hole - 1;
                         const score = (pendingScores[player.playerId]?.[hole]) ?? player.scores[holeIdx];
@@ -213,7 +213,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
             <div className="flex-shrink-0 w-32 px-3 py-2 bg-cream sticky left-0 z-30 border-r border-gold-border/20">
                 <span className="text-[10px] font-bangers text-forest-deep/60 uppercase tracking-widest">Hoyo / Par</span>
             </div>
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden z-10">
                 {holeNumbers.map((hole) => (
                     <div
                         key={hole}
@@ -236,7 +236,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                     {flightScore.segmentType === 'scramble' ? 'Scramble' : flightScore.segmentType.startsWith('singles') ? 'Partido' : 'Mejor Bola'}
                 </span>
             </div>
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden z-10">
                 {holeNumbers.map((hole) => {
                     const status = flightScore.matchProgression[hole - 1];
                     if (!status) return <div key={hole} className="min-w-[50px] flex items-center justify-center"><div className="w-1.5 h-1.5 bg-gold-border/20 rounded-full" /></div>;
@@ -306,7 +306,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                         {redName} vs {blueName}
                     </span>
                 </div>
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex overflow-hidden z-10">
                     {holeNumbers.map((hole, i) => {
                         const state = states[i];
                         if (!state || !state.played) {
