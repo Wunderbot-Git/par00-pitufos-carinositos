@@ -33,7 +33,17 @@ export default function ScoresPage() {
     const { submitBatchScores, isSubmitting: isSaving, error: submitError } = useSubmitScores();
     const [openHole, setOpenHole] = useState<number | null>(null);
     const [lastSavedHole, setLastSavedHole] = useState<number | null>(null);
-    const [activeSegment, setActiveSegment] = useState<'bestball' | 'scramble'>('bestball');
+    const [activeSegment, setActiveSegmentState] = useState<'bestball' | 'scramble'>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('score_activeSegment');
+            if (saved === 'bestball' || saved === 'scramble') return saved;
+        }
+        return 'bestball';
+    });
+    const setActiveSegment = (seg: 'bestball' | 'scramble') => {
+        setActiveSegmentState(seg);
+        if (typeof window !== 'undefined') localStorage.setItem('score_activeSegment', seg);
+    };
 
     const isLoading = eventsLoading || playersLoading || (flightId ? scoresLoading : false);
 
