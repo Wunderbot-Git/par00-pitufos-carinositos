@@ -186,7 +186,7 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                 <button
                     onClick={handleConfirmAll}
                     disabled={isSubmitting}
-                    className={`w-full mt-3 py-3 rounded-xl font-bangers text-sm shadow-lg transition-all ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
+                    className={`w-full mt-3 py-4 rounded-xl font-bangers text-lg shadow-lg transition-all ${isSubmitting ? 'bg-forest-mid text-cream/50 cursor-wait' : 'bevel-button'}`}
                 >
                     {isSubmitting
                         ? `Guardando ${progress.current} de ${progress.total}...`

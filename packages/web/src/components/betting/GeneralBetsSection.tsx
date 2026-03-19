@@ -199,7 +199,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                         <div className="flex items-center gap-2">
                             <h3 className="text-sm font-bangers text-forest-deep">{meta.title}</h3>
                         </div>
-                        <p className="text-[11px] text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
+                        <p className="text-xs text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 ml-3">
                         {pool.pot > 0 && (
