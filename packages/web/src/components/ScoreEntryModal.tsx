@@ -128,8 +128,8 @@ export function ScoreEntryModal({
                     </svg>
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-xl font-bangers tracking-tight uppercase metallic-text">Hoyo {holeNumber}</span>
-                    <span className="text-xs font-bangers text-gold-light/70 tracking-widest uppercase">Par {par}</span>
+                    <span className="text-2xl font-bangers tracking-tight uppercase text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">Hoyo {holeNumber}</span>
+                    <span className="text-sm font-bangers text-gold-light tracking-widest uppercase">Par {par}</span>
                 </div>
                 <div className="w-10"></div>
             </div>
