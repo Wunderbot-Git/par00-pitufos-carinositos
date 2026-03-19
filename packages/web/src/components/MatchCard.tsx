@@ -119,7 +119,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.bluePlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(72px, 20vw)', height: 'min(66px, 19vw)' }}>
+                        <div className="relative flex-shrink-0" style={{ width: 'min(80px, 23vw)', height: 'min(74px, 21vw)' }}>
                             {match.bluePlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
@@ -129,8 +129,8 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         style={{
                                             width: 'min(50px, 14vw)',
                                             height: 'min(50px, 14vw)',
-                                            top: i === 0 ? 0 : 'min(16px, 5vw)',
-                                            left: i === 0 ? 0 : 'min(22px, 6vw)',
+                                            top: i === 0 ? 0 : 'min(24px, 7vw)',
+                                            left: i === 0 ? 0 : 'min(30px, 9vw)',
                                             zIndex: i === 0 ? 2 : 1,
                                             borderRadius: '50%',
                                         }}
@@ -265,7 +265,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                 >
                     {/* Avatar(s) */}
                     {match.redPlayers.length > 1 ? (
-                        <div className="relative flex-shrink-0" style={{ width: 'min(72px, 20vw)', height: 'min(66px, 19vw)' }}>
+                        <div className="relative flex-shrink-0" style={{ width: 'min(80px, 23vw)', height: 'min(74px, 21vw)' }}>
                             {match.redPlayers.map((p, i) => {
                                 const avatarName = normalizeName(p.playerName);
                                 return (
@@ -275,8 +275,8 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         style={{
                                             width: 'min(50px, 14vw)',
                                             height: 'min(50px, 14vw)',
-                                            top: i === 0 ? 0 : 'min(16px, 5vw)',
-                                            left: i === 0 ? 0 : 'min(22px, 6vw)',
+                                            top: i === 0 ? 0 : 'min(24px, 7vw)',
+                                            left: i === 0 ? 0 : 'min(30px, 9vw)',
                                             zIndex: i === 0 ? 2 : 1,
                                             borderRadius: '50%',
                                         }}
