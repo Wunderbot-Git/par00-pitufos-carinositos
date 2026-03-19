@@ -66,24 +66,22 @@ function ScoreCell({
         mejorBolaRing = 'ring-2 ring-offset-1 ring-[#fbbc05]';
     }
 
-    // Build an inset box-shadow for stroke indicators (top of cell)
-    // Each stroke = a 2px colored line. We stack them using multiple shadows.
-    const strokeShadow = strokes > 0
-        ? Array.from({ length: strokes }).map((_, i) => {
-            const y = i * 3 + 1; // 1px, 4px, 7px, ...
-            return `inset 0 ${y}px 0 0 ${teamColor}70`;
-        }).join(', ')
-        : undefined;
-
     return (
         <div
             onClick={onClick}
             className={`
-                flex flex-col items-center justify-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative
+                flex flex-col items-center justify-center min-w-[50px] h-14 cursor-pointer transition-all hover:bg-gold-light/10 relative overflow-hidden
                 ${isPending ? 'bg-gold-light/10' : ''}
             `}
-            style={strokeShadow ? { boxShadow: strokeShadow } : undefined}
         >
+            {strokes > 0 && (
+                <div className="absolute top-0 left-2 right-2 flex flex-col gap-[1px]">
+                    {Array.from({ length: strokes }).map((_, i) => (
+                        <div key={i} className="h-[2px] rounded-full" style={{ backgroundColor: teamColor, opacity: 0.7 }} />
+                    ))}
+                </div>
+            )}
+
             <div className={`
                 inline-flex flex-col items-center justify-center w-8 h-8 ${winnerClasses} ${mejorBolaRing}
                 ${isPending ? 'opacity-50' : ''}
@@ -415,7 +413,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
     return (
         <div className="flex flex-col gap-2 mx-3 flex-1 min-h-0 overflow-y-auto">
             <div className="cartoon-card overflow-hidden">
-                <div className="overflow-x-auto" ref={scrollRef}>
+                <div className="overflow-x-auto" ref={scrollRef} style={{ isolation: 'isolate' }}>
                     <div className="min-w-max">
                         {renderHoleHeaders(visibleHoles)}
 
