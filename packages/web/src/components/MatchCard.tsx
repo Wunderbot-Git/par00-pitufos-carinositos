@@ -155,7 +155,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             })}
                         </div>
                     ) : (
-                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(88px, 26vw)', height: 'min(88px, 26vw)', aspectRatio: '1' }}>
+                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'clamp(70px, 22vw, 110px)', height: 'clamp(70px, 22vw, 110px)', aspectRatio: '1' }}>
                             {(() => {
                                 const avatarName = normalizeName(match.bluePlayers[0]?.playerName || '');
                                 return (
@@ -301,7 +301,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                             })}
                         </div>
                     ) : (
-                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'min(88px, 26vw)', height: 'min(88px, 26vw)', aspectRatio: '1' }}>
+                        <div className="flex-shrink-0 relative overflow-hidden rounded-full" style={{ width: 'clamp(70px, 22vw, 110px)', height: 'clamp(70px, 22vw, 110px)', aspectRatio: '1' }}>
                             {(() => {
                                 const avatarName = normalizeName(match.redPlayers[0]?.playerName || '');
                                 return (
