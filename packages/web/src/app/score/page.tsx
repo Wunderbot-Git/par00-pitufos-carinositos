@@ -48,11 +48,11 @@ export default function ScoresPage() {
 
     const [showCelebration, setShowCelebration] = useState(false);
 
-    // Trigger celebration video when Pitufos win a hole
+    // Trigger celebration video when Cariñositos win a hole
     useEffect(() => {
         if (lastSavedHole && flightScore) {
             const winner = flightScore.holeWinners[lastSavedHole - 1];
-            if (winner === 'blue') {
+            if (winner === 'red') {
                 setShowCelebration(true);
             }
         }
