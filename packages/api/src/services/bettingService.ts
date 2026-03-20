@@ -315,17 +315,42 @@ export const getTournamentSettlements = async (eventId: string) => {
                 } else {
                     playerOpenWagered[bet.bettorId] += bet.amount;
 
-                    // Calc potential
+                    // Calc potential payout per bet (for display breakdown)
                     const totalPartes = bet.pickedOutcome === 'A' ? partesA : (bet.pickedOutcome === 'B' ? partesB : partesAS);
                     if (totalPartes > 0) {
-                        const pot = (bet.partes / totalPartes) * potSize;
-                        playerOpenPotential[bet.bettorId] += pot;
-                        enrichedBet.potentialPayout = pot;
+                        enrichedBet.potentialPayout = (bet.partes / totalPartes) * potSize;
                     }
                 }
 
                 playerBets[bet.bettorId].push(enrichedBet);
             });
+
+            // Best-case potential per match: for each bettor, find which outcome
+            // maximizes their net payout from THIS match, add only that amount
+            if (!isFinished) {
+                const bettorIds = Array.from(new Set(matchBets.map(b => b.bettorId)));
+                for (const bettorId of bettorIds) {
+                    const myBets = matchBets.filter(b => b.bettorId === bettorId);
+                    const myWagered = myBets.reduce((s, b) => s + b.amount, 0);
+
+                    let bestNet = -myWagered; // worst case: lose everything
+                    for (const outcome of ['A', 'B', 'AS'] as const) {
+                        const totalWinPartes = outcome === 'A' ? partesA : outcome === 'B' ? partesB : partesAS;
+                        let payout = 0;
+                        if (totalWinPartes > 0) {
+                            for (const bet of myBets) {
+                                if (bet.pickedOutcome === outcome) {
+                                    payout += (bet.partes / totalWinPartes) * potSize;
+                                }
+                            }
+                        }
+                        const net = payout - myWagered;
+                        if (net > bestNet) bestNet = net;
+                    }
+                    // Add best-case net + wagered back = best-case gross payout
+                    playerOpenPotential[bettorId] += Math.max(0, bestNet + myWagered);
+                }
+            }
         };
 
         // Evaluate Fourball using explicit fourballStatus
