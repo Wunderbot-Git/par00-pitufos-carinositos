@@ -233,32 +233,43 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                 </button>
 
                 {hasBet && !expanded && (() => {
-                    if (isExactScore) {
-                        const { pitufos, cariniositos } = formatExactScore(myBet.pickedOutcome);
-                        return (
-                            <div className="px-4 pb-3 -mt-1">
+                    const betDisplay = (() => {
+                        if (isExactScore) {
+                            const { pitufos, cariniositos } = formatExactScore(myBet.pickedOutcome);
+                            return (
                                 <div className="inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded bg-forest-mid/10 text-forest-deep/60">
                                     Tu apuesta: <span className="text-team-blue">{pitufos}</span> - <span className="text-team-red">{cariniositos}</span>
                                 </div>
-                            </div>
-                        );
-                    }
-                    const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
-                    const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
-                    const colorKey = isPlayerBet ? (pickedTeam || 'neutral') : myBet.pickedOutcome;
-                    const bgClass = colorKey === 'red' ? 'bg-team-red/10 text-team-red' : colorKey === 'blue' ? 'bg-team-blue/10 text-team-blue' : 'bg-forest-mid/10 text-forest-deep/60';
-                    const dotClass = colorKey === 'red' ? 'bg-team-red' : colorKey === 'blue' ? 'bg-team-blue' : 'bg-forest-mid';
-                    return (
-                        <div className="px-4 pb-3 -mt-1">
+                            );
+                        }
+                        const pickedTeam = isPlayerBet ? getPlayerTeam(myBet.pickedOutcome) : null;
+                        const displayOutcome = isPlayerBet ? getPlayerName(myBet.pickedOutcome) : (OUTCOME_LABELS[myBet.pickedOutcome] || myBet.pickedOutcome);
+                        const colorKey = isPlayerBet ? (pickedTeam || 'neutral') : myBet.pickedOutcome;
+                        const bgClass = colorKey === 'red' ? 'bg-team-red/10 text-team-red' : colorKey === 'blue' ? 'bg-team-blue/10 text-team-blue' : 'bg-forest-mid/10 text-forest-deep/60';
+                        const dotClass = colorKey === 'red' ? 'bg-team-red' : colorKey === 'blue' ? 'bg-team-blue' : 'bg-forest-mid';
+                        return (
                             <div className={`inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded ${bgClass}`}>
                                 <div className={`w-1.5 h-4 rounded-full ${dotClass}`} />
                                 Tu apuesta: {displayOutcome}
                             </div>
+                        );
+                    })();
+                    return (
+                        <div className="px-4 pb-3 -mt-1 flex items-center gap-3">
+                            {betDisplay}
+                            {!pool.isResolved && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                                    className="text-xs font-fredoka text-forest-deep/40 hover:text-forest-deep/70"
+                                >
+                                    Cambiar
+                                </button>
+                            )}
                         </div>
                     );
                 })()}
 
-                {expanded && !hasBet && !pool.isResolved && (
+                {expanded && !pool.isResolved && (
                     <div className="px-4 pb-4 border-t border-gold-border/20 pt-3">
                         {isExactScore ? (
                             <div className="mb-3">
@@ -328,7 +339,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                                     disabled={isSubmitting}
                                     className="w-full py-3 rounded-xl gold-button text-[#1e293b] shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none font-bangers text-sm disabled:opacity-50"
                                 >
-                                    {isSubmitting ? 'Guardando...' : 'Confirmar Apuesta'}
+                                    {isSubmitting ? 'Guardando...' : hasBet ? 'Cambiar Apuesta' : 'Confirmar Apuesta'}
                                 </button>
                             </div>
                         )}
