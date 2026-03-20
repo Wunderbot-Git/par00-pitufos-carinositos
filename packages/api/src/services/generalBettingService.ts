@@ -51,7 +51,7 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         // 1. Validate event has betting enabled
         const eventRes = await client.query('SELECT bet_amount FROM events WHERE id = $1', [input.eventId]);
         if (eventRes.rows.length === 0) throw new Error('Event not found');
-        const betAmount = eventRes.rows[0].bet_amount ? parseFloat(eventRes.rows[0].bet_amount) : null;
+        const betAmount = eventRes.rows[0].bet_amount ? parseFloat(eventRes.rows[0].bet_amount) : 5000;
         if (!betAmount || betAmount <= 0) throw new Error('Betting is not enabled for this event.');
 
         // 2. Reject removed bet types
