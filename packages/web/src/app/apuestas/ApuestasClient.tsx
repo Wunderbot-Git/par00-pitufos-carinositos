@@ -73,6 +73,7 @@ export default function ApuestasClient() {
                         setShowWizard(false);
                         setWizardDismissed(true);
                         // Refresh data after all bets placed
+                        refetchStats();
                         refetchPools();
                         refetchMyBets();
                     }}
@@ -151,7 +152,7 @@ export default function ApuestasClient() {
                         eventId={eventId}
                         pools={generalPools || []}
                         myBets={myGeneralBets || []}
-                        onBetPlaced={() => { refetchPools(); refetchMyBets(); }}
+                        onBetPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
                         filter={betFilter}
                     />
                 )}
