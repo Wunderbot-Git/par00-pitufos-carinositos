@@ -495,10 +495,10 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
     let playerNames: Record<string, string> = {};
     if (playerUuids.length > 0) {
         const nameRes = await pool.query(
-            `SELECT id, display_name FROM users WHERE id = ANY($1)`,
+            `SELECT id, name FROM users WHERE id = ANY($1)`,
             [playerUuids]
         );
-        nameRes.rows.forEach((r: any) => { playerNames[r.id] = r.display_name; });
+        nameRes.rows.forEach((r: any) => { playerNames[r.id] = r.name; });
     }
 
     const enrichedGeneralBets = generalBets.map(b => {
