@@ -206,8 +206,8 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                             <span className="text-xs font-bangers text-brass">{formatCurrency(pool.pot)}</span>
                         )}
                         {pool.betsCount > 0
-                            ? <span className="text-[10px] text-green-600 font-bangers">Apostado ✓</span>
-                            : <span className="text-[10px] text-forest-deep/30 font-fredoka">Pendiente</span>
+                            ? <span className="text-sm text-green-600 font-bangers">Apostado</span>
+                            : <span className="text-sm text-forest-deep/30 font-fredoka">Pendiente</span>
                         }
                         {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
                             if (isExactScore) {
