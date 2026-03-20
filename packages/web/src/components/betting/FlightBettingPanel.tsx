@@ -134,8 +134,8 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                     <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest">
                         {flightName}
                     </h3>
-                    <span className="text-[9px] font-fredoka text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">
-                        ✓ Completo
+                    <span className="text-xs font-fredoka text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">
+                        Completo
                     </span>
                 </div>
                 <div className="bg-cream gold-border rounded-xl px-3 py-2">
@@ -149,11 +149,11 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                             const pickColor = bet.pickedOutcome === 'A' ? 'text-team-red'
                                 : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
                             return (
-                                <div key={match.segmentType} className="flex items-center justify-between py-0.5">
-                                    <span className="text-[9px] font-bangers text-forest-deep/40 uppercase tracking-wider">
+                                <div key={match.segmentType} className="flex items-center justify-between py-1">
+                                    <span className="text-xs font-bangers text-forest-deep/40 uppercase tracking-wider">
                                         {SEGMENT_LABELS[match.segmentType]}
                                     </span>
-                                    <span className={`text-[11px] font-fredoka font-bold ${pickColor}`}>
+                                    <span className={`text-sm font-fredoka font-bold ${pickColor}`}>
                                         {pickLabel}
                                     </span>
                                 </div>
@@ -164,9 +164,9 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                 {anyPreMatch && (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="w-full mt-2 py-1.5 text-[10px] font-fredoka text-gold-light/70 hover:text-gold-light transition-colors"
+                        className="w-full mt-2 py-1.5 text-xs font-fredoka text-gold-light/70 hover:text-gold-light transition-colors"
                     >
-                        ✏️ Cambiar apuestas
+                        Cambiar apuestas
                     </button>
                 )}
                 {toast && <Toast message={toast.message} type={toast.type} onDone={clearToast} />}
