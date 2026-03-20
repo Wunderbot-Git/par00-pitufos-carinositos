@@ -29,15 +29,12 @@ function outcomeColor(outcome: string) {
     return 'text-forest-deep/70';
 }
 
-function formatGeneralOutcome(betType: string, outcome: string): { label: string; color: string } {
+function getGeneralOutcomeColor(betType: string, outcome: string): string {
     if (betType === 'tournament_winner') {
-        return { label: OUTCOME_LABELS[outcome] || outcome, color: outcomeColor(outcome) };
+        if (outcome === 'Cariñositos') return 'text-team-red';
+        if (outcome === 'Pitufos') return 'text-team-blue';
     }
-    if (betType === 'exact_score') {
-        return { label: outcome, color: 'text-forest-deep' };
-    }
-    // mvp, worst_player — outcome is a player name or ID
-    return { label: outcome, color: 'text-forest-deep' };
+    return 'text-forest-deep';
 }
 
 interface Props {
@@ -84,8 +81,9 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                             <div>
                                 <h3 className="text-sm font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">Apuestas Generales</h3>
                                 <div className="flex flex-col gap-2">
-                                    {stats.generalBets.map((bet, i) => {
-                                        const { label, color } = formatGeneralOutcome(bet.betType, bet.pickedOutcome);
+                                    {stats.generalBets.map((bet: any, i: number) => {
+                                        const label = bet.displayOutcome || bet.pickedOutcome;
+                                        const color = getGeneralOutcomeColor(bet.betType, label);
                                         return (
                                             <div key={i} className="flex justify-between items-center px-3 py-2.5 rounded-lg border bg-white border-gold-border/20">
                                                 <div>

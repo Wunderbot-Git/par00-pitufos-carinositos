@@ -242,14 +242,26 @@ export const getTournamentSettlements = async (eventId: string) => {
 
     const flightIds = Array.from(new Set(bets.map(b => b.flightId)));
 
-    // Fetch flight names for enriching bets
+    // Fetch flight names with player names for enriching bets
     const flightNames: Record<string, string> = {};
     if (flightIds.length > 0) {
         const fnRes = await pool.query(
-            `SELECT id, flight_number FROM flights WHERE id = ANY($1)`,
+            `SELECT f.id, f.flight_number,
+                    u1.display_name as red1, u2.display_name as red2,
+                    u3.display_name as blue1, u4.display_name as blue2
+             FROM flights f
+             JOIN users u1 ON f.red_player1_id = u1.id
+             LEFT JOIN users u2 ON f.red_player2_id = u2.id
+             JOIN users u3 ON f.blue_player1_id = u3.id
+             LEFT JOIN users u4 ON f.blue_player2_id = u4.id
+             WHERE f.id = ANY($1)`,
             [flightIds]
         );
-        fnRes.rows.forEach((r: any) => { flightNames[r.id] = `Grupo ${r.flight_number}`; });
+        fnRes.rows.forEach((r: any) => {
+            const red = [r.red1, r.red2].filter(Boolean).join('/');
+            const blue = [r.blue1, r.blue2].filter(Boolean).join('/');
+            flightNames[r.id] = `${red} vs ${blue}`;
+        });
     }
 
     let isPartial = false;
@@ -455,6 +467,7 @@ export const getTournamentSettlements = async (eventId: string) => {
 };
 
 export const getPersonalStats = async (eventId: string, bettorId: string): Promise<any> => {
+    const pool = getPool();
     // Rely on the full tournament settlement to extract personal stats, ensuring logic reuse and perfect sync
     const [settlement, generalBets] = await Promise.all([
         getTournamentSettlements(eventId),
@@ -470,6 +483,30 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
     const wagered = openWagered + closedWagered;
     const realizedNet = closedRecovered - closedWagered;
 
+    // Resolve general bet outcomes to display labels
+    const TEAM_LABELS: Record<string, string> = { red: 'Cariñositos', blue: 'Pitufos' };
+    const playerUuids = generalBets
+        .filter(b => b.betType === 'mvp' || b.betType === 'worst_player')
+        .map(b => b.pickedOutcome);
+    let playerNames: Record<string, string> = {};
+    if (playerUuids.length > 0) {
+        const nameRes = await pool.query(
+            `SELECT id, display_name FROM users WHERE id = ANY($1)`,
+            [playerUuids]
+        );
+        nameRes.rows.forEach((r: any) => { playerNames[r.id] = r.display_name; });
+    }
+
+    const enrichedGeneralBets = generalBets.map(b => {
+        let displayOutcome = b.pickedOutcome;
+        if (b.betType === 'tournament_winner') {
+            displayOutcome = TEAM_LABELS[b.pickedOutcome] || b.pickedOutcome;
+        } else if (b.betType === 'mvp' || b.betType === 'worst_player') {
+            displayOutcome = playerNames[b.pickedOutcome] || b.pickedOutcome;
+        }
+        return { ...b, displayOutcome };
+    });
+
     return {
         wagered,
         realizedNet,
@@ -477,7 +514,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
         closedWagered,
         closedRecovered,
         bets: userBets,
-        generalBets,
+        generalBets: enrichedGeneralBets,
         generalBetsCount: generalBets.length
     };
 };
