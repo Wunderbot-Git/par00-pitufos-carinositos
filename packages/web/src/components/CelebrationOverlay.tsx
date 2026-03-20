@@ -2,11 +2,17 @@
 
 import { useRef, useEffect } from 'react';
 
+const CELEBRATION_VIDEOS: Record<string, string> = {
+    red: 'https://cdn.dam.alkosto.com/Yalo/video_test/Pink_Bear_Wins_Hole_in_One.mp4',
+    blue: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_203937_ae35d497-7aee-479a-8a5b-389e10336935.mp4',
+};
+
 interface CelebrationOverlayProps {
+    team: 'red' | 'blue';
     onClose: () => void;
 }
 
-export function CelebrationOverlay({ onClose }: CelebrationOverlayProps) {
+export function CelebrationOverlay({ team, onClose }: CelebrationOverlayProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -24,7 +30,7 @@ export function CelebrationOverlay({ onClose }: CelebrationOverlayProps) {
         >
             <video
                 ref={videoRef}
-                src="https://cdn.dam.alkosto.com/Yalo/video_test/Pink_Bear_Wins_Hole_in_One.mp4"
+                src={CELEBRATION_VIDEOS[team]}
                 className="max-w-[90vw] max-h-[70vh] rounded-2xl shadow-2xl"
                 playsInline
                 muted

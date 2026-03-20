@@ -46,14 +46,14 @@ export default function ScoresPage() {
         if (typeof window !== 'undefined') localStorage.setItem('score_activeSegment', seg);
     };
 
-    const [showCelebration, setShowCelebration] = useState(false);
+    const [celebrationTeam, setCelebrationTeam] = useState<'red' | 'blue' | null>(null);
 
-    // Trigger celebration video when Cariñositos win a hole
+    // Trigger celebration video when either team wins a hole
     useEffect(() => {
         if (lastSavedHole && flightScore) {
             const winner = flightScore.holeWinners[lastSavedHole - 1];
-            if (winner === 'red') {
-                setShowCelebration(true);
+            if (winner === 'red' || winner === 'blue') {
+                setCelebrationTeam(winner);
             }
         }
     }, [lastSavedHole, flightScore]);
@@ -202,8 +202,8 @@ export default function ScoresPage() {
                 )}
             </main>
 
-            {showCelebration && (
-                <CelebrationOverlay onClose={() => setShowCelebration(false)} />
+            {celebrationTeam && (
+                <CelebrationOverlay team={celebrationTeam} onClose={() => setCelebrationTeam(null)} />
             )}
 
             {openHole !== null && flightScore && (
