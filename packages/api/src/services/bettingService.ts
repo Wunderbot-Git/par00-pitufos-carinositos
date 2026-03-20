@@ -242,7 +242,7 @@ export const getTournamentSettlements = async (eventId: string) => {
 
     const flightIds = Array.from(new Set(bets.map(b => b.flightId)));
 
-    // Fetch flight names with player names for enriching bets
+    // Fetch flight names for enriching bets
     const flightNames: Record<string, string> = {};
     if (flightIds.length > 0) {
         const fnRes = await pool.query(
@@ -250,9 +250,9 @@ export const getTournamentSettlements = async (eventId: string) => {
                     u1.display_name as red1, u2.display_name as red2,
                     u3.display_name as blue1, u4.display_name as blue2
              FROM flights f
-             JOIN users u1 ON f.red_player1_id = u1.id
+             LEFT JOIN users u1 ON f.red_player1_id = u1.id
              LEFT JOIN users u2 ON f.red_player2_id = u2.id
-             JOIN users u3 ON f.blue_player1_id = u3.id
+             LEFT JOIN users u3 ON f.blue_player1_id = u3.id
              LEFT JOIN users u4 ON f.blue_player2_id = u4.id
              WHERE f.id = ANY($1)`,
             [flightIds]
@@ -260,7 +260,7 @@ export const getTournamentSettlements = async (eventId: string) => {
         fnRes.rows.forEach((r: any) => {
             const red = [r.red1, r.red2].filter(Boolean).join('/');
             const blue = [r.blue1, r.blue2].filter(Boolean).join('/');
-            flightNames[r.id] = `${red} vs ${blue}`;
+            flightNames[r.id] = red && blue ? `${red} vs ${blue}` : `Grupo ${r.flight_number}`;
         });
     }
 
