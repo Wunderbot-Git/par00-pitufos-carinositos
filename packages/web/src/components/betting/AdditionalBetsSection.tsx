@@ -72,16 +72,16 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
 
     return (
         <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bangers text-cream/60 uppercase tracking-widest px-1">
+            <h3 className="text-sm font-bangers text-cream/70 uppercase tracking-widest px-1">
                 Apuestas Adicionales
             </h3>
-            <p className="text-[10px] font-fredoka text-cream/40 px-1 -mt-2">
+            <p className="text-xs font-fredoka text-cream/40 px-1 -mt-2">
                 Apuesta {formatCurrency(betAmount)} extra en partidos en juego. No puedes apostar por el líder actual.
             </p>
 
             {Object.entries(flightGroups).map(([flightId, group]) => (
                 <div key={flightId} className="bg-[#0a4030]/50 thick-border rounded-2xl p-3">
-                    <h4 className="text-[10px] font-bangers text-gold-light/60 uppercase tracking-widest mb-2 px-1">
+                    <h4 className="text-xs font-bangers text-gold-light/60 uppercase tracking-widest mb-2 px-1">
                         {group.name}
                     </h4>
                     <div className="flex flex-col gap-2">
@@ -109,10 +109,10 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
                                         className="w-full flex justify-between items-center px-3 py-2.5 text-left"
                                     >
                                         <div>
-                                            <span className="text-[10px] font-bangers text-forest-deep/40 uppercase tracking-wider">
+                                            <span className="text-xs font-bangers text-forest-deep/40 uppercase tracking-wider">
                                                 {SEGMENT_LABELS[match.segmentType]}
                                             </span>
-                                            <div className="text-xs font-fredoka text-forest-deep/60">
+                                            <div className="text-sm font-fredoka text-forest-deep/60">
                                                 <span className="text-team-red font-bold">{redName}</span>
                                                 {' vs '}
                                                 <span className="text-team-blue font-bold">{blueName}</span>
@@ -146,7 +146,7 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
                                                             key={outcome}
                                                             onClick={() => canBet && setSelectedOutcome(isSelected ? null : outcome)}
                                                             disabled={!canBet}
-                                                            className={`flex-1 py-2 rounded-lg border-2 text-center transition-all text-xs font-fredoka font-bold truncate px-1
+                                                            className={`flex-1 py-3 rounded-lg border-2 text-center transition-all text-sm font-fredoka font-bold truncate px-2
                                                                 ${!canBet ? 'bg-forest-deep/5 border-gold-border/10 text-forest-deep/20 cursor-not-allowed' :
                                                                     isSelected ? `bg-${teamColor}/25 border-${teamColor} ring-2 ring-${teamColor}/40 shadow-md text-${teamColor}` :
                                                                         `bg-${teamColor}/5 border-${teamColor}/20 text-${teamColor}/70 active:scale-95`}
@@ -161,7 +161,7 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
                                                 <button
                                                     onClick={() => handlePlace(match)}
                                                     disabled={isSubmitting}
-                                                    className="w-full py-2.5 rounded-xl gold-button text-[#1e293b] shadow-[0_3px_0_#1e293b] active:translate-y-0.5 active:shadow-none font-bangers text-sm disabled:opacity-50"
+                                                    className="w-full py-3 rounded-xl gold-button text-[#1e293b] shadow-[0_3px_0_#1e293b] active:translate-y-0.5 active:shadow-none font-bangers text-base disabled:opacity-50"
                                                 >
                                                     {isSubmitting ? 'Guardando...' : `Apostar ${formatCurrency(betAmount)}`}
                                                 </button>
