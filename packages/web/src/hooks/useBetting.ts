@@ -16,6 +16,7 @@ export interface Bet {
     partes: number;
     amount: number;
     potentialPayout?: number;
+    isAdditional?: boolean;
     createdAt: string;
 }
 

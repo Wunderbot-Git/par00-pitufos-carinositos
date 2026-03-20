@@ -184,8 +184,10 @@ export default function ApuestasClient() {
 
                             return Object.entries(flightGroups).map(([flightId, group]) => {
                                 const betsMap: Record<string, Bet | undefined> = {};
+                                const additionalBetsMap: Record<string, Bet | undefined> = {};
                                 group.matches.forEach(m => {
-                                    betsMap[m.segmentType] = stats?.bets?.find(b => b.flightId === m.flightId && b.segmentType === m.segmentType);
+                                    betsMap[m.segmentType] = stats?.bets?.find(b => b.flightId === m.flightId && b.segmentType === m.segmentType && !b.isAdditional);
+                                    additionalBetsMap[m.segmentType] = stats?.bets?.find(b => b.flightId === m.flightId && b.segmentType === m.segmentType && b.isAdditional);
                                 });
 
                                 return (
@@ -195,6 +197,7 @@ export default function ApuestasClient() {
                                         flightName={group.name}
                                         matches={group.matches}
                                         userBets={betsMap}
+                                        additionalBets={additionalBetsMap}
                                         onBetsPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
                                     />
                                 );
@@ -207,12 +210,16 @@ export default function ApuestasClient() {
                                 m.currentHole > 0 && m.status !== 'completed' &&
                                 !m.matchStatus.includes('Won') && !m.matchStatus.includes('Lost') && !m.matchStatus.includes('&')
                             );
+                            const existingAdditionalKeys = new Set(
+                                stats?.bets?.filter(b => b.isAdditional).map(b => `${b.flightId}:${b.segmentType}`) || []
+                            );
                             return liveMatches.length > 0 ? (
                                 <AdditionalBetsSection
                                     eventId={eventId}
                                     matches={liveMatches}
                                     onBetPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
                                     betAmount={5000}
+                                    existingAdditionalBets={existingAdditionalKeys}
                                 />
                             ) : null;
                         })()}

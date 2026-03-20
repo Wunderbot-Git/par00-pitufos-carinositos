@@ -45,10 +45,11 @@ interface Props {
     flightName: string;
     matches: Match[];
     userBets: Record<string, Bet | undefined>; // keyed by segmentType
+    additionalBets?: Record<string, Bet | undefined>; // keyed by segmentType
     onBetsPlaced: () => void;
 }
 
-export function FlightBettingPanel({ eventId, flightName, matches, userBets, onBetsPlaced }: Props) {
+export function FlightBettingPanel({ eventId, flightName, matches, userBets, additionalBets = {}, onBetsPlaced }: Props) {
     const [selections, setSelections] = useState<Record<string, Outcome>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
@@ -142,20 +143,34 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                         {matches.map(match => {
                             const bet = userBets[match.segmentType];
+                            const addBet = additionalBets[match.segmentType];
                             if (!bet) return null;
                             const { red, blue } = getMatchNames(match);
                             const pickLabel = bet.pickedOutcome === 'A' ? red
                                 : bet.pickedOutcome === 'B' ? blue : 'A/S';
                             const pickColor = bet.pickedOutcome === 'A' ? 'text-team-red'
                                 : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
+                            const addPickLabel = addBet
+                                ? (addBet.pickedOutcome === 'A' ? red : addBet.pickedOutcome === 'B' ? blue : 'A/S')
+                                : null;
+                            const addPickColor = addBet
+                                ? (addBet.pickedOutcome === 'A' ? 'text-team-red' : addBet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70')
+                                : '';
                             return (
                                 <div key={match.segmentType} className="flex items-center justify-between py-1">
                                     <span className="text-xs font-bangers text-forest-deep/40 uppercase tracking-wider">
                                         {SEGMENT_LABELS[match.segmentType]}
                                     </span>
-                                    <span className={`text-sm font-fredoka font-bold ${pickColor}`}>
-                                        {pickLabel}
-                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        <span className={`text-sm font-fredoka font-bold ${pickColor}`}>
+                                            {pickLabel}
+                                        </span>
+                                        {addPickLabel && (
+                                            <span className={`text-[10px] font-fredoka font-bold ${addPickColor} bg-gold-border/15 px-1 rounded`}>
+                                                +{addPickLabel}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -265,6 +280,22 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                                     onClick={() => toggleSelection(match.segmentType, 'B')}
                                 />
                             </div>
+
+                            {/* Additional bet indicator */}
+                            {additionalBets[match.segmentType] && (() => {
+                                const addBet = additionalBets[match.segmentType]!;
+                                const addLabel = addBet.pickedOutcome === 'A' ? red
+                                    : addBet.pickedOutcome === 'B' ? blue : 'A/S';
+                                const addColor = addBet.pickedOutcome === 'A' ? 'text-team-red'
+                                    : addBet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
+                                return (
+                                    <div className="mt-1.5 flex items-center gap-1.5 bg-gold-border/10 rounded-lg px-2 py-1">
+                                        <span className="text-[10px] font-bangers text-gold-border">+</span>
+                                        <span className="text-[10px] font-fredoka text-forest-deep/50">Adicional:</span>
+                                        <span className={`text-[10px] font-fredoka font-bold ${addColor}`}>{addLabel}</span>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     );
                 })}

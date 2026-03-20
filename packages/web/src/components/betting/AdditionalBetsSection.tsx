@@ -26,9 +26,10 @@ interface Props {
     matches: Match[]; // only live matches
     onBetPlaced: () => void;
     betAmount: number;
+    existingAdditionalBets?: Set<string>; // "flightId:segmentType" keys
 }
 
-export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount }: Props) {
+export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount, existingAdditionalBets }: Props) {
     const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
     const [selectedOutcome, setSelectedOutcome] = useState<Outcome | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +37,12 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
 
     const clearToast = useCallback(() => setToast(null), []);
 
-    if (matches.length === 0) return null;
+    // Filter out matches where user already has an additional bet
+    const availableMatches = existingAdditionalBets
+        ? matches.filter(m => !existingAdditionalBets.has(`${m.flightId}:${m.segmentType}`))
+        : matches;
+
+    if (availableMatches.length === 0) return null;
 
     const handlePlace = async (match: Match) => {
         if (!selectedOutcome) return;
@@ -59,7 +65,7 @@ export function AdditionalBetsSection({ eventId, matches, onBetPlaced, betAmount
 
     // Group by flight
     const flightGroups: Record<string, { name: string; matches: Match[] }> = {};
-    matches.forEach(m => {
+    availableMatches.forEach(m => {
         if (!flightGroups[m.flightId]) flightGroups[m.flightId] = { name: m.flightName, matches: [] };
         flightGroups[m.flightId].matches.push(m);
     });
