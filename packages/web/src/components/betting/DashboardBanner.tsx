@@ -84,20 +84,20 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                         className="w-full bg-gold-border/15 border border-gold-border/40 rounded-lg p-3 flex items-center justify-between"
                     >
                         <div className="text-[10px] text-gold-light/80 uppercase tracking-wider font-bangers text-left">
-                            Lo que te puedes ganar
+                            Ganancia potencial
                             {openBets.length > 0 && (
                                 <span className="text-[9px] text-gold-light/40 normal-case tracking-normal ml-1">
                                     (toca para ver detalle)
                                 </span>
                             )}
                         </div>
-                        <div className="text-lg font-bangers text-gold-light">{formatCurrency(stats.potential)}</div>
+                        <div className="text-lg font-bangers text-gold-light">{formatCurrency(stats.potential - stats.wagered)}</div>
                     </button>
 
                     {showBreakdown && openBets.length > 0 && (
                         <div className="mt-2 bg-white/5 rounded-lg p-3 border border-gold-border/20">
                             <div className="text-[9px] font-fredoka text-white/40 mb-2">
-                                Si ganas todas tus apuestas abiertas, recibirías:
+                                Ganancia neta si ganas todas tus apuestas abiertas:
                             </div>
                             <div className="flex flex-col gap-1.5">
                                 {openBets.map((bet: any, i: number) => {
@@ -112,16 +112,16 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                                                 </span>
                                                 <span className={`font-fredoka font-bold ${outcomeColor}`}>{outcomeLabel}</span>
                                             </div>
-                                            <span className="font-fredoka font-bold text-gold-light">
-                                                {formatCurrency(bet.potentialPayout)}
+                                            <span className="font-fredoka font-bold text-green-400">
+                                                +{formatCurrency(bet.potentialPayout - bet.amount)}
                                             </span>
                                         </div>
                                     );
                                 })}
                             </div>
                             <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/10 text-xs">
-                                <span className="font-bangers text-white/50 uppercase">Total</span>
-                                <span className="font-bangers text-gold-light text-sm">{formatCurrency(stats.potential)}</span>
+                                <span className="font-bangers text-white/50 uppercase">Ganancia neta</span>
+                                <span className="font-bangers text-gold-light text-sm">+{formatCurrency(stats.potential - stats.wagered)}</span>
                             </div>
                         </div>
                     )}
