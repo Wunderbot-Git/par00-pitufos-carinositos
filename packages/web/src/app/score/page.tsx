@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/lib/auth';
 import { useMyEvents } from '@/hooks/useEvents';
 import { usePlayers } from '@/hooks/usePlayers';
 import { useFlightScores, useSubmitScores } from '@/hooks/useScores';
 import { ScoreGrid } from '@/components/ScoreGrid';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
 
 const ScoreEntryModal = dynamic(() => import('@/components/ScoreEntryModal').then(m => ({ default: m.ScoreEntryModal })), { ssr: false });
 
@@ -44,6 +45,18 @@ export default function ScoresPage() {
         setActiveSegmentState(seg);
         if (typeof window !== 'undefined') localStorage.setItem('score_activeSegment', seg);
     };
+
+    const [showCelebration, setShowCelebration] = useState(false);
+
+    // Trigger celebration video when Pitufos win a hole
+    useEffect(() => {
+        if (lastSavedHole && flightScore) {
+            const winner = flightScore.holeWinners[lastSavedHole - 1];
+            if (winner === 'blue') {
+                setShowCelebration(true);
+            }
+        }
+    }, [lastSavedHole, flightScore]);
 
     const isLoading = eventsLoading || playersLoading || (flightId ? scoresLoading : false);
 
@@ -188,6 +201,10 @@ export default function ScoresPage() {
                     </div>
                 )}
             </main>
+
+            {showCelebration && (
+                <CelebrationOverlay onClose={() => setShowCelebration(false)} />
+            )}
 
             {openHole !== null && flightScore && (
                 <ScoreEntryModal
