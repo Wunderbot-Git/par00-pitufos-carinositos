@@ -307,14 +307,14 @@ function OutcomeBtn({ label, outcome, team, selected, existingPick, disabled, on
     let text = team === 'red' ? 'text-team-red/70' : team === 'blue' ? 'text-team-blue/70' : 'text-forest-deep/50';
 
     if (selected) {
-        bg = team === 'red' ? 'bg-team-red/20 border-team-red ring-1 ring-team-red/30'
-            : team === 'blue' ? 'bg-team-blue/20 border-team-blue ring-1 ring-team-blue/30'
-            : 'bg-forest-deep/15 border-forest-deep ring-1 ring-forest-deep/20';
-        text = team === 'red' ? 'text-team-red font-extrabold' : team === 'blue' ? 'text-team-blue font-extrabold' : 'text-forest-deep font-extrabold';
+        bg = team === 'red' ? 'bg-team-red/25 border-team-red ring-2 ring-team-red/40 shadow-md'
+            : team === 'blue' ? 'bg-team-blue/25 border-team-blue ring-2 ring-team-blue/40 shadow-md'
+            : 'bg-forest-deep/20 border-forest-deep ring-2 ring-forest-deep/30 shadow-md';
+        text = team === 'red' ? 'text-team-red font-extrabold text-sm' : team === 'blue' ? 'text-team-blue font-extrabold text-sm' : 'text-forest-deep font-extrabold text-sm';
     } else if (existingPick) {
-        bg = team === 'red' ? 'bg-team-red/15 border-team-red/50'
-            : team === 'blue' ? 'bg-team-blue/15 border-team-blue/50'
-            : 'bg-forest-deep/12 border-forest-deep/40';
+        bg = team === 'red' ? 'bg-team-red/20 border-team-red/60 shadow-sm'
+            : team === 'blue' ? 'bg-team-blue/20 border-team-blue/60 shadow-sm'
+            : 'bg-forest-deep/15 border-forest-deep/50 shadow-sm';
         text = team === 'red' ? 'text-team-red font-bold' : team === 'blue' ? 'text-team-blue font-bold' : 'text-forest-deep/80 font-bold';
     }
 
@@ -332,9 +332,6 @@ function OutcomeBtn({ label, outcome, team, selected, existingPick, disabled, on
             <div className={`text-xs font-fredoka font-bold truncate px-1 ${text}`}>
                 {isAS ? 'A/S' : label}
             </div>
-            {existingPick && !selected && (
-                <div className="text-[8px] font-bangers text-green-600 mt-0.5">✓</div>
-            )}
         </button>
     );
 }
