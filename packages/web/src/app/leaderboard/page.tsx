@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -15,6 +15,7 @@ import { MatchCard } from '@/components/MatchCard';
 import { EventVisualHeader } from '@/components/EventVisualHeader';
 import { PullToRefresh } from '@/components/PullToRefresh';
 import { BattleHeader } from '@/components/BattleHeader';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
 
 const DetailedScorecard = dynamic(() => import('@/components/DetailedScorecard').then(m => ({ default: m.DetailedScorecard })), { ssr: false });
 
@@ -38,6 +39,22 @@ export default function LeaderboardPage() {
     const [filterType, setFilterType] = useState<'all' | 'singles' | 'fourball' | 'scramble'>('all');
     const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'finished'>('all');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [tournamentWinner, setTournamentWinner] = useState<'red' | 'blue' | null>(null);
+
+    // Trigger tournament victory video when all matches completed
+    useEffect(() => {
+        if (!leaderboardData || !eventId) return;
+        const { matches, totalScore } = leaderboardData;
+        if (matches.length === 0) return;
+        const allCompleted = matches.every(m => m.status === 'completed');
+        if (!allCompleted) return;
+        if (totalScore.red === totalScore.blue) return; // tied
+        const storageKey = `tournament_celebration_${eventId}`;
+        if (typeof window !== 'undefined' && localStorage.getItem(storageKey)) return;
+        const winner = totalScore.red > totalScore.blue ? 'red' as const : 'blue' as const;
+        setTournamentWinner(winner);
+        if (typeof window !== 'undefined') localStorage.setItem(storageKey, 'shown');
+    }, [leaderboardData, eventId]);
 
     const isLoading = eventsLoading || (eventId && scoresLoading);
 
@@ -105,6 +122,7 @@ export default function LeaderboardPage() {
     }
 
     return (
+        <>
         <PullToRefresh onRefresh={async () => { await refetch(); }}>
             <div className="flex flex-col min-h-full pb-20">
                 <div className="h-4"></div>
@@ -382,5 +400,13 @@ export default function LeaderboardPage() {
                 </div>
             </div>
         </PullToRefresh>
+        {tournamentWinner && (
+            <CelebrationOverlay
+                team={tournamentWinner}
+                variant="tournament"
+                onClose={() => setTournamentWinner(null)}
+            />
+        )}
+        </>
     );
 }
