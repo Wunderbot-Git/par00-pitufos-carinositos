@@ -246,7 +246,7 @@ export const getTournamentSettlements = async (eventId: string) => {
     const flightNames: Record<string, string> = {};
     if (flightIds.length > 0) {
         const fnRes = await pool.query(
-            `SELECT f.id, f.flight_number, p.display_name, p.team, p.position
+            `SELECT f.id, f.flight_number, p.first_name, p.team, p.position
              FROM flights f
              LEFT JOIN players p ON p.flight_id = f.id
              WHERE f.id = ANY($1)
@@ -256,9 +256,9 @@ export const getTournamentSettlements = async (eventId: string) => {
         const flightPlayers: Record<string, { number: number; red: string[]; blue: string[] }> = {};
         fnRes.rows.forEach((r: any) => {
             if (!flightPlayers[r.id]) flightPlayers[r.id] = { number: r.flight_number, red: [], blue: [] };
-            if (r.display_name) {
-                if (r.team === 'red') flightPlayers[r.id].red.push(r.display_name);
-                else if (r.team === 'blue') flightPlayers[r.id].blue.push(r.display_name);
+            if (r.first_name) {
+                if (r.team === 'red') flightPlayers[r.id].red.push(r.first_name);
+                else if (r.team === 'blue') flightPlayers[r.id].blue.push(r.first_name);
             }
         });
         for (const [id, fp] of Object.entries(flightPlayers)) {
