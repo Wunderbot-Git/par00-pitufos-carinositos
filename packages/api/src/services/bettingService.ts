@@ -101,16 +101,12 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             [input.flightId, input.segmentType, input.bettorId]
         );
         const hasMandatoryBet = existingBetRes.rows.length > 0;
-        const isAdditional = hasMandatoryBet && (input.customAmount !== undefined || currentHole > 0);
+        // Pre-match: always replace (never additional), regardless of customAmount
+        const isAdditional = hasMandatoryBet && currentHole > 0;
 
         if (hasMandatoryBet && !isAdditional) {
-            if (currentHole === 0) {
-                // No scores yet — delete old mandatory bet so it can be replaced
-                await client.query('DELETE FROM bets WHERE id = $1', [existingBetRes.rows[0].id]);
-            } else {
-                // Match in progress — this must be an additional bet
-                // (falls through to insert as additional)
-            }
+            // No scores yet — delete old mandatory bet so it can be replaced
+            await client.query('DELETE FROM bets WHERE id = $1', [existingBetRes.rows[0].id]);
         }
 
         // Additional bets are fixed at the event bet_amount (no custom amount)
