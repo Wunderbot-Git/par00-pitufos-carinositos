@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 
 const CELEBRATION_VIDEOS: Record<string, string> = {
-    red: 'https://cdn.dam.alkosto.com/Yalo/video_test/Pink_Bear_Wins_Hole_in_One.mp4',
+    red: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_204905_a6734336-3445-45ef-9dc4-234c50c081a6.mp4',
     blue: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_203937_ae35d497-7aee-479a-8a5b-389e10336935.mp4',
 };
 
