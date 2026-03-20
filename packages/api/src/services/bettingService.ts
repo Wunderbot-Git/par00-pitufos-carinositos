@@ -477,6 +477,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
         closedWagered,
         closedRecovered,
         bets: userBets,
+        generalBets,
         generalBetsCount: generalBets.length
     };
 };

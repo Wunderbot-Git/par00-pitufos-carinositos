@@ -30,6 +30,16 @@ export interface MatchBetsData {
     };
 }
 
+export interface GeneralBet {
+    id: string;
+    eventId: string;
+    bettorId: string;
+    betType: string;
+    pickedOutcome: string;
+    amount: number;
+    createdAt: string;
+}
+
 export interface PersonalStats {
     wagered: number;
     realizedNet: number;
@@ -37,6 +47,7 @@ export interface PersonalStats {
     closedWagered: number;
     closedRecovered: number;
     bets?: Bet[];
+    generalBets?: GeneralBet[];
     generalBetsCount?: number;
 }
 

@@ -16,6 +16,30 @@ const OUTCOME_LABELS: Record<string, string> = {
     AS: 'Empate',
 };
 
+const GENERAL_BET_LABELS: Record<string, string> = {
+    tournament_winner: 'Ganador Torneo',
+    mvp: 'MVP',
+    worst_player: 'Peor Jugador',
+    exact_score: 'Marcador Exacto',
+};
+
+function outcomeColor(outcome: string) {
+    if (outcome === 'A') return 'text-team-red';
+    if (outcome === 'B') return 'text-team-blue';
+    return 'text-forest-deep/70';
+}
+
+function formatGeneralOutcome(betType: string, outcome: string): { label: string; color: string } {
+    if (betType === 'tournament_winner') {
+        return { label: OUTCOME_LABELS[outcome] || outcome, color: outcomeColor(outcome) };
+    }
+    if (betType === 'exact_score') {
+        return { label: outcome, color: 'text-forest-deep' };
+    }
+    // mvp, worst_player — outcome is a player name or ID
+    return { label: outcome, color: 'text-forest-deep' };
+}
+
 interface Props {
     eventId: string;
     userId: string;
@@ -33,27 +57,52 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bangers text-forest-deep">Apuestas de {userName}</h2>
-                    <button onClick={onClose} className="text-forest-deep/40 text-xl font-bold px-2">x</button>
+                    <h2 className="text-xl font-bangers text-forest-deep">Apuestas de {userName}</h2>
+                    <button onClick={onClose} className="text-forest-deep/40 text-2xl font-bold px-2">x</button>
                 </div>
 
                 {isLoading ? (
-                    <div className="text-center py-8 text-forest-deep/40 font-fredoka">Cargando...</div>
-                ) : !stats || (!stats.bets?.length && !stats.generalBetsCount) ? (
-                    <div className="text-center py-8 text-forest-deep/40 font-fredoka">No tiene apuestas registradas.</div>
+                    <div className="text-center py-8 text-forest-deep/40 font-fredoka text-base">Cargando...</div>
+                ) : !stats || (!stats.bets?.length && !stats.generalBets?.length) ? (
+                    <div className="text-center py-8 text-forest-deep/40 font-fredoka text-base">No tiene apuestas registradas.</div>
                 ) : (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-4">
                         {/* Summary */}
                         <div className="grid grid-cols-2 gap-2 text-center">
-                            <div className="bg-forest-deep/5 rounded-lg p-2">
-                                <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">Apostado</div>
-                                <div className="text-sm font-fredoka font-bold text-forest-deep">{formatCurrency(stats.wagered)}</div>
+                            <div className="bg-forest-deep/5 rounded-lg p-3">
+                                <div className="text-xs font-bangers text-forest-deep/40 uppercase">Apostado</div>
+                                <div className="text-base font-fredoka font-bold text-forest-deep">{formatCurrency(stats.wagered)}</div>
                             </div>
-                            <div className="bg-forest-deep/5 rounded-lg p-2">
-                                <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">Ganancia potencial</div>
-                                <div className="text-sm font-fredoka font-bold text-gold-border">{formatCurrency(stats.potential)}</div>
+                            <div className="bg-forest-deep/5 rounded-lg p-3">
+                                <div className="text-xs font-bangers text-forest-deep/40 uppercase">Ganancia potencial</div>
+                                <div className="text-base font-fredoka font-bold text-gold-border">{formatCurrency(stats.potential)}</div>
                             </div>
                         </div>
+
+                        {/* General Bets */}
+                        {stats.generalBets && stats.generalBets.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">Apuestas Generales</h3>
+                                <div className="flex flex-col gap-2">
+                                    {stats.generalBets.map((bet, i) => {
+                                        const { label, color } = formatGeneralOutcome(bet.betType, bet.pickedOutcome);
+                                        return (
+                                            <div key={i} className="flex justify-between items-center px-3 py-2.5 rounded-lg border bg-white border-gold-border/20">
+                                                <div>
+                                                    <div className="text-xs font-bangers text-forest-deep/40 uppercase">
+                                                        {GENERAL_BET_LABELS[bet.betType] || bet.betType}
+                                                    </div>
+                                                    <div className={`text-base font-fredoka font-bold ${color}`}>
+                                                        {label}
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm font-fredoka text-forest-deep/50">{formatCurrency(bet.amount)}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Match bets grouped by flight */}
                         {stats.bets && stats.bets.length > 0 && (() => {
@@ -65,30 +114,29 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                             });
                             return Object.entries(groups).map(([flightId, group]) => (
                                 <div key={flightId}>
-                                    <h3 className="text-xs font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">{group.name}</h3>
-                                    <div className="flex flex-col gap-1.5">
+                                    <h3 className="text-sm font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">{group.name}</h3>
+                                    <div className="flex flex-col gap-2">
                                         {group.bets.map((bet: any, i: number) => {
                                             const outcomeLabel = OUTCOME_LABELS[bet.pickedOutcome] || bet.pickedOutcome;
-                                            const outcomeColor = bet.pickedOutcome === 'A' ? 'text-team-red'
-                                                : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
+                                            const oColor = outcomeColor(bet.pickedOutcome);
                                             const statusColor = bet.status === 'closed'
                                                 ? (bet.realizedPayout > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
                                                 : 'bg-white border-gold-border/20';
                                             return (
-                                                <div key={i} className={`flex justify-between items-center px-3 py-2 rounded-lg border ${statusColor} ${bet.isAdditional ? 'border-l-4 border-l-gold-border' : ''}`}>
+                                                <div key={i} className={`flex justify-between items-center px-3 py-2.5 rounded-lg border ${statusColor} ${bet.isAdditional ? 'border-l-4 border-l-gold-border' : ''}`}>
                                                     <div>
-                                                        <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">
+                                                        <div className="text-xs font-bangers text-forest-deep/40 uppercase">
                                                             {SEGMENT_LABELS[bet.segmentType] || bet.segmentType}
                                                             {bet.isAdditional && <span className="text-gold-border ml-1">+</span>}
                                                         </div>
-                                                        <div className={`text-sm font-fredoka font-bold ${outcomeColor}`}>
+                                                        <div className={`text-base font-fredoka font-bold ${oColor}`}>
                                                             {outcomeLabel}
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <div className="text-xs font-fredoka text-forest-deep/40">{formatCurrency(bet.amount)}</div>
+                                                        <div className="text-sm font-fredoka text-forest-deep/50">{formatCurrency(bet.amount)}</div>
                                                         {bet.status === 'closed' && (
-                                                            <div className={`text-xs font-fredoka font-bold ${bet.realizedPayout > 0 ? 'text-green-600' : 'text-team-red'}`}>
+                                                            <div className={`text-sm font-fredoka font-bold ${bet.realizedPayout > 0 ? 'text-green-600' : 'text-team-red'}`}>
                                                                 {bet.realizedPayout > 0 ? '+' : ''}{formatCurrency(bet.realizedPayout - bet.amount)}
                                                             </div>
                                                         )}
