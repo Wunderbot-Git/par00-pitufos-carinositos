@@ -1,5 +1,21 @@
+'use client';
+
+import { useState } from 'react';
 import { PersonalStats } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
+
+const SEGMENT_LABELS: Record<string, string> = {
+    singles1: 'Individual 1',
+    singles2: 'Individual 2',
+    fourball: 'Mejor Bola',
+    scramble: 'Scramble',
+};
+
+const OUTCOME_LABELS: Record<string, string> = {
+    A: 'Cariñositos',
+    B: 'Pitufos',
+    AS: 'Empate',
+};
 
 interface Props {
     stats?: PersonalStats;
@@ -7,6 +23,8 @@ interface Props {
 }
 
 export function DashboardBanner({ stats, isLoading }: Props) {
+    const [showBreakdown, setShowBreakdown] = useState(false);
+
     if (isLoading || !stats) {
         return (
             <div className="bg-[#1a1a3e] text-white p-4 mx-4 mt-4 rounded-xl shadow-lg gold-border animate-pulse h-32">
@@ -16,6 +34,9 @@ export function DashboardBanner({ stats, isLoading }: Props) {
     }
 
     const hasBets = stats.wagered > 0;
+
+    // Get open bets with potential > 0 for breakdown
+    const openBets = (stats.bets || []).filter((b: any) => b.status === 'open' && b.potentialPayout > 0);
 
     return (
         <div className="bg-[#1a1a3e] text-white p-5 mx-4 mt-4 rounded-xl shadow-lg gold-border relative overflow-hidden">
@@ -46,7 +67,7 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                                     : (() => {
                                         const matchCount = stats.bets?.length || 0;
                                         const generalCount = stats.generalBetsCount || 0;
-                                        const parts = [];
+                                        const parts: string[] = [];
                                         if (matchCount > 0) parts.push(`${matchCount} partido${matchCount !== 1 ? 's' : ''}`);
                                         if (generalCount > 0) parts.push(`${generalCount} general${generalCount !== 1 ? 'es' : ''}`);
                                         return parts.length > 0
@@ -58,10 +79,52 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                         </div>
                     </div>
 
-                    <div className="bg-gold-border/15 border border-gold-border/40 rounded-lg p-3 flex items-center justify-between">
-                        <div className="text-[10px] text-gold-light/80 uppercase tracking-wider font-bangers">Lo que te puedes ganar</div>
+                    <button
+                        onClick={() => openBets.length > 0 && setShowBreakdown(!showBreakdown)}
+                        className="w-full bg-gold-border/15 border border-gold-border/40 rounded-lg p-3 flex items-center justify-between"
+                    >
+                        <div className="text-[10px] text-gold-light/80 uppercase tracking-wider font-bangers text-left">
+                            Lo que te puedes ganar
+                            {openBets.length > 0 && (
+                                <span className="text-[9px] text-gold-light/40 normal-case tracking-normal ml-1">
+                                    (toca para ver detalle)
+                                </span>
+                            )}
+                        </div>
                         <div className="text-lg font-bangers text-gold-light">{formatCurrency(stats.potential)}</div>
-                    </div>
+                    </button>
+
+                    {showBreakdown && openBets.length > 0 && (
+                        <div className="mt-2 bg-white/5 rounded-lg p-3 border border-gold-border/20">
+                            <div className="text-[9px] font-fredoka text-white/40 mb-2">
+                                Si ganas todas tus apuestas abiertas, recibirías:
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                {openBets.map((bet: any, i: number) => {
+                                    const outcomeLabel = OUTCOME_LABELS[bet.pickedOutcome] || bet.pickedOutcome;
+                                    const outcomeColor = bet.pickedOutcome === 'A' ? 'text-team-red'
+                                        : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-white/70';
+                                    return (
+                                        <div key={i} className="flex justify-between items-center text-xs">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-fredoka text-white/40">
+                                                    {bet.flightName ? `${bet.flightName} · ` : ''}{SEGMENT_LABELS[bet.segmentType] || bet.segmentType}
+                                                </span>
+                                                <span className={`font-fredoka font-bold ${outcomeColor}`}>{outcomeLabel}</span>
+                                            </div>
+                                            <span className="font-fredoka font-bold text-gold-light">
+                                                {formatCurrency(bet.potentialPayout)}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/10 text-xs">
+                                <span className="font-bangers text-white/50 uppercase">Total</span>
+                                <span className="font-bangers text-gold-light text-sm">{formatCurrency(stats.potential)}</span>
+                            </div>
+                        </div>
+                    )}
 
                     {stats.closedWagered > 0 && (
                         <div className="mt-3 text-xs">
