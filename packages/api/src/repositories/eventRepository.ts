@@ -50,6 +50,10 @@ export const updateEvent = async (id: string, input: UpdateEventRequest): Promis
         fields.push(`status = $${idx++}`);
         values.push(input.status);
     }
+    if (input.betAmount !== undefined) {
+        fields.push(`bet_amount = $${idx++}`);
+        values.push(input.betAmount);
+    }
 
     if (fields.length === 0) return getEventById(id);
 

@@ -70,6 +70,7 @@ export interface UpdateEventRequest {
     endDate?: string;
     format?: MatchType;
     status?: EventState;
+    betAmount?: number;
 }
 
 export type EventRole = 'organizer' | 'player';
