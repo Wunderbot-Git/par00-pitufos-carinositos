@@ -24,7 +24,7 @@ export function CelebrationOverlay({ onClose }: CelebrationOverlayProps) {
         >
             <video
                 ref={videoRef}
-                src="/videos/celebration.mp4"
+                src="https://cdn.dam.alkosto.com/Yalo/video_test/Cartoon_Golf_Competition_Animation.mp4"
                 className="max-w-[90vw] max-h-[70vh] rounded-2xl shadow-2xl"
                 playsInline
                 muted
