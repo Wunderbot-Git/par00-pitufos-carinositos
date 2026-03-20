@@ -20,6 +20,7 @@ interface Props {
     myBets: GeneralBet[];
     onBetPlaced: () => void;
     filter?: 'all' | 'placed' | 'pending';
+    canChange?: boolean;
 }
 
 const BET_TYPE_LABELS: Record<string, { title: string; description: string }> = {
@@ -132,8 +133,8 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
     );
 }
 
-function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
-    pool: GeneralBetPool; myBet: GeneralBet | undefined; eventId: string; onBetPlaced: () => void;
+function GeneralBetCard({ pool, myBet, eventId, onBetPlaced, canChange = false }: {
+    pool: GeneralBetPool; myBet: GeneralBet | undefined; eventId: string; onBetPlaced: () => void; canChange?: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
     const [selectedOutcome, setSelectedOutcome] = useState<string | null>(null);
@@ -257,7 +258,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                     return (
                         <div className="px-4 pb-3 -mt-1 flex items-center gap-3">
                             {betDisplay}
-                            {!pool.isResolved && (
+                            {!pool.isResolved && canChange && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
                                     className="text-xs font-fredoka text-forest-deep/40 hover:text-forest-deep/70"
@@ -269,7 +270,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
                     );
                 })()}
 
-                {expanded && !pool.isResolved && (
+                {expanded && !pool.isResolved && (!hasBet || canChange) && (
                     <div className="px-4 pb-4 border-t border-gold-border/20 pt-3">
                         {isExactScore ? (
                             <div className="mb-3">
@@ -352,7 +353,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced }: {
     );
 }
 
-export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter = 'all' }: Props) {
+export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter = 'all', canChange = false }: Props) {
     if (!pools || pools.length === 0) {
         return <p className="text-center text-cream/50 text-sm py-8 font-fredoka">No hay apuestas generales disponibles.</p>;
     }
@@ -374,6 +375,7 @@ export function GeneralBetsSection({ eventId, pools, myBets, onBetPlaced, filter
             myBet={myBets.find(b => b.betType === pool.betType && b.flightId === pool.flightId)}
             eventId={eventId}
             onBetPlaced={onBetPlaced}
+            canChange={canChange}
         />
     );
 

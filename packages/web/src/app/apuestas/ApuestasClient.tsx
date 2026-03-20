@@ -156,6 +156,7 @@ export default function ApuestasClient() {
                         myBets={myGeneralBets || []}
                         onBetPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
                         filter={betFilter}
+                        canChange={!leaderboard?.matches.some(m => m.currentHole > 0 || m.status === 'completed')}
                     />
                 )}
 
