@@ -235,6 +235,16 @@ export const getTournamentSettlements = async (eventId: string) => {
 
     const flightIds = Array.from(new Set(bets.map(b => b.flightId)));
 
+    // Fetch flight names for enriching bets
+    const flightNames: Record<string, string> = {};
+    if (flightIds.length > 0) {
+        const fnRes = await pool.query(
+            `SELECT id, flight_number FROM flights WHERE id = ANY($1)`,
+            [flightIds]
+        );
+        fnRes.rows.forEach((r: any) => { flightNames[r.id] = `Grupo ${r.flight_number}`; });
+    }
+
     let isPartial = false;
     const playerBalances: Record<string, number> = {};
     const playerOpenWagered: Record<string, number> = {};
@@ -284,7 +294,7 @@ export const getTournamentSettlements = async (eventId: string) => {
                 if (!playerOpenPotential[bet.bettorId]) playerOpenPotential[bet.bettorId] = 0;
                 if (!playerBets[bet.bettorId]) playerBets[bet.bettorId] = [];
 
-                let enrichedBet = { ...bet, status: isFinished ? 'closed' : 'open', potentialPayout: 0, realizedPayout: 0 };
+                let enrichedBet = { ...bet, flightName: flightNames[bet.flightId] || '', status: isFinished ? 'closed' : 'open', potentialPayout: 0, realizedPayout: 0 };
 
                 if (isFinished) {
                     playerClosedWagered[bet.bettorId] += bet.amount;

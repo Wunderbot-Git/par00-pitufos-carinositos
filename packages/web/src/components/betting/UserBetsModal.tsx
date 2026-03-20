@@ -55,42 +55,50 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                             </div>
                         </div>
 
-                        {/* Match bets */}
-                        {stats.bets && stats.bets.length > 0 && (
-                            <div>
-                                <h3 className="text-xs font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">Partidos</h3>
-                                <div className="flex flex-col gap-1.5">
-                                    {stats.bets.map((bet: any, i: number) => {
-                                        const outcomeLabel = OUTCOME_LABELS[bet.pickedOutcome] || bet.pickedOutcome;
-                                        const outcomeColor = bet.pickedOutcome === 'A' ? 'text-team-red'
-                                            : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
-                                        const statusColor = bet.status === 'closed'
-                                            ? (bet.realizedPayout > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
-                                            : 'bg-white border-gold-border/20';
-                                        return (
-                                            <div key={i} className={`flex justify-between items-center px-3 py-2 rounded-lg border ${statusColor}`}>
-                                                <div>
-                                                    <div className="text-xs font-bangers text-forest-deep/40 uppercase">
-                                                        {SEGMENT_LABELS[bet.segmentType] || bet.segmentType}
-                                                    </div>
-                                                    <div className={`text-sm font-fredoka font-bold ${outcomeColor}`}>
-                                                        {outcomeLabel}
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-xs font-fredoka text-forest-deep/40">{formatCurrency(bet.amount)}</div>
-                                                    {bet.status === 'closed' && (
-                                                        <div className={`text-xs font-fredoka font-bold ${bet.realizedPayout > 0 ? 'text-green-600' : 'text-team-red'}`}>
-                                                            {bet.realizedPayout > 0 ? '+' : ''}{formatCurrency(bet.realizedPayout - bet.amount)}
+                        {/* Match bets grouped by flight */}
+                        {stats.bets && stats.bets.length > 0 && (() => {
+                            const groups: Record<string, { name: string; bets: any[] }> = {};
+                            stats.bets.forEach((bet: any) => {
+                                const key = bet.flightId || 'unknown';
+                                if (!groups[key]) groups[key] = { name: bet.flightName || 'Partido', bets: [] };
+                                groups[key].bets.push(bet);
+                            });
+                            return Object.entries(groups).map(([flightId, group]) => (
+                                <div key={flightId}>
+                                    <h3 className="text-xs font-bangers text-forest-deep/50 uppercase tracking-wider mb-2">{group.name}</h3>
+                                    <div className="flex flex-col gap-1.5">
+                                        {group.bets.map((bet: any, i: number) => {
+                                            const outcomeLabel = OUTCOME_LABELS[bet.pickedOutcome] || bet.pickedOutcome;
+                                            const outcomeColor = bet.pickedOutcome === 'A' ? 'text-team-red'
+                                                : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
+                                            const statusColor = bet.status === 'closed'
+                                                ? (bet.realizedPayout > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
+                                                : 'bg-white border-gold-border/20';
+                                            return (
+                                                <div key={i} className={`flex justify-between items-center px-3 py-2 rounded-lg border ${statusColor}`}>
+                                                    <div>
+                                                        <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">
+                                                            {SEGMENT_LABELS[bet.segmentType] || bet.segmentType}
                                                         </div>
-                                                    )}
+                                                        <div className={`text-sm font-fredoka font-bold ${outcomeColor}`}>
+                                                            {outcomeLabel}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-xs font-fredoka text-forest-deep/40">{formatCurrency(bet.amount)}</div>
+                                                        {bet.status === 'closed' && (
+                                                            <div className={`text-xs font-fredoka font-bold ${bet.realizedPayout > 0 ? 'text-green-600' : 'text-team-red'}`}>
+                                                                {bet.realizedPayout > 0 ? '+' : ''}{formatCurrency(bet.realizedPayout - bet.amount)}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            ));
+                        })()}
                     </div>
                 )}
             </div>
