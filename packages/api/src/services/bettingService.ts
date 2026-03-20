@@ -109,6 +109,17 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
             await client.query('DELETE FROM bets WHERE id = $1', [existingBetRes.rows[0].id]);
         }
 
+        // Limit: only 1 additional bet per match per player
+        if (isAdditional) {
+            const additionalRes = await client.query(
+                'SELECT id FROM bets WHERE flight_id = $1 AND segment_type = $2 AND bettor_id = $3 AND is_additional = true',
+                [input.flightId, input.segmentType, input.bettorId]
+            );
+            if (additionalRes.rows.length > 0) {
+                throw new Error('Ya tienes una apuesta adicional en este partido.');
+            }
+        }
+
         // Additional bets are fixed at the event bet_amount (no custom amount)
         const finalAmount = betAmount;
 
