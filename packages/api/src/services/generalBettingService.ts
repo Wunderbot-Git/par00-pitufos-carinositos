@@ -550,7 +550,7 @@ export const getGeneralBetSettlement = async (eventId: string) => {
                 closedWagered[bet.bettorId] += bet.amount;
                 balances[bet.bettorId] -= bet.amount;
 
-                const winOutcome = resolution.winningOutcome;
+                const winOutcome = resolution.winningOutcome ?? '';
                 let payout = 0;
 
                 if (winOutcome === '__none__') {
