@@ -203,9 +203,11 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced, canChange = false }
                         <p className="text-xs text-forest-deep/40 mt-0.5 font-fredoka">{meta.description}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 ml-3">
-                        {pool.pot > 0 && (
-                            <span className="text-xs font-bangers text-brass">{formatCurrency(pool.pot)}</span>
-                        )}
+                        {hasBet ? (
+                            <span className="text-xs font-fredoka text-forest-deep/50">{formatCurrency(5000)}</span>
+                        ) : pool.pot > 0 ? (
+                            <span className="text-[10px] font-fredoka text-forest-deep/30">Pozo: {formatCurrency(pool.pot)}</span>
+                        ) : null}
                         {pool.betsCount > 0
                             ? <span className="text-sm text-green-600 font-bangers">Apostado</span>
                             : <span className="text-sm text-forest-deep/30 font-fredoka">Pendiente</span>
