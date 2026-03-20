@@ -10,6 +10,7 @@ import { DashboardBanner } from '@/components/betting/DashboardBanner';
 import { FlightBettingPanel } from '@/components/betting/FlightBettingPanel';
 import { GeneralBetsSection } from '@/components/betting/GeneralBetsSection';
 import { UserBetsModal } from '@/components/betting/UserBetsModal';
+import { AdditionalBetsSection } from '@/components/betting/AdditionalBetsSection';
 import { formatCurrency } from '@/lib/currency';
 import { api } from '@/lib/api';
 
@@ -198,6 +199,22 @@ export default function ApuestasClient() {
                                     />
                                 );
                             });
+                        })()}
+
+                        {/* Additional bets for live matches */}
+                        {leaderboard && (() => {
+                            const liveMatches = leaderboard.matches.filter(m =>
+                                m.currentHole > 0 && m.status !== 'completed' &&
+                                !m.matchStatus.includes('Won') && !m.matchStatus.includes('Lost') && !m.matchStatus.includes('&')
+                            );
+                            return liveMatches.length > 0 ? (
+                                <AdditionalBetsSection
+                                    eventId={eventId}
+                                    matches={liveMatches}
+                                    onBetPlaced={() => { refetchStats(); refetchPools(); refetchMyBets(); }}
+                                    betAmount={5000}
+                                />
+                            ) : null;
                         })()}
                     </div>
                 )}

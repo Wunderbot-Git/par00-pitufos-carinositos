@@ -75,10 +75,11 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                                                 ? (bet.realizedPayout > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
                                                 : 'bg-white border-gold-border/20';
                                             return (
-                                                <div key={i} className={`flex justify-between items-center px-3 py-2 rounded-lg border ${statusColor}`}>
+                                                <div key={i} className={`flex justify-between items-center px-3 py-2 rounded-lg border ${statusColor} ${bet.isAdditional ? 'border-l-4 border-l-gold-border' : ''}`}>
                                                     <div>
                                                         <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">
                                                             {SEGMENT_LABELS[bet.segmentType] || bet.segmentType}
+                                                            {bet.isAdditional && <span className="text-gold-border ml-1">+</span>}
                                                         </div>
                                                         <div className={`text-sm font-fredoka font-bold ${outcomeColor}`}>
                                                             {outcomeLabel}
