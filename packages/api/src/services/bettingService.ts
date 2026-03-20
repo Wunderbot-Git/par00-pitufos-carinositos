@@ -242,26 +242,30 @@ export const getTournamentSettlements = async (eventId: string) => {
 
     const flightIds = Array.from(new Set(bets.map(b => b.flightId)));
 
-    // Fetch flight names for enriching bets
+    // Fetch flight names with player names for enriching bets
     const flightNames: Record<string, string> = {};
     if (flightIds.length > 0) {
         const fnRes = await pool.query(
-            `SELECT f.id, f.flight_number,
-                    u1.display_name as red1, u2.display_name as red2,
-                    u3.display_name as blue1, u4.display_name as blue2
+            `SELECT f.id, f.flight_number, p.display_name, p.team, p.position
              FROM flights f
-             LEFT JOIN users u1 ON f.red_player1_id = u1.id
-             LEFT JOIN users u2 ON f.red_player2_id = u2.id
-             LEFT JOIN users u3 ON f.blue_player1_id = u3.id
-             LEFT JOIN users u4 ON f.blue_player2_id = u4.id
-             WHERE f.id = ANY($1)`,
+             LEFT JOIN players p ON p.flight_id = f.id
+             WHERE f.id = ANY($1)
+             ORDER BY f.flight_number, p.team, p.position`,
             [flightIds]
         );
+        const flightPlayers: Record<string, { number: number; red: string[]; blue: string[] }> = {};
         fnRes.rows.forEach((r: any) => {
-            const red = [r.red1, r.red2].filter(Boolean).join('/');
-            const blue = [r.blue1, r.blue2].filter(Boolean).join('/');
-            flightNames[r.id] = red && blue ? `${red} vs ${blue}` : `Grupo ${r.flight_number}`;
+            if (!flightPlayers[r.id]) flightPlayers[r.id] = { number: r.flight_number, red: [], blue: [] };
+            if (r.display_name) {
+                if (r.team === 'red') flightPlayers[r.id].red.push(r.display_name);
+                else if (r.team === 'blue') flightPlayers[r.id].blue.push(r.display_name);
+            }
         });
+        for (const [id, fp] of Object.entries(flightPlayers)) {
+            const red = fp.red.join('/');
+            const blue = fp.blue.join('/');
+            flightNames[id] = red && blue ? `${red} vs ${blue}` : `Grupo ${fp.number}`;
+        }
     }
 
     let isPartial = false;
