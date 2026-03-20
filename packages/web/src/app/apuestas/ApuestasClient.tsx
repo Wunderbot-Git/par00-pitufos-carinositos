@@ -238,7 +238,6 @@ export default function ApuestasClient() {
                             <p className="text-center text-cream/50 font-fredoka">Cargando liquidación...</p>
                         ) : settlement.transfers.length === 0 ? (
                             <div className="bg-white thick-border rounded-2xl p-8 text-center shadow-none">
-                                <div className="text-4xl mb-2">🤝</div>
                                 <h3 className="font-bangers text-forest-deep">Nada que liquidar</h3>
                                 <p className="text-sm text-forest-deep/60 mt-1 font-fredoka">Todos están a mano o no hay apuestas cerradas.</p>
                             </div>
