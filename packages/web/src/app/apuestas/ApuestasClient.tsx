@@ -9,6 +9,7 @@ import { useLeaderboard, Match } from '@/hooks/useLeaderboard';
 import { DashboardBanner } from '@/components/betting/DashboardBanner';
 import { FlightBettingPanel } from '@/components/betting/FlightBettingPanel';
 import { GeneralBetsSection } from '@/components/betting/GeneralBetsSection';
+import { UserBetsModal } from '@/components/betting/UserBetsModal';
 import { formatCurrency } from '@/lib/currency';
 import { api } from '@/lib/api';
 
@@ -33,6 +34,7 @@ export default function ApuestasClient() {
 
     const [activeTab, setActiveTab] = useState<'general' | 'overview' | 'leaderboard' | 'settlement'>('general');
     const [betFilter, setBetFilter] = useState<'all' | 'placed' | 'pending'>('all');
+    const [selectedUser, setSelectedUser] = useState<{ id: string; name: string } | null>(null);
     const [showWizard, setShowWizard] = useState(false);
     const [wizardDismissed, setWizardDismissed] = useState(false);
 
@@ -208,12 +210,16 @@ export default function ApuestasClient() {
                         ) : (
                             <div className="bg-white thick-border rounded-2xl shadow-none overflow-hidden">
                                 {settlement.balances.map((player, idx) => (
-                                    <div key={player.id} className={`flex justify-between items-center p-4 ${idx !== settlement.balances.length - 1 ? 'border-b border-gold-border/20' : ''}`}>
+                                    <div
+                                        key={player.id}
+                                        className={`flex justify-between items-center p-4 cursor-pointer hover:bg-gold-light/10 transition-colors ${idx !== settlement.balances.length - 1 ? 'border-b border-gold-border/20' : ''}`}
+                                        onClick={() => setSelectedUser({ id: player.id, name: player.name })}
+                                    >
                                         <div className="flex items-center gap-3">
                                             <div className="w-6 text-center text-sm font-bangers text-gold-border">
                                                 {idx + 1}
                                             </div>
-                                            <div className="font-fredoka font-medium text-forest-deep">
+                                            <div className="font-fredoka font-medium text-forest-deep underline decoration-forest-deep/20 underline-offset-2">
                                                 {player.name} {player.id === user?.id ? '(Tú)' : ''}
                                             </div>
                                         </div>
@@ -280,6 +286,14 @@ export default function ApuestasClient() {
                 )}
             </div>
 
+            {selectedUser && (
+                <UserBetsModal
+                    eventId={eventId}
+                    userId={selectedUser.id}
+                    userName={selectedUser.name}
+                    onClose={() => setSelectedUser(null)}
+                />
+            )}
         </div>
     );
 }

@@ -98,6 +98,22 @@ export function usePersonalStats(eventId: string) {
     return { data, isLoading, error, refetch: fetchStats };
 }
 
+export function useUserStats(eventId: string, userId: string | null) {
+    const [data, setData] = useState<PersonalStats | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!eventId || !userId) { setData(null); return; }
+        setIsLoading(true);
+        api.get<PersonalStats>(`/events/${eventId}/bets/user/${userId}`)
+            .then(setData)
+            .catch(() => setData(null))
+            .finally(() => setIsLoading(false));
+    }, [eventId, userId]);
+
+    return { data, isLoading };
+}
+
 export function useTournamentSettlement(eventId: string) {
     const [data, setData] = useState<SettlementData | null>(null);
     const [isLoading, setIsLoading] = useState(true);

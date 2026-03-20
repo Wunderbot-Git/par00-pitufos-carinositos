@@ -52,6 +52,17 @@ export const betRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
         }
     );
 
+    // GET any user's betting stats (public within event members)
+    fastify.get<{ Params: { eventId: string; userId: string } }>(
+        '/events/:eventId/bets/user/:userId',
+        { preHandler: [authenticate] },
+        async (request, reply) => {
+            const { eventId, userId } = request.params;
+            const stats = await getPersonalStats(eventId, userId);
+            return reply.send(stats);
+        }
+    );
+
     // GET mandatory bet status for current user
     fastify.get<{ Params: { eventId: string } }>(
         '/events/:eventId/bets/mandatory-status',
