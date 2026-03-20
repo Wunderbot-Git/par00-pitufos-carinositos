@@ -25,8 +25,8 @@ interface Props {
 const BET_TYPE_LABELS: Record<string, { title: string; description: string }> = {
     tournament_winner: { title: 'Ganador del Torneo', description: '¿Quién se lleva el torneo?' },
     exact_score: { title: 'Marcador Exacto', description: '¿Cuál será el marcador final?' },
-    mvp: { title: 'MVP', description: '¿Quién será el mejor jugador del torneo?' },
-    worst_player: { title: 'Peor Jugador', description: '¿Quién será el peor jugador del torneo?' },
+    mvp: { title: 'MVP', description: '¿Quién ganará más puntos en todos los partidos?' },
+    worst_player: { title: 'Peor Jugador', description: '¿Quién ganará menos puntos?' },
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
