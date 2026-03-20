@@ -50,7 +50,7 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
                                 <div className="text-sm font-fredoka font-bold text-forest-deep">{formatCurrency(stats.wagered)}</div>
                             </div>
                             <div className="bg-forest-deep/5 rounded-lg p-2">
-                                <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">Potencial</div>
+                                <div className="text-[10px] font-bangers text-forest-deep/40 uppercase">Ganancia potencial</div>
                                 <div className="text-sm font-fredoka font-bold text-gold-border">{formatCurrency(stats.potential)}</div>
                             </div>
                         </div>

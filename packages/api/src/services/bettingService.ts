@@ -358,8 +358,8 @@ export const getTournamentSettlements = async (eventId: string) => {
                         const net = payout - myWagered;
                         if (net > bestNet) bestNet = net;
                     }
-                    // Add best-case net + wagered back = best-case gross payout
-                    playerOpenPotential[bettorId] += Math.max(0, bestNet + myWagered);
+                    // Add best-case net profit (excluding wager recovery)
+                    playerOpenPotential[bettorId] += Math.max(0, bestNet);
                 }
             }
         };

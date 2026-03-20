@@ -85,11 +85,9 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                     >
                         <div className="text-[10px] text-gold-light/80 uppercase tracking-wider font-bangers text-left">
                             Ganancia potencial
-                            {openBets.length > 0 && (
-                                <span className="text-[9px] text-gold-light/40 normal-case tracking-normal ml-1">
-                                    (toca para ver detalle)
-                                </span>
-                            )}
+                            <span className="text-[9px] text-gold-light/40 normal-case tracking-normal ml-1">
+                                (si ganas todas)
+                            </span>
                         </div>
                         <div className="text-lg font-bangers text-gold-light">{formatCurrency(stats.potential - stats.wagered)}</div>
                     </button>

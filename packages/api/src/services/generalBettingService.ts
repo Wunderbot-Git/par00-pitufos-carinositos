@@ -568,7 +568,7 @@ export const getGeneralBetSettlement = async (eventId: string) => {
                 openWagered[bet.bettorId] += bet.amount;
                 const totalPartes = partesByOutcome[bet.pickedOutcome] || 0;
                 if (totalPartes > 0) {
-                    openPotential[bet.bettorId] += (bet.partes / totalPartes) * potSize;
+                    openPotential[bet.bettorId] += Math.max(0, ((bet.partes / totalPartes) * potSize) - bet.amount);
                 }
             }
         });
