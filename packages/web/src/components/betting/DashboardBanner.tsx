@@ -27,7 +27,7 @@ export function DashboardBanner({ stats, isLoading }: Props) {
 
             {!hasBets ? (
                 <div className="text-center text-white/60 text-sm py-4 italic font-fredoka">
-                    Aún no has apostado en ninguna partida.
+                    Aún no has apostado en ningún partido.
                 </div>
             ) : (
                 <>
@@ -47,9 +47,11 @@ export function DashboardBanner({ stats, isLoading }: Props) {
                                         const matchCount = stats.bets?.length || 0;
                                         const generalCount = stats.generalBetsCount || 0;
                                         const parts = [];
-                                        if (matchCount > 0) parts.push(`${matchCount} partida${matchCount !== 1 ? 's' : ''}`);
+                                        if (matchCount > 0) parts.push(`${matchCount} partido${matchCount !== 1 ? 's' : ''}`);
                                         if (generalCount > 0) parts.push(`${generalCount} general${generalCount !== 1 ? 'es' : ''}`);
-                                        return parts.join(' · ') || '0 apuestas';
+                                        return parts.length > 0
+                                            ? parts.map((p, i) => <span key={i}>{p}{i < parts.length - 1 && <br />}</span>)
+                                            : '0 apuestas';
                                     })()
                                 }
                             </div>
@@ -58,7 +60,7 @@ export function DashboardBanner({ stats, isLoading }: Props) {
 
                     <div className="bg-gold-border/15 border border-gold-border/40 rounded-lg p-3 flex items-center justify-between">
                         <div className="text-[10px] text-gold-light/80 uppercase tracking-wider font-bangers">Lo que te puedes ganar</div>
-                        <div className="text-lg font-bangers metallic-text">{formatCurrency(stats.potential)}</div>
+                        <div className="text-lg font-bangers text-gold-light">{formatCurrency(stats.potential)}</div>
                     </div>
 
                     {stats.closedWagered > 0 && (
