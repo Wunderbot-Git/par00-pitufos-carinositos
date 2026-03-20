@@ -21,9 +21,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
     let statusBottom = '';
 
     // Who is "winning" (leading) right now?
-    const redIsWinning = isRedWin ||
-        (match.matchStatus.includes('UP') && !isBlueWin);
-    const blueIsWinner = isBlueWin;
+    const redIsWinning = isRedWin || match.currentLeader === 'red';
 
     let centerGradient = 'bg-gradient-to-b from-[#5BA3E0] to-[#3A7CC0]'; // blue (Pitufos)
     if (isNotStarted) centerGradient = 'bg-[#2a2a5e]';
