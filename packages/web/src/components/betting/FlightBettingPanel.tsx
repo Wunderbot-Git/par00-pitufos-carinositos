@@ -13,6 +13,12 @@ const SEGMENT_LABELS: Record<string, string> = {
     scramble: 'Scramble',
 };
 
+const OUTCOME_LABELS: Record<string, string> = {
+    A: 'Cariñositos',
+    B: 'Pitufos',
+    AS: 'Empate',
+};
+
 type Outcome = 'A' | 'B' | 'AS';
 
 function getMatchNames(match: Match) {
@@ -30,6 +36,10 @@ function isMatchClosed(match: Match) {
     return match.currentHole > 8 || match.status === 'completed' || match.matchStatus.includes('Won') || match.matchStatus.includes('Lost') || match.matchStatus.includes('&');
 }
 
+function isPreMatch(match: Match) {
+    return match.currentHole === 0 && !isMatchClosed(match);
+}
+
 interface Props {
     eventId: string;
     flightName: string;
@@ -43,8 +53,16 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     const clearToast = useCallback(() => setToast(null), []);
+
+    // Check if all matches have bets placed
+    const allBetsPlaced = matches.every(m => !!userBets[m.segmentType]);
+    // Check if any match is still pre-match (changeable)
+    const anyPreMatch = matches.some(m => isPreMatch(m));
+    // Show compact view when all bets placed and not editing
+    const showCompact = allBetsPlaced && !isEditing;
 
     const toggleSelection = (segmentType: string, outcome: Outcome) => {
         setSelections(prev => {
@@ -76,8 +94,10 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
             const match = matches.find(m => m.segmentType === segmentType);
             if (!match) continue;
 
+            // Only treat as additional if match is live (not pre-match replacement)
             const existingBet = userBets[segmentType];
-            const isAdditional = !!existingBet;
+            const isReplacement = existingBet && isPreMatch(match);
+            const isAdditional = !!existingBet && !isReplacement;
 
             try {
                 await api.post(`/events/${eventId}/flights/${match.flightId}/segments/${segmentType}/bets`, {
@@ -93,6 +113,7 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
 
         setIsSubmitting(false);
         setSelections({});
+        setIsEditing(false);
 
         if (successCount > 0) {
             setToast({
@@ -105,27 +126,89 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
         }
     };
 
+    // Compact summary view
+    if (showCompact) {
+        return (
+            <div className="bg-[#0a4030] thick-border rounded-2xl p-3">
+                <div className="flex justify-between items-center mb-2 px-1">
+                    <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest">
+                        {flightName}
+                    </h3>
+                    <span className="text-[9px] font-fredoka text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">
+                        ✓ Completo
+                    </span>
+                </div>
+                <div className="bg-cream gold-border rounded-xl px-3 py-2">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        {matches.map(match => {
+                            const bet = userBets[match.segmentType];
+                            if (!bet) return null;
+                            const { red, blue } = getMatchNames(match);
+                            const pickLabel = bet.pickedOutcome === 'A' ? red
+                                : bet.pickedOutcome === 'B' ? blue : 'A/S';
+                            const pickColor = bet.pickedOutcome === 'A' ? 'text-team-red'
+                                : bet.pickedOutcome === 'B' ? 'text-team-blue' : 'text-forest-deep/70';
+                            return (
+                                <div key={match.segmentType} className="flex items-center justify-between py-0.5">
+                                    <span className="text-[9px] font-bangers text-forest-deep/40 uppercase tracking-wider">
+                                        {SEGMENT_LABELS[match.segmentType]}
+                                    </span>
+                                    <span className={`text-[11px] font-fredoka font-bold ${pickColor}`}>
+                                        {pickLabel}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                {anyPreMatch && (
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="w-full mt-2 py-1.5 text-[10px] font-fredoka text-gold-light/70 hover:text-gold-light transition-colors"
+                    >
+                        ✏️ Cambiar apuestas
+                    </button>
+                )}
+                {toast && <Toast message={toast.message} type={toast.type} onDone={clearToast} />}
+            </div>
+        );
+    }
+
     return (
         <div className="bg-[#0a4030] thick-border rounded-2xl p-3">
-            <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest mb-3 px-1">
-                {flightName}
-            </h3>
+            <div className="flex justify-between items-center mb-3 px-1">
+                <h3 className="text-xs font-bangers text-gold-light uppercase tracking-widest">
+                    {flightName}
+                </h3>
+                {isEditing && (
+                    <button
+                        onClick={() => { setIsEditing(false); setSelections({}); }}
+                        className="text-[10px] font-fredoka text-gold-light/50 hover:text-gold-light"
+                    >
+                        Cancelar
+                    </button>
+                )}
+            </div>
 
             <div className="flex flex-col gap-2">
                 {matches.map(match => {
                     const { red, blue } = getMatchNames(match);
                     const closed = isMatchClosed(match);
                     const isLive = match.currentHole > 0 && !closed;
+                    const preMatch = isPreMatch(match);
                     const existingBet = userBets[match.segmentType];
                     const selected = selections[match.segmentType] || null;
+
+                    // In edit mode, only show pre-match matches as editable
+                    const canEdit = isEditing ? preMatch : true;
 
                     const currentLeader = match.matchLeaders && match.matchLeaders.length > 0
                         ? match.matchLeaders[match.currentHole > 0 ? match.currentHole - 1 : 0]
                         : (match.matchStatus.includes('UP') ? 'red' : match.matchStatus.includes('DN') ? 'blue' : null);
 
-                    const canBetA = !closed && !(isLive && currentLeader === 'red');
-                    const canBetB = !closed && !(isLive && currentLeader === 'blue');
-                    const canBetAS = !closed;
+                    const canBetA = canEdit && !closed && !(isLive && currentLeader === 'red');
+                    const canBetB = canEdit && !closed && !(isLive && currentLeader === 'blue');
+                    const canBetAS = canEdit && !closed;
 
                     return (
                         <div key={match.segmentType} className="bg-cream gold-border rounded-xl px-3 py-3">
@@ -134,6 +217,11 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                                 <span className="text-[10px] font-bangers text-forest-deep/50 uppercase tracking-wider">
                                     {SEGMENT_LABELS[match.segmentType] || match.segmentType}
                                 </span>
+                                {existingBet && preMatch && (
+                                    <span className="text-[9px] font-fredoka text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-200">
+                                        Cambiable
+                                    </span>
+                                )}
                                 {isLive && (
                                     <span className="text-[10px] font-fredoka font-medium text-green-700 bg-green-50 flex items-center gap-1 px-1.5 py-0.5 rounded-full border border-green-200">
                                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -191,7 +279,9 @@ export function FlightBettingPanel({ eventId, flightName, matches, userBets, onB
                 >
                     {isSubmitting
                         ? `Guardando ${progress.current} de ${progress.total}...`
-                        : `Confirmar ${newSelections.length} apuesta${newSelections.length > 1 ? 's' : ''}`}
+                        : isEditing
+                            ? `Cambiar ${newSelections.length} apuesta${newSelections.length > 1 ? 's' : ''}`
+                            : `Confirmar ${newSelections.length} apuesta${newSelections.length > 1 ? 's' : ''}`}
                 </button>
             )}
 
@@ -222,10 +312,10 @@ function OutcomeBtn({ label, outcome, team, selected, existingPick, disabled, on
             : 'bg-forest-deep/15 border-forest-deep ring-1 ring-forest-deep/20';
         text = team === 'red' ? 'text-team-red font-extrabold' : team === 'blue' ? 'text-team-blue font-extrabold' : 'text-forest-deep font-extrabold';
     } else if (existingPick) {
-        bg = team === 'red' ? 'bg-team-red/10 border-team-red/40'
-            : team === 'blue' ? 'bg-team-blue/10 border-team-blue/40'
-            : 'bg-forest-deep/10 border-forest-deep/30';
-        text = team === 'red' ? 'text-team-red' : team === 'blue' ? 'text-team-blue' : 'text-forest-deep/70';
+        bg = team === 'red' ? 'bg-team-red/15 border-team-red/50'
+            : team === 'blue' ? 'bg-team-blue/15 border-team-blue/50'
+            : 'bg-forest-deep/12 border-forest-deep/40';
+        text = team === 'red' ? 'text-team-red font-bold' : team === 'blue' ? 'text-team-blue font-bold' : 'text-forest-deep/80 font-bold';
     }
 
     if (disabled) {
