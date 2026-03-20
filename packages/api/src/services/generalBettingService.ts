@@ -319,16 +319,19 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
         });
 
         const sorted = Object.values(playerScores).sort((a, b) => b.score - a.score);
-        const mvpId = sorted.length > 0 ? sorted[0].id : null;
-        const worstId = sorted.length > 0 ? sorted[sorted.length - 1].id : null;
+        // Support ties: all players with the top/bottom score are winners
+        const topScore = sorted.length > 0 ? sorted[0].score : 0;
+        const bottomScore = sorted.length > 0 ? sorted[sorted.length - 1].score : 0;
+        const mvpIds = sorted.filter(p => p.score === topScore).map(p => p.id);
+        const worstIds = sorted.filter(p => p.score === bottomScore).map(p => p.id);
 
         outcomes.push({
             betType: 'mvp', flightId: null, segmentType: null,
-            winningOutcome: mvpId, isResolved: true
+            winningOutcome: mvpIds.length > 0 ? mvpIds.join(',') : null, isResolved: true
         });
         outcomes.push({
             betType: 'worst_player', flightId: null, segmentType: null,
-            winningOutcome: worstId, isResolved: true
+            winningOutcome: worstIds.length > 0 ? worstIds.join(',') : null, isResolved: true
         });
     } else {
         outcomes.push({ betType: 'mvp', flightId: null, segmentType: null, winningOutcome: null, isResolved: false });
@@ -553,10 +556,18 @@ export const getGeneralBetSettlement = async (eventId: string) => {
                 if (winOutcome === '__none__') {
                     // No sweep happened — refund sweep bets
                     payout = bet.amount;
-                } else if (bet.pickedOutcome === winOutcome) {
-                    const totalWinningPartes = partesByOutcome[winOutcome] || 0;
-                    if (totalWinningPartes > 0) {
-                        payout = (bet.partes / totalWinningPartes) * potSize;
+                } else {
+                    // Support multiple winners (comma-separated IDs for MVP/worst_player ties)
+                    const winningOutcomes = winOutcome.split(',');
+                    if (winningOutcomes.includes(bet.pickedOutcome)) {
+                        // Sum partes for ALL winning outcomes
+                        let totalWinningPartes = 0;
+                        winningOutcomes.forEach(wo => {
+                            totalWinningPartes += partesByOutcome[wo] || 0;
+                        });
+                        if (totalWinningPartes > 0) {
+                            payout = (bet.partes / totalWinningPartes) * potSize;
+                        }
                     }
                 }
 
