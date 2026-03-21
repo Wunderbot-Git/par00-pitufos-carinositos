@@ -50,7 +50,7 @@ export function UserBetsModal({ eventId, userId, userName, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50" onClick={onClose}>
             <div
-                className="bg-cream rounded-t-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-5 pb-8"
+                className="bg-cream rounded-t-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-5 pb-24"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-4">
