@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 
 const rawPlayers = [
-    { name: 'Fercho', hcp: 17, tee: 'Azules' },
+    { name: 'Fercho', hcp: 11, tee: 'Azules' },
     { name: 'Camacho', hcp: 14, tee: 'Azules' },
     { name: 'Pocho', hcp: 8, tee: 'Azules' },
     { name: 'Manuela', hcp: 15, tee: 'Rojas' },
