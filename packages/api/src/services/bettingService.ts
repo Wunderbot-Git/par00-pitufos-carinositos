@@ -370,7 +370,6 @@ export const getTournamentSettlements = async (eventId: string) => {
         };
 
         // Evaluate Fourball using explicit winner/complete from scoreboard
-        console.log(`[settlement] flight=${flightId} fourball: winner=${board.fourballWinner}, complete=${board.fourballComplete}, status=${board.fourballStatus}`);
         evalSegment('fourball', board.fourballWinner, board.fourballComplete);
 
         // Evaluate Singles1
@@ -388,7 +387,6 @@ export const getTournamentSettlements = async (eventId: string) => {
         evalSegment('singles2', s2Leader, s2Finished);
 
         // Evaluate Scramble using explicit winner/complete from scoreboard
-        console.log(`[settlement] flight=${flightId} scramble: winner=${board.scrambleWinner}, complete=${board.scrambleComplete}, status=${board.scrambleStatus}, backScores=${JSON.stringify(board.redPlayers[0].scores.slice(9, 18))}`);
         evalSegment('scramble', board.scrambleWinner, board.scrambleComplete);
     }
 

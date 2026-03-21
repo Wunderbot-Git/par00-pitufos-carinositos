@@ -324,15 +324,6 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
                 [flightInput.bluePlayer1.frontNineGross, flightInput.bluePlayer2.frontNineGross]
             );
 
-            // Process Scramble - Always process
-            console.log(`Flight ${flight.flight_number}: Processing Scramble Match`);
-            if (result.scramble) {
-                console.log(`Scramble holes count: ${result.scramble.holes.length}`);
-                console.log(`First hole data:`, result.scramble.holes[0]);
-            } else {
-                console.log(`Flight ${flight.flight_number}: No Scramble Result. R1Back9=${JSON.stringify(flightInput.redPlayer1.backNineGross)} B1Back9=${JSON.stringify(flightInput.bluePlayer1.backNineGross)}`);
-            }
-
             // For scramble, provide back nine scores
             processMatch(
                 result.scramble, 'scramble', 'sc',
