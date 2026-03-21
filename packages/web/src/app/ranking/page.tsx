@@ -10,6 +10,8 @@ interface PlayerRanking {
     playerName: string;
     team: 'red' | 'blue';
     points: number;
+    netScore: number | null; // null = no individual scores yet
+    holesPlayed: number;
     matchesPlayed: number;
     matchesTotal: number;
 }
@@ -23,6 +25,12 @@ function normalizeName(name: string) {
         .replace(/[^a-z0-9]/g, '');
 }
 
+function getStrokesForHole(playingHandicap: number, strokeIndex: number): number {
+    if (playingHandicap >= strokeIndex + 18) return 2;
+    if (playingHandicap >= strokeIndex) return 1;
+    return 0;
+}
+
 function computeRankings(matches: any[], mode: 'final' | 'projected'): PlayerRanking[] {
     const playerMap: Record<string, PlayerRanking> = {};
 
@@ -30,6 +38,7 @@ function computeRankings(matches: any[], mode: 'final' | 'projected'): PlayerRan
         const matchPoints = match.segmentType === 'scramble' ? 2 : 1;
         const isCompleted = match.status === 'completed';
         const isInProgress = match.status === 'in_progress';
+        const isSingles = match.segmentType === 'singles1' || match.segmentType === 'singles2';
 
         let redPts = 0;
         let bluePts = 0;
@@ -44,26 +53,43 @@ function computeRankings(matches: any[], mode: 'final' | 'projected'): PlayerRan
             else { redPts = matchPoints / 2; bluePts = matchPoints / 2; }
         }
 
-        for (const p of match.redPlayers) {
+        const processPlayer = (p: any, pts: number, team: 'red' | 'blue') => {
             if (!playerMap[p.playerId]) {
-                playerMap[p.playerId] = { playerId: p.playerId, playerName: p.playerName, team: 'red', points: 0, matchesPlayed: 0, matchesTotal: 0 };
+                playerMap[p.playerId] = { playerId: p.playerId, playerName: p.playerName, team, points: 0, netScore: null, holesPlayed: 0, matchesPlayed: 0, matchesTotal: 0 };
             }
-            playerMap[p.playerId].points += redPts;
+            playerMap[p.playerId].points += pts;
             playerMap[p.playerId].matchesTotal++;
             if (isCompleted) playerMap[p.playerId].matchesPlayed++;
-        }
 
-        for (const p of match.bluePlayers) {
-            if (!playerMap[p.playerId]) {
-                playerMap[p.playerId] = { playerId: p.playerId, playerName: p.playerName, team: 'blue', points: 0, matchesPlayed: 0, matchesTotal: 0 };
+            // Calculate individual net score from singles matches only (front 9, holes 0-8)
+            if (isSingles && p.scores) {
+                const ph = Math.round(p.hcp * 0.8);
+                for (let i = 0; i < 9; i++) {
+                    const gross = p.scores[i];
+                    if (gross !== null && gross > 0) {
+                        const si = match.hcpValues?.[i] ?? (i + 1);
+                        const strokes = getStrokesForHole(ph, si);
+                        const net = gross - strokes;
+                        if (playerMap[p.playerId].netScore === null) playerMap[p.playerId].netScore = 0;
+                        playerMap[p.playerId].netScore! += net;
+                        playerMap[p.playerId].holesPlayed++;
+                    }
+                }
             }
-            playerMap[p.playerId].points += bluePts;
-            playerMap[p.playerId].matchesTotal++;
-            if (isCompleted) playerMap[p.playerId].matchesPlayed++;
-        }
+        };
+
+        for (const p of match.redPlayers) processPlayer(p, redPts, 'red');
+        for (const p of match.bluePlayers) processPlayer(p, bluePts, 'blue');
     }
 
-    return Object.values(playerMap).sort((a, b) => b.points - a.points);
+    return Object.values(playerMap).sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        // Tiebreaker: lower net score is better
+        if (a.netScore === null && b.netScore === null) return 0;
+        if (a.netScore === null) return 1;
+        if (b.netScore === null) return -1;
+        return a.netScore - b.netScore;
+    });
 }
 
 export default function RankingPage() {
@@ -164,6 +190,9 @@ export default function RankingPage() {
                                         </div>
                                         <div className="text-[10px] font-fredoka text-gray-400">
                                             {player.matchesPlayed}/{player.matchesTotal} partidos
+                                            {player.netScore !== null && (
+                                                <span className="ml-1">· net {player.netScore > 0 ? '+' : ''}{player.netScore}</span>
+                                            )}
                                         </div>
                                     </div>
 
