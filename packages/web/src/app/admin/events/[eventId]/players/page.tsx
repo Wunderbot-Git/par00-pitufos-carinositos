@@ -173,17 +173,34 @@ function EditPlayerModal({ player, tees, eventId, onSaved, onClose }: {
 function AdminLoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        if (password === ADMIN_PASSWORD) {
+        if (password !== ADMIN_PASSWORD) {
+            setError('Contraseña incorrecta');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // Log in as admin user to get a JWT with admin privileges
+            const res = await api.post<{ token: string }>('/auth/login', {
+                email: 'organizer@par00.com',
+                password: 'Par00',
+            });
+            api.setToken(res.token);
             sessionStorage.setItem(ADMIN_KEY, 'true');
             onAuthenticated();
-        } else {
-            setError('Contraseña incorrecta');
+        } catch {
+            // Fallback: accept admin password even if API login fails
+            sessionStorage.setItem(ADMIN_KEY, 'true');
+            onAuthenticated();
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -224,9 +241,10 @@ function AdminLoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
                     {error && <p className="text-team-red text-xs text-center mb-3 font-fredoka">{error}</p>}
                     <button
                         type="submit"
-                        className="w-full py-3 bevel-button rounded-xl text-sm font-bangers"
+                        className="w-full py-3 bevel-button rounded-xl text-sm font-bangers disabled:opacity-50"
+                        disabled={loading}
                     >
-                        Entrar
+                        {loading ? 'Entrando...' : 'Entrar'}
                     </button>
                 </form>
             </div>
