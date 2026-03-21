@@ -4,7 +4,7 @@ import {
     createGeneralBet, getGeneralBetsForEvent, getUserGeneralBets,
     getGeneralBetsByType, checkExistingBet
 } from '../repositories/generalBetRepository';
-import { getLeaderboard, Match, LeaderboardData } from './leaderboardService';
+import { getLeaderboard, Match, LeaderboardData, PlayerScore } from './leaderboardService';
 
 interface PlaceGeneralBetInput {
     eventId: string;
@@ -297,33 +297,67 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
     }
 
     // ── MVP & Worst Player ──
-    // Score each player by their singles match result: Win=2, Halve=1, Loss=0
+    // Use total match play points (same as ranking page):
+    //   Singles/Fourball win = 1pt, halve = 0.5pt; Scramble win = 2pt, halve = 1pt
+    // Tiebreaker: net score from singles (lower is better for MVP, higher is worse)
     if (allCompleted) {
-        const playerScores: Record<string, { id: string; name: string; score: number }> = {};
+        const playerScores: Record<string, { id: string; name: string; points: number; netScore: number | null }> = {};
 
         leaderboard.matches.forEach(m => {
-            if (m.segmentType !== 'singles1' && m.segmentType !== 'singles2') return;
-            const winner = m.matchWinner;
+            if (m.status !== 'completed') return;
+            const matchPoints = m.segmentType === 'scramble' ? 2 : 1;
+            const isSingles = m.segmentType === 'singles1' || m.segmentType === 'singles2';
 
-            const allPlayers = [...m.redPlayers, ...m.bluePlayers];
-            allPlayers.forEach(p => {
-                if (!playerScores[p.playerId]) playerScores[p.playerId] = { id: p.playerId, name: p.playerName, score: 0 };
-                const team = m.redPlayers.some(rp => rp.playerId === p.playerId) ? 'red' : 'blue';
-                if (!winner || m.matchStatus === 'Halved') {
-                    playerScores[p.playerId].score += 1; // halve
-                } else if (winner === team) {
-                    playerScores[p.playerId].score += 2; // win
+            let redPts = 0;
+            let bluePts = 0;
+            if (m.matchWinner === 'red') redPts = matchPoints;
+            else if (m.matchWinner === 'blue') bluePts = matchPoints;
+            else { redPts = matchPoints / 2; bluePts = matchPoints / 2; }
+
+            const processPlayer = (p: PlayerScore, pts: number) => {
+                if (!playerScores[p.playerId]) {
+                    playerScores[p.playerId] = { id: p.playerId, name: p.playerName, points: 0, netScore: null };
                 }
-                // loss = 0
-            });
+                playerScores[p.playerId].points += pts;
+
+                // Calculate net score from singles (front 9, holes 0-8) for tiebreaker
+                if (isSingles && p.scores) {
+                    const ph = Math.round(p.hcp * 0.8);
+                    for (let i = 0; i < 9; i++) {
+                        const gross = p.scores[i];
+                        if (gross !== null && gross > 0) {
+                            const si = m.hcpValues?.[i] ?? (i + 1);
+                            const strokes = ph >= si + 18 ? 2 : (ph >= si ? 1 : 0);
+                            const net = gross - strokes;
+                            if (playerScores[p.playerId].netScore === null) playerScores[p.playerId].netScore = 0;
+                            playerScores[p.playerId].netScore! += net;
+                        }
+                    }
+                }
+            };
+
+            m.redPlayers.forEach(p => processPlayer(p, redPts));
+            m.bluePlayers.forEach(p => processPlayer(p, bluePts));
         });
 
-        const sorted = Object.values(playerScores).sort((a, b) => b.score - a.score);
-        // Support ties: all players with the top/bottom score are winners
-        const topScore = sorted.length > 0 ? sorted[0].score : 0;
-        const bottomScore = sorted.length > 0 ? sorted[sorted.length - 1].score : 0;
-        const mvpIds = sorted.filter(p => p.score === topScore).map(p => p.id);
-        const worstIds = sorted.filter(p => p.score === bottomScore).map(p => p.id);
+        // Sort by points descending, then net score ascending (lower net = better)
+        const sorted = Object.values(playerScores).sort((a, b) => {
+            if (b.points !== a.points) return b.points - a.points;
+            if (a.netScore === null && b.netScore === null) return 0;
+            if (a.netScore === null) return 1;
+            if (b.netScore === null) return -1;
+            return a.netScore - b.netScore;
+        });
+
+        // MVP = first in ranking (highest points, lowest net score)
+        const topScore = sorted.length > 0 ? sorted[0].points : 0;
+        const topNet = sorted.length > 0 ? sorted[0].netScore : null;
+        const mvpIds = sorted.filter(p => p.points === topScore && p.netScore === topNet).map(p => p.id);
+
+        // Worst player = last in ranking (lowest points, highest net score)
+        const bottomScore = sorted.length > 0 ? sorted[sorted.length - 1].points : 0;
+        const bottomNet = sorted.length > 0 ? sorted[sorted.length - 1].netScore : null;
+        const worstIds = sorted.filter(p => p.points === bottomScore && p.netScore === bottomNet).map(p => p.id);
 
         outcomes.push({
             betType: 'mvp', flightId: null, segmentType: null,
