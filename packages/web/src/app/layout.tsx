@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Bangers, Fredoka } from 'next/font/google';
 import './globals.css';
 import { BottomNav } from '@/components/BottomNav';
+import { SettingsLink } from '@/components/SettingsLink';
 import { AuthProvider } from '@/lib/auth';
 import { SyncProvider } from '@/lib/syncContext';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
@@ -45,6 +46,7 @@ export default function RootLayout({
                             {children}
                         </main>
                         <OfflineIndicator />
+                        <SettingsLink />
                         <BottomNav />
                     </SyncProvider>
                 </AuthProvider>
