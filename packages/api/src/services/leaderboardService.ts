@@ -210,7 +210,8 @@ export const getLeaderboard = async (eventId: string): Promise<LeaderboardData> 
                 redPlayer1: buildPlayerScores(redPlayers[0].id, redPlayers[0].handicapIndex, 'red'),
                 redPlayer2: buildPlayerScores(redPlayers[1].id, redPlayers[1].handicapIndex, 'red'),
                 bluePlayer1: buildPlayerScores(bluePlayers[0].id, bluePlayers[0].handicapIndex, 'blue'),
-                bluePlayer2: buildPlayerScores(bluePlayers[1].id, bluePlayers[1].handicapIndex, 'blue')
+                bluePlayer2: buildPlayerScores(bluePlayers[1].id, bluePlayers[1].handicapIndex, 'blue'),
+                ...(scrambleSiValues ? { scrambleStrokeIndexes: scrambleSiValues } : {})
             };
 
             const result = calculateFlightMatches(flightInput);
@@ -424,12 +425,25 @@ export const getFlightMatchHistory = async (flightId: string): Promise<FlightMat
     const eventId = flightRes.rows[0].event_id;
     const course = await getCourseByEventId(eventId);
     let hcpValues = Array.from({ length: 18 }, (_, i) => i + 1); // Default 1..18
+    let scrambleSiValues: number[] | null = null;
     if (course && course.tees.length > 0) {
         const sortedHoles = [...course.tees[0].holes].sort((a, b) => a.holeNumber - b.holeNumber);
         if (sortedHoles.length === 18) {
             hcpValues = sortedHoles.map(h => h.strokeIndex);
         }
+        for (const t of course.tees) {
+            if (t.name === 'Mujeres') {
+                const sorted = [...t.holes].sort((a, b) => a.holeNumber - b.holeNumber);
+                if (sorted.length === 18) {
+                    scrambleSiValues = sorted.map(h => h.strokeIndex);
+                }
+                break;
+            }
+        }
     }
+
+    // Get scramble scores
+    const scrambleScores = await getFlightScrambleScores(flightId);
 
     const buildPlayerScores = (player: any): FlightPlayerScores => {
         const playerHoles = holeScores.filter(s => s.playerId === player.id);
@@ -439,6 +453,13 @@ export const getFlightMatchHistory = async (flightId: string): Promise<FlightMat
             if (score.holeNumber <= 9) {
                 frontNine[score.holeNumber - 1] = score.grossScore;
             } else {
+                backNine[score.holeNumber - 10] = score.grossScore;
+            }
+        }
+        // Overlay scramble scores (team-based back 9)
+        const teamScrambleScores = scrambleScores.filter(s => s.team === player.team);
+        for (const score of teamScrambleScores) {
+            if (score.holeNumber >= 10 && score.holeNumber <= 18) {
                 backNine[score.holeNumber - 10] = score.grossScore;
             }
         }
@@ -453,7 +474,8 @@ export const getFlightMatchHistory = async (flightId: string): Promise<FlightMat
         redPlayer1: buildPlayerScores(redPlayers[0]),
         redPlayer2: buildPlayerScores(redPlayers[1]),
         bluePlayer1: buildPlayerScores(bluePlayers[0]),
-        bluePlayer2: buildPlayerScores(bluePlayers[1])
+        bluePlayer2: buildPlayerScores(bluePlayers[1]),
+        ...(scrambleSiValues ? { scrambleStrokeIndexes: scrambleSiValues } : {})
     };
     return calculateFlightMatches(flightInput);
 };
