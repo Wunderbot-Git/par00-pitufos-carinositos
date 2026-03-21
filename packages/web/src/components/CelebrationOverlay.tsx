@@ -3,10 +3,10 @@
 import { useRef, useEffect } from 'react';
 
 const CELEBRATION_VIDEOS: Record<string, string> = {
-    red: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_204905_a6734336-3445-45ef-9dc4-234c50c081a6.mp4',
-    blue: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_203937_ae35d497-7aee-479a-8a5b-389e10336935.mp4',
-    red_tournament: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_214413_2df39969-b3e2-482b-ab05-63d0b3397064.mp4',
-    blue_tournament: 'https://cdn.dam.alkosto.com/Yalo/video_test/hf_20260320_213502_d9ac42d0-01d8-4560-a26a-3bd7497c661c%20(1).mp4',
+    red: '/videos/carinositos_win_hole.mp4',
+    blue: '/videos/pitufos_win_hole.mp4',
+    red_tournament: '/videos/carinositos_win_torneo.mp4',
+    blue_tournament: '/videos/pitufos_win_torneo.mp4',
 };
 
 interface CelebrationOverlayProps {
