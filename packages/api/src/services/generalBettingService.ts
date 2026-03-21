@@ -598,3 +598,82 @@ export const getPersonalGeneralStats = async (eventId: string, bettorId: string)
 
     return { wagered, realizedNet, potential, bets };
 };
+
+/**
+ * Returns per-bet resolution details for a user's general bets,
+ * including status ('open'/'closed') and realizedPayout.
+ */
+export const getGeneralBetDetailsForUser = async (eventId: string, bettorId: string) => {
+    const allBets = await getGeneralBetsForEvent(eventId);
+    const userBets = allBets.filter(b => b.bettorId === bettorId);
+    const leaderboard = await getLeaderboard(eventId);
+    const resolutions = resolveFromLeaderboard(leaderboard);
+
+    return userBets.map(bet => {
+        const resolution = resolutions.find(r =>
+            r.betType === bet.betType &&
+            (r.flightId || '') === (bet.flightId || '') &&
+            (r.segmentType || '') === (bet.segmentType || '')
+        );
+
+        const isResolved = resolution?.isResolved || false;
+        let realizedPayout = 0;
+
+        if (isResolved && resolution) {
+            // Get all bets in the same pool
+            const poolBets = allBets.filter(b =>
+                b.betType === bet.betType &&
+                (b.flightId || '') === (bet.flightId || '') &&
+                (b.segmentType || '') === (bet.segmentType || '')
+            );
+            const potSize = poolBets.reduce((s, b) => s + b.amount, 0);
+            const winOutcome = resolution.winningOutcome ?? '';
+
+            // Exact score closest-guess fallback
+            if (bet.betType === 'exact_score' && resolution.winningOutcome) {
+                const exactWinners = poolBets.filter(b => b.pickedOutcome === resolution.winningOutcome!);
+                if (exactWinners.length === 0 && poolBets.length > 0) {
+                    const [actualBlue, actualRed] = resolution.winningOutcome!.split('-').map(Number);
+                    const distances = poolBets.map(b => {
+                        const [bBlue, bRed] = b.pickedOutcome.split('-').map(Number);
+                        return { bet: b, distance: Math.abs(bBlue - actualBlue) + Math.abs(bRed - actualRed) };
+                    });
+                    const minDistance = Math.min(...distances.map(d => d.distance));
+                    const closestBets = distances.filter(d => d.distance === minDistance);
+                    const closestPartes = closestBets.reduce((s, d) => s + d.bet.partes, 0);
+                    const isClosest = closestBets.some(d => d.bet.id === bet.id);
+                    if (isClosest && closestPartes > 0) {
+                        realizedPayout = (bet.partes / closestPartes) * potSize;
+                    }
+                    return { ...bet, status: 'closed' as const, realizedPayout };
+                }
+            }
+
+            if (winOutcome === '__none__') {
+                // Refund (e.g., no sweep happened)
+                realizedPayout = bet.amount;
+            } else {
+                const winningOutcomes = winOutcome.split(',');
+                if (winningOutcomes.includes(bet.pickedOutcome)) {
+                    const partesByOutcome: Record<string, number> = {};
+                    poolBets.forEach(b => {
+                        partesByOutcome[b.pickedOutcome] = (partesByOutcome[b.pickedOutcome] || 0) + b.partes;
+                    });
+                    let totalWinningPartes = 0;
+                    winningOutcomes.forEach(wo => {
+                        totalWinningPartes += partesByOutcome[wo] || 0;
+                    });
+                    if (totalWinningPartes > 0) {
+                        realizedPayout = (bet.partes / totalWinningPartes) * potSize;
+                    }
+                }
+            }
+        }
+
+        return {
+            ...bet,
+            status: isResolved ? 'closed' as const : 'open' as const,
+            realizedPayout
+        };
+    });
+};

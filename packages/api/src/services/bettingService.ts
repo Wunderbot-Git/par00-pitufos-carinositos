@@ -1,7 +1,7 @@
 import { getPool } from '../config/database';
 import { createBet, getBetsForFlight, getBetsForEvent, getUserBetsForEvent, Bet } from '../repositories/betRepository';
 import { getFlightScoreboardData } from './scoreService';
-import { getGeneralBetSettlement } from './generalBettingService';
+import { getGeneralBetSettlement, getGeneralBetDetailsForUser } from './generalBettingService';
 import { getUserGeneralBets } from '../repositories/generalBetRepository';
 
 interface PlaceBetInput {
@@ -464,9 +464,9 @@ export const getTournamentSettlements = async (eventId: string) => {
 export const getPersonalStats = async (eventId: string, bettorId: string): Promise<any> => {
     const pool = getPool();
     // Rely on the full tournament settlement to extract personal stats, ensuring logic reuse and perfect sync
-    const [settlement, generalBets] = await Promise.all([
+    const [settlement, generalBetDetails] = await Promise.all([
         getTournamentSettlements(eventId),
-        getUserGeneralBets(eventId, bettorId)
+        getGeneralBetDetailsForUser(eventId, bettorId)
     ]);
 
     const openWagered = settlement.personalStats.playerOpenWagered[bettorId] || 0;
@@ -480,7 +480,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
 
     // Resolve general bet outcomes to display labels
     const TEAM_LABELS: Record<string, string> = { red: 'Cariñositos', blue: 'Pitufos' };
-    const playerUuids = generalBets
+    const playerUuids = generalBetDetails
         .filter(b => b.betType === 'mvp' || b.betType === 'worst_player')
         .map(b => b.pickedOutcome);
     let playerNames: Record<string, string> = {};
@@ -492,7 +492,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
         nameRes.rows.forEach((r: any) => { playerNames[r.id] = r.first_name; });
     }
 
-    const enrichedGeneralBets = generalBets.map(b => {
+    const enrichedGeneralBets = generalBetDetails.map(b => {
         let displayOutcome = b.pickedOutcome;
         if (b.betType === 'tournament_winner') {
             displayOutcome = TEAM_LABELS[b.pickedOutcome] || b.pickedOutcome;
@@ -510,7 +510,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
         closedRecovered,
         bets: userBets,
         generalBets: enrichedGeneralBets,
-        generalBetsCount: generalBets.length
+        generalBetsCount: generalBetDetails.length
     };
 };
 
