@@ -46,19 +46,15 @@ export const placeBet = async (input: PlaceBetInput): Promise<Bet> => {
         }
 
         if (input.segmentType === 'fourball') {
-            const statusStr = board.fourballStatus || 'AS';
-            if (statusStr.includes('UP')) currentLeader = 'A';
-            else if (statusStr.includes('DN')) currentLeader = 'B';
+            if (board.fourballLeader === 'red') currentLeader = 'A';
+            else if (board.fourballLeader === 'blue') currentLeader = 'B';
             else currentLeader = 'AS';
-            const match = statusStr.match(/(\d+)/);
-            if (match) currentUp = parseInt(match[1]);
+            currentUp = board.fourballLead || 0;
         } else if (input.segmentType === 'scramble') {
-            const statusStr = board.scrambleStatus || 'AS';
-            if (statusStr.includes('UP')) currentLeader = 'A';
-            else if (statusStr.includes('DN')) currentLeader = 'B';
+            if (board.scrambleLeader === 'red') currentLeader = 'A';
+            else if (board.scrambleLeader === 'blue') currentLeader = 'B';
             else currentLeader = 'AS';
-            const match = statusStr.match(/(\d+)/);
-            if (match) currentUp = parseInt(match[1]);
+            currentUp = board.scrambleLead || 0;
         } else if (input.segmentType === 'singles1') {
             const statusStr = board.redPlayers[0].singlesStatus || 'AS';
             if (statusStr.includes('UP')) currentLeader = 'A';
@@ -280,17 +276,10 @@ export const getTournamentSettlements = async (eventId: string) => {
         const board = await getFlightScoreboardData(flightId);
 
         // Helper to evaluate segment result
-        const evalSegment = (segType: string, leader: string | null, statusStr: string) => {
+        const evalSegment = (segType: string, leader: string | null, isFinished: boolean) => {
             const key = `${flightId}_${segType}`;
             const matchBets = betsByMatch[key] || [];
             if (matchBets.length === 0) return;
-
-            // A more robust check for closed:
-            const currentHoleCount = (segType === 'scramble')
-                ? board.redPlayers[0].scores.slice(9, 18).filter((s: number | null) => s !== null).length
-                : board.redPlayers[0].scores.slice(0, 9).filter((s: number | null) => s !== null).length;
-
-            const isFinished = statusStr === 'Halved' || /^\d+ & \d+$/.test(statusStr) || statusStr.includes('Won') || statusStr.includes('Lost') || currentHoleCount >= 9;
 
             if (!isFinished) isPartial = true;
 
@@ -380,23 +369,25 @@ export const getTournamentSettlements = async (eventId: string) => {
             }
         };
 
-        // Evaluate Fourball using explicit fourballStatus
-        const fbStatus = board.fourballStatus || 'AS';
-        const fbLeader = fbStatus.includes('UP') ? 'red' : (fbStatus.includes('DN') ? 'blue' : null);
-        evalSegment('fourball', fbLeader, fbStatus);
+        // Evaluate Fourball using explicit winner/complete from scoreboard
+        evalSegment('fourball', board.fourballWinner, board.fourballComplete);
 
         // Evaluate Singles1
+        const s1Status = board.redPlayers[0].singlesStatus || '';
         const s1Leader = board.redPlayers[0].singlesResult === 'win' ? 'red' : (board.bluePlayers[0].singlesResult === 'win' ? 'blue' : null);
-        evalSegment('singles1', s1Leader, board.redPlayers[0].singlesStatus || 'AS');
+        const s1Finished = s1Status.includes('Won') || s1Status.includes('Lost') ||
+            board.redPlayers[0].scores.slice(0, 9).filter((s: number | null) => s !== null).length >= 9;
+        evalSegment('singles1', s1Leader, s1Finished);
 
         // Evaluate Singles2
+        const s2Status = board.redPlayers[1].singlesStatus || '';
         const s2Leader = board.redPlayers[1].singlesResult === 'win' ? 'red' : (board.bluePlayers[1].singlesResult === 'win' ? 'blue' : null);
-        evalSegment('singles2', s2Leader, board.redPlayers[1].singlesStatus || 'AS');
+        const s2Finished = s2Status.includes('Won') || s2Status.includes('Lost') ||
+            board.redPlayers[0].scores.slice(0, 9).filter((s: number | null) => s !== null).length >= 9;
+        evalSegment('singles2', s2Leader, s2Finished);
 
-        // Evaluate Scramble using explicit scrambleStatus
-        const scStatus = board.scrambleStatus || 'AS';
-        const scLeader = scStatus.includes('UP') ? 'red' : (scStatus.includes('DN') ? 'blue' : null);
-        evalSegment('scramble', scLeader, scStatus);
+        // Evaluate Scramble using explicit winner/complete from scoreboard
+        evalSegment('scramble', board.scrambleWinner, board.scrambleComplete);
     }
 
     // Merge general bet settlements

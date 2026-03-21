@@ -365,6 +365,14 @@ export const getFlightScoreboardData = async (flightId: string) => {
     let fourballStatus = "Not Started";
     let scrambleStatus = "Not Started";
     let segmentType: 'singles' | 'fourball' | 'scramble' = 'fourball';
+    let fourballWinner: 'red' | 'blue' | null = null;
+    let fourballComplete = false;
+    let fourballLeader: 'red' | 'blue' | null = null;
+    let fourballLead = 0;
+    let scrambleWinner: 'red' | 'blue' | null = null;
+    let scrambleComplete = false;
+    let scrambleLeader: 'red' | 'blue' | null = null;
+    let scrambleLead = 0;
     const matchProgression = Array(18).fill(null);
     const holeWinners = Array(18).fill(null);
     const matchLeaders = Array(18).fill(null);
@@ -459,13 +467,21 @@ export const getFlightScoreboardData = async (flightId: string) => {
         const maxHoleScramble = Math.max(0, ...scrambleScores.map(s => s.holeNumber));
         const maxHole = Math.max(maxHoleHole, maxHoleScramble);
 
-        // Always capture fourball status if available
+        // Always capture fourball status/winner/leader if available
         if (result.fourball) {
             fourballStatus = result.fourball.result.finalStatus;
+            fourballWinner = result.fourball.result.winner;
+            fourballComplete = result.fourball.finalState.holesRemaining === 0 || result.fourball.finalState.isDecided;
+            fourballLeader = result.fourball.finalState.leader;
+            fourballLead = result.fourball.finalState.lead;
         }
-        // Always capture scramble status if available
+        // Always capture scramble status/winner/leader if available
         if (result.scramble) {
             scrambleStatus = result.scramble.result.finalStatus;
+            scrambleWinner = result.scramble.result.winner;
+            scrambleComplete = result.scramble.finalState.holesRemaining === 0 || result.scramble.finalState.isDecided;
+            scrambleLeader = result.scramble.finalState.leader;
+            scrambleLead = result.scramble.finalState.lead;
         }
 
         // Always populate BOTH fourball and scramble progression data
@@ -501,6 +517,14 @@ export const getFlightScoreboardData = async (flightId: string) => {
         matchStatus,
         fourballStatus,
         scrambleStatus,
+        fourballWinner,
+        fourballComplete,
+        fourballLeader,
+        fourballLead,
+        scrambleWinner,
+        scrambleComplete,
+        scrambleLeader,
+        scrambleLead,
         matchProgression,
         holeWinners,
         matchLeaders,
