@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useMyEvents } from '@/hooks/useEvents';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { PullToRefresh } from '@/components/PullToRefresh';
@@ -23,8 +23,52 @@ function normalizeName(name: string) {
         .replace(/[^a-z0-9]/g, '');
 }
 
+function computeRankings(matches: any[], mode: 'final' | 'projected'): PlayerRanking[] {
+    const playerMap: Record<string, PlayerRanking> = {};
+
+    for (const match of matches) {
+        const matchPoints = match.segmentType === 'scramble' ? 2 : 1;
+        const isCompleted = match.status === 'completed';
+        const isInProgress = match.status === 'in_progress';
+
+        let redPts = 0;
+        let bluePts = 0;
+
+        if (isCompleted) {
+            if (match.matchWinner === 'red') redPts = matchPoints;
+            else if (match.matchWinner === 'blue') bluePts = matchPoints;
+            else { redPts = matchPoints / 2; bluePts = matchPoints / 2; }
+        } else if (mode === 'projected' && isInProgress) {
+            if (match.currentLeader === 'red') redPts = matchPoints;
+            else if (match.currentLeader === 'blue') bluePts = matchPoints;
+            else { redPts = matchPoints / 2; bluePts = matchPoints / 2; }
+        }
+
+        for (const p of match.redPlayers) {
+            if (!playerMap[p.playerId]) {
+                playerMap[p.playerId] = { playerId: p.playerId, playerName: p.playerName, team: 'red', points: 0, matchesPlayed: 0, matchesTotal: 0 };
+            }
+            playerMap[p.playerId].points += redPts;
+            playerMap[p.playerId].matchesTotal++;
+            if (isCompleted) playerMap[p.playerId].matchesPlayed++;
+        }
+
+        for (const p of match.bluePlayers) {
+            if (!playerMap[p.playerId]) {
+                playerMap[p.playerId] = { playerId: p.playerId, playerName: p.playerName, team: 'blue', points: 0, matchesPlayed: 0, matchesTotal: 0 };
+            }
+            playerMap[p.playerId].points += bluePts;
+            playerMap[p.playerId].matchesTotal++;
+            if (isCompleted) playerMap[p.playerId].matchesPlayed++;
+        }
+    }
+
+    return Object.values(playerMap).sort((a, b) => b.points - a.points);
+}
+
 export default function RankingPage() {
     const { events, isLoading: eventsLoading } = useMyEvents();
+    const [mode, setMode] = useState<'projected' | 'final'>('projected');
 
     const activeEvent = useMemo(() => {
         if (!events || events.length === 0) return null;
@@ -36,74 +80,35 @@ export default function RankingPage() {
 
     const rankings = useMemo(() => {
         if (!leaderboard) return [];
-
-        const playerMap: Record<string, PlayerRanking> = {};
-
-        for (const match of leaderboard.matches) {
-            const matchPoints = match.segmentType === 'scramble' ? 2 : 1;
-            const isCompleted = match.status === 'completed';
-            const isStarted = match.status !== 'not_started';
-
-            let redPts = 0;
-            let bluePts = 0;
-
-            if (isCompleted) {
-                if (match.matchWinner === 'red') {
-                    redPts = matchPoints;
-                } else if (match.matchWinner === 'blue') {
-                    bluePts = matchPoints;
-                } else {
-                    redPts = matchPoints / 2;
-                    bluePts = matchPoints / 2;
-                }
-            }
-            // Not-started and in-progress matches contribute 0 points
-
-            for (const p of match.redPlayers) {
-                if (!playerMap[p.playerId]) {
-                    playerMap[p.playerId] = {
-                        playerId: p.playerId,
-                        playerName: p.playerName,
-                        team: 'red',
-                        points: 0,
-                        matchesPlayed: 0,
-                        matchesTotal: 0,
-                    };
-                }
-                playerMap[p.playerId].points += redPts;
-                playerMap[p.playerId].matchesTotal++;
-                if (isCompleted) playerMap[p.playerId].matchesPlayed++;
-            }
-
-            for (const p of match.bluePlayers) {
-                if (!playerMap[p.playerId]) {
-                    playerMap[p.playerId] = {
-                        playerId: p.playerId,
-                        playerName: p.playerName,
-                        team: 'blue',
-                        points: 0,
-                        matchesPlayed: 0,
-                        matchesTotal: 0,
-                    };
-                }
-                playerMap[p.playerId].points += bluePts;
-                playerMap[p.playerId].matchesTotal++;
-                if (isCompleted) playerMap[p.playerId].matchesPlayed++;
-            }
-        }
-
-        return Object.values(playerMap).sort((a, b) => b.points - a.points);
-    }, [leaderboard]);
+        return computeRankings(leaderboard.matches, mode);
+    }, [leaderboard, mode]);
 
     const isLoading = eventsLoading || scoresLoading;
-    const allCompleted = leaderboard?.matches.every(m => m.status === 'completed') ?? false;
 
     return (
         <PullToRefresh onRefresh={refetch}>
             <div className="min-h-screen pb-28 pt-4 px-4">
-                <h1 className="text-2xl font-bangers text-cream text-center mb-4 tracking-wider" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                <h1 className="text-2xl font-bangers text-cream text-center mb-3 tracking-wider" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
                     Ranking Individual
                 </h1>
+
+                {/* Filter tabs */}
+                <div className="flex gap-2 justify-center mb-4">
+                    {([['projected', 'Proyectado'], ['final', 'Final']] as const).map(([key, label]) => (
+                        <button
+                            key={key}
+                            onClick={() => setMode(key)}
+                            className={`px-4 py-1.5 rounded-full text-xs font-bangers tracking-wider transition-colors ${
+                                mode === key
+                                    ? 'gold-button text-[#1e293b] translate-y-0.5'
+                                    : 'bg-white/60 text-gray-500 hover:bg-white/80'
+                            }`}
+                            style={mode === key ? {} : { backdropFilter: 'blur(8px)' }}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
 
                 {isLoading ? (
                     <p className="text-center text-cream/50 font-fredoka">Cargando ranking...</p>
@@ -174,7 +179,7 @@ export default function RankingPage() {
                     </div>
                 )}
 
-                {!isLoading && rankings.length > 0 && !allCompleted && (
+                {mode === 'projected' && (
                     <p className="text-center text-cream/40 text-xs font-fredoka mt-3">
                         * Incluye puntos proyectados de partidos en curso
                     </p>
