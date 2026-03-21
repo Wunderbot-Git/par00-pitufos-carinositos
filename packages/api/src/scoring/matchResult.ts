@@ -15,18 +15,19 @@ export interface MatchResult {
  * @param matchPoints Points available for this match (1 for singles, 2 for fourball, etc.)
  */
 export const calculateMatchResult = (state: MatchState, matchPoints: number = 1): MatchResult => {
+    // Only assign a winner if the match is actually over
+    const isFinished = state.isDecided || state.holesRemaining === 0;
+
     if (state.leader === null || state.lead === 0) {
-        // Halved match - split points
+        // Halved match - only split points if the match is actually finished
         return {
             winner: null,
-            redPoints: matchPoints / 2,
-            bluePoints: matchPoints / 2,
+            redPoints: isFinished ? matchPoints / 2 : 0,
+            bluePoints: isFinished ? matchPoints / 2 : 0,
             finalStatus: 'A/S'
         };
     }
 
-    // Only assign a winner if the match is actually over
-    const isFinished = state.isDecided || state.holesRemaining === 0;
     const winner = isFinished ? state.leader : null;
 
     return {
