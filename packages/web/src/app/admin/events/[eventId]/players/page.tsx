@@ -66,8 +66,8 @@ function EditPlayerModal({ player, tees, eventId, onSaved, onClose }: {
             });
             onSaved(updated);
             onClose();
-        } catch {
-            setError('Error al guardar cambios');
+        } catch (err: any) {
+            setError(err?.message || 'Error al guardar cambios');
         } finally {
             setSaving(false);
         }
