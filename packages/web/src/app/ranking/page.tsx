@@ -56,19 +56,8 @@ export default function RankingPage() {
                     redPts = matchPoints / 2;
                     bluePts = matchPoints / 2;
                 }
-            } else if (isStarted) {
-                if (match.currentLeader === 'red') {
-                    redPts = matchPoints;
-                } else if (match.currentLeader === 'blue') {
-                    bluePts = matchPoints;
-                } else {
-                    redPts = matchPoints / 2;
-                    bluePts = matchPoints / 2;
-                }
-            } else {
-                redPts = matchPoints / 2;
-                bluePts = matchPoints / 2;
             }
+            // Not-started and in-progress matches contribute 0 points
 
             for (const p of match.redPlayers) {
                 if (!playerMap[p.playerId]) {
