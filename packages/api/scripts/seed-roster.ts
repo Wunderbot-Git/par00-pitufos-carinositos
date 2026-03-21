@@ -65,7 +65,7 @@ type PlayerEntry = [string, number];
 const GROUPS: Array<{ blue: [PlayerEntry, PlayerEntry]; red: [PlayerEntry, PlayerEntry] }> = [
     { blue: [['Vélez', 16],  ['Rocha', 27]],    red: [['Adri', 13],      ['Camilo', 26]]   }, // Group 1
     { blue: [['Tomás', 11],  ['Burrowes', 11]], red: [['Fito', 8],       ['Herrera', 13]]  }, // Group 2
-    { blue: [['Ana', 11],    ['Fercho', 21]],   red: [['Camacho', 11],   ['Manu', 15]]     }, // Group 3
+    { blue: [['Ana', 11],    ['Fercho', 14]],   red: [['Camacho', 11],   ['Manu', 15]]     }, // Group 3
     { blue: [['Pulido', 3],  ['Phil', 8]],      red: [['Pocho', 5],      ['Gaitán', 21]]   }, // Group 4
     { blue: [['Vargas', 11], ['Luca', 11]],      red: [['Sardi', 14],     ['Bernie', 18]]   }, // Group 5
 ];
