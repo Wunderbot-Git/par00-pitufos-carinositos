@@ -212,7 +212,9 @@ export const calculateFlightMatches = (input: FlightMatchesInput): FlightMatches
     // Scramble: Team vs Team (Back 9)
     let scramble: ScrambleMatchOutput | null = null;
     if (hasValidScores(input.redPlayer1.backNineGross) && hasValidScores(input.bluePlayer1.backNineGross)) {
-        const scrambleSI = input.scrambleStrokeIndexes || getBack9SI(input.redPlayer1.strokeIndexes);
+        const scrambleSI = input.scrambleStrokeIndexes
+            ? getBack9SI(input.scrambleStrokeIndexes)
+            : getBack9SI(input.redPlayer1.strokeIndexes);
         const scrambleInput: ScrambleMatchInput = {
             redTeam: {
                 player1HandicapIndex: input.redPlayer1.handicapIndex,
