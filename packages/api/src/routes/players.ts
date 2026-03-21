@@ -49,10 +49,10 @@ export const playerRoutes = async (fastify: FastifyInstance) => {
         { onRequest: [authenticate] },
         async (request, reply) => {
             const { eventId, playerId } = request.params;
-            const user = request.user as { userId: string };
+            const user = request.user as { userId: string; appRole?: string };
 
             const organizer = await isOrganizer(eventId, user.userId);
-            if (!organizer) return reply.status(403).send({ error: 'Only organizers can update players' });
+            if (!organizer && user.appRole !== 'admin') return reply.status(403).send({ error: 'Only organizers can update players' });
 
             try {
                 return await playerService.updatePlayer(eventId, playerId, request.body);
