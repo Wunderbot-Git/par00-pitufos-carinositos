@@ -70,11 +70,11 @@ export const placeGeneralBet = async (input: PlaceGeneralBetInput): Promise<Gene
         if (input.betType === 'exact_score') {
             const match = input.pickedOutcome.match(/^(\d+\.?5?)-(\d+\.?5?)$/);
             if (!match) throw new Error('Formato inválido. Esperado: "X-Y" como "14-11".');
-            const pitufos = parseFloat(match[1]);
-            const cariniositos = parseFloat(match[2]);
-            if (pitufos + cariniositos !== 25) throw new Error('Los marcadores deben sumar 25.');
-            if (pitufos < 0 || pitufos > 25 || cariniositos < 0 || cariniositos > 25) throw new Error('Marcador fuera de rango (0-25).');
-            if (pitufos % 0.5 !== 0 || cariniositos % 0.5 !== 0) throw new Error('Los marcadores deben ser en incrementos de 0.5.');
+            const blueScore = parseFloat(match[1]);
+            const redScore = parseFloat(match[2]);
+            if (blueScore + redScore !== 25) throw new Error('Los marcadores deben sumar 25.');
+            if (blueScore < 0 || blueScore > 25 || redScore < 0 || redScore > 25) throw new Error('Marcador fuera de rango (0-25).');
+            if (blueScore % 0.5 !== 0 || redScore % 0.5 !== 0) throw new Error('Los marcadores deben ser en incrementos de 0.5.');
         }
 
         // 4. Get leaderboard for timing factor and validation
@@ -183,7 +183,7 @@ function resolveFromLeaderboard(leaderboard: LeaderboardData): ResolvedOutcome[]
         isResolved: tournamentWinner !== null
     });
 
-    // ── Exact Score ── (format: "Pitufos-Cariñositos" = "blue-red")
+    // ── Exact Score ── (format: "blue-red", e.g. "13-12")
     if (allCompleted) {
         outcomes.push({
             betType: 'exact_score',

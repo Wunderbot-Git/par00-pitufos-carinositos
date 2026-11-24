@@ -70,17 +70,19 @@ API starts in `src/index.ts` → builds app from `src/app.ts` → runs migration
 - **Events** — tournaments with members, courses, flights
 - **Flights** — groups of 4 players playing together
 - **Segments** — front 9 (individual play) and back 9 (scramble)
-- **Teams** — Red (Cariñositos) vs Blue (Pitufos)
-  - Cariñositos: `#E75480` (CSS var `--team-red`, Tailwind `team-red`)
-  - Pitufos: `#4A90D9` (CSS var `--team-blue`, Tailwind `team-blue`)
+- **Teams** — internally always `red` / `blue`. Current theme: Red = Marvel, Blue = DC
+  - Marvel: `#EC1D24` (CSS var `--team-red`, Tailwind `team-red`, plus `-light`/`-dark`/`-deep`)
+  - DC: `#0476F2` (CSS var `--team-blue`, Tailwind `team-blue`, plus `-light`/`-dark`/`-deep`)
+  - Never hardcode team names or colors: use `TEAM_NAMES` / `THEME` from `packages/web/src/lib/theme.ts`, `TEAM_LABELS` from `packages/api/src/config/theme.ts`, and the CSS vars / Tailwind classes
 - **Match play scoring** — not stroke play; points from head-to-head match results
 - **Spectator tokens** — public read-only leaderboard access without auth
 
-### Player Avatars & Winner Assets
-- Avatar images: `packages/web/public/images/{normalized-name}.webp` (e.g. `pulido.webp`)
-- Winner avatars (optional): `{name}-winner.webp` (e.g. `pulido-winner.webp`) — shown when a player wins a match. Falls back to normal avatar if missing.
-- Winner star badge: `packages/web/public/images/winner-star2.webp` — gold star with glow, displayed on winner's avatar corner
-- Name normalization: first name → lowercase → strip accents → alphanumeric only (see `normalizeName()` in `MatchCard.tsx`)
+### Theme, Player Avatars & Assets
+- All theme assets live in `packages/web/public/theme/` (see its `README.md` for file names and sizes)
+- Avatar images: `packages/web/public/theme/avatars/{normalized-name}.webp` (e.g. `pulido.webp`)
+- Winner/loser avatars (optional): `{name}-winner.webp` / `{name}-loser.webp`. Fall back to the normal avatar, then to the team avatar (`avatar-red.webp` / `avatar-blue.webp`)
+- Name normalization: first name → lowercase → strip accents → alphanumeric only (`normalizeName()` in `src/lib/theme.ts`)
+- Previous edition (Pitufos vs Cariñositos) assets are archived in `archive/theme-pitufos-carinositos/`
 
 ## Database
 

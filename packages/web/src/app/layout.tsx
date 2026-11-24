@@ -6,6 +6,7 @@ import { SettingsLink } from '@/components/SettingsLink';
 import { AuthProvider } from '@/lib/auth';
 import { SyncProvider } from '@/lib/syncContext';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { THEME } from '@/lib/theme';
 
 const bangers = Bangers({
     weight: '400',
@@ -21,7 +22,7 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-    title: 'Ryder Cup Par00',
+    title: `${THEME.appName} · ${THEME.edition}`,
     description: 'Golf tournament scoring app',
 };
 

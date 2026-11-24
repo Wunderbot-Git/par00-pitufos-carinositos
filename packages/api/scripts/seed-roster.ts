@@ -58,8 +58,8 @@ const SCRAMBLE_MIXED_SI = [
 
 // ── ROSTER ────────────────────────────────────────────────────────────────────
 // Each group: { blue: [Pos1, Pos2], red: [Pos1, Pos2] }
-// blue = Pitufos (left side in cards, gold border)
-// red  = Cariñositos (right side in cards, pink border)
+// blue = DC (left side in cards)
+// red  = Marvel (right side in cards)
 // Each player: [name, handicap_index]
 type PlayerEntry = [string, number];
 const GROUPS: Array<{ blue: [PlayerEntry, PlayerEntry]; red: [PlayerEntry, PlayerEntry] }> = [
@@ -110,7 +110,7 @@ async function main() {
              VALUES ($1, $2, $3, $4, NOW(), NOW())
              ON CONFLICT (event_code) DO UPDATE SET name = $1, updated_at = NOW()
              RETURNING id`,
-            ['Pitufos Carinositos 2026', 'live', EVENT_CODE, organizerId]
+            ['DC vs Marvel', 'live', EVENT_CODE, organizerId]
         );
         const eventId = eventRes.rows[0].id;
         console.log(`Event: ${eventId} (code: ${EVENT_CODE})`);
@@ -185,7 +185,7 @@ async function main() {
             const flightId = flightRes.rows[0].id;
             console.log(`  Flight ${flightNumber}: ${flightId}`);
 
-            // Insert players: blue (Pitufos) positions 1 & 2, then red (Cariñositos) 1 & 2
+            // Insert players: blue (DC) positions 1 & 2, then red (Marvel) 1 & 2
             const insertPlayer = async ([name, hcp]: PlayerEntry, team: 'blue' | 'red', position: number) => {
                 const [firstName, ...rest] = name.split(' ');
                 const lastName = rest.join(' ') || '-';

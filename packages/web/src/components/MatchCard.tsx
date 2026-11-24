@@ -1,6 +1,7 @@
 'use client';
 
 import { Match } from '@/hooks/useLeaderboard';
+import { THEME, normalizeName } from '@/lib/theme';
 
 interface MatchCardProps {
     match: Match;
@@ -23,10 +24,10 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
     // Who is "winning" (leading) right now?
     const redIsWinning = isRedWin || match.currentLeader === 'red';
 
-    let centerGradient = 'bg-gradient-to-b from-[#5BA3E0] to-[#3A7CC0]'; // blue (Pitufos)
+    let centerGradient = 'bg-gradient-to-b from-team-blue to-team-blue-dark'; // blue team
     if (isNotStarted) centerGradient = 'bg-[#2a2a5e]';
     else if (isAS) centerGradient = 'bg-gradient-to-b from-[#8f9ca6] to-[#596673]';
-    else if (redIsWinning) centerGradient = 'bg-gradient-to-b from-[#E75480] to-[#C44470]'; // pink (Cariñositos)
+    else if (redIsWinning) centerGradient = 'bg-gradient-to-b from-team-red to-team-red-dark'; // red team
 
     if (isNotStarted) {
         statusTop = (
@@ -58,19 +59,19 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
     }
 
     // ── PANEL BACKGROUND / BORDERS ───────────────────────────────────────────
-    // Blue team = Pitufos (left panel), Red team = Cariñositos (right panel)
+    // Blue team = left panel, Red team = right panel
     const GOLD  = '#F0C850';
-    const PINK  = '#e0548a';
+    const RED   = 'var(--team-red)';
     const MUTED = '#4a4a6a';
 
     // Winner/loser panel display
     let leftDim  = false;
     let rightDim = false;
 
-    // Left (blue/Pitufos) border: blue team color, muted when losing
-    const leftBorderColor  = isFinal && isRedWin ? MUTED : '#4A90D9';
-    // Right (red/Cariñositos) border: pink always, muted when losing
-    const rightBorderColor = isFinal && isBlueWin ? MUTED : PINK;
+    // Left (blue) border: blue team color, muted when losing
+    const leftBorderColor  = isFinal && isRedWin ? MUTED : 'var(--team-blue)';
+    // Right (red) border: team color, muted when losing
+    const rightBorderColor = isFinal && isBlueWin ? MUTED : RED;
 
     // Panel backgrounds — medium navy, lighter than filter bar
     const activePanelBg  = '#2a3a5e';
@@ -81,14 +82,6 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
     const rightBg = isNotStarted ? notStartedBg : (isFinal && isRedWin  ? winnerBg : activePanelBg);
 
 
-    const normalizeName = (name: string) => {
-        return name
-            .split(' ')[0]
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^a-z0-9]/g, '');
-    };
 
     return (
         <div
@@ -105,11 +98,11 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
         >
             <div className="grid grid-cols-[1fr_auto_1fr] items-stretch min-h-[120px]">
 
-                {/* ── LEFT PANEL (BLUE / PITUFOS) ─────────────────────────── */}
+                {/* ── LEFT PANEL (BLUE) ─────────────────────────── */}
                 <div
                     className="flex flex-col items-center justify-center py-0.5 px-0.5 relative"
                     style={{
-                        background: isNotStarted ? 'transparent' : 'rgba(74,144,217,0.08)',
+                        background: isNotStarted ? 'transparent' : 'rgb(var(--team-blue-rgb) / 0.08)',
                         borderLeft: `3px solid ${leftBorderColor}`,
                         opacity: leftDim ? 0.55 : 1,
                         transition: 'opacity 0.2s',
@@ -134,15 +127,15 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         }}
                                     >
                                         <img
-                                            src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
+                                            src={isFinal && isBlueWin ? `${THEME.assets.avatarDir}/${avatarName}-winner.webp` : isFinal && !isAS ? `${THEME.assets.avatarDir}/${avatarName}-loser.webp` : `${THEME.assets.avatarDir}/${avatarName}.webp`}
                                             alt={p.playerName}
                                             loading="lazy"
                                             onError={(e) => {
                                                 const img = e.target as HTMLImageElement;
                                                 if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
-                                                    img.src = `/images/${avatarName}.webp`;
-                                                } else {
-                                                    img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
+                                                    img.src = `${THEME.assets.avatarDir}/${avatarName}.webp`;
+                                                } else if (!img.src.endsWith(THEME.assets.fallbackAvatar.blue)) {
+                                                    img.src = THEME.assets.fallbackAvatar.blue;
                                                 }
                                             }}
                                             className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
@@ -158,15 +151,15 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 const avatarName = normalizeName(match.bluePlayers[0]?.playerName || '');
                                 return (
                                     <img
-                                        src={isFinal && isBlueWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
+                                        src={isFinal && isBlueWin ? `${THEME.assets.avatarDir}/${avatarName}-winner.webp` : isFinal && !isAS ? `${THEME.assets.avatarDir}/${avatarName}-loser.webp` : `${THEME.assets.avatarDir}/${avatarName}.webp`}
                                         alt={match.bluePlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
                                             if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
-                                                img.src = `/images/${avatarName}.webp`;
-                                            } else {
-                                                img.src = '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
+                                                img.src = `${THEME.assets.avatarDir}/${avatarName}.webp`;
+                                            } else if (!img.src.endsWith(THEME.assets.fallbackAvatar.blue)) {
+                                                img.src = THEME.assets.fallbackAvatar.blue;
                                             }
                                         }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
@@ -186,7 +179,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         <div
                                             key={i}
                                             className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider uppercase"
-                                            style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
+                                            style={{ color: isNotStarted ? '#aaa' : 'var(--team-blue)', fontWeight: 700 }}
                                         >
                                             {p.playerName.split(' ')[0]}
                                         </div>
@@ -199,7 +192,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 <div
                                     key={i}
                                     className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                    style={{ color: isNotStarted ? '#aaa' : '#4A90D9', fontWeight: 700 }}
+                                    style={{ color: isNotStarted ? '#aaa' : 'var(--team-blue)', fontWeight: 700 }}
                                 >
                                     {p.playerName.split(' ')[0]}
                                     <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>
@@ -251,11 +244,11 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                     </div>
                 </div>
 
-                {/* ── RIGHT PANEL (RED / CARIÑOSITOS) ─────────────────────── */}
+                {/* ── RIGHT PANEL (RED) ─────────────────────── */}
                 <div
                     className="flex flex-col items-center justify-center py-0.5 px-0.5 relative"
                     style={{
-                        background: isNotStarted ? 'transparent' : 'rgba(231,84,128,0.08)',
+                        background: isNotStarted ? 'transparent' : 'rgb(var(--team-red-rgb) / 0.08)',
                         borderRight: `3px solid ${rightBorderColor}`,
                         opacity: rightDim ? 0.55 : 1,
                         transition: 'opacity 0.2s',
@@ -280,15 +273,15 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         }}
                                     >
                                         <img
-                                            src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
+                                            src={isFinal && isRedWin ? `${THEME.assets.avatarDir}/${avatarName}-winner.webp` : isFinal && !isAS ? `${THEME.assets.avatarDir}/${avatarName}-loser.webp` : `${THEME.assets.avatarDir}/${avatarName}.webp`}
                                             alt={p.playerName}
                                             loading="lazy"
                                             onError={(e) => {
                                                 const img = e.target as HTMLImageElement;
                                                 if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
-                                                    img.src = `/images/${avatarName}.webp`;
-                                                } else {
-                                                    img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
+                                                    img.src = `${THEME.assets.avatarDir}/${avatarName}.webp`;
+                                                } else if (!img.src.endsWith(THEME.assets.fallbackAvatar.red)) {
+                                                    img.src = THEME.assets.fallbackAvatar.red;
                                                 }
                                             }}
                                             className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
@@ -304,15 +297,15 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 const avatarName = normalizeName(match.redPlayers[0]?.playerName || '');
                                 return (
                                     <img
-                                        src={isFinal && isRedWin ? `/images/${avatarName}-winner.webp` : isFinal && !isAS ? `/images/${avatarName}-loser.webp` : `/images/${avatarName}.webp`}
+                                        src={isFinal && isRedWin ? `${THEME.assets.avatarDir}/${avatarName}-winner.webp` : isFinal && !isAS ? `${THEME.assets.avatarDir}/${avatarName}-loser.webp` : `${THEME.assets.avatarDir}/${avatarName}.webp`}
                                         alt={match.redPlayers[0]?.playerName}
                                         loading="lazy"
                                         onError={(e) => {
                                             const img = e.target as HTMLImageElement;
                                             if (img.src.includes('-winner.webp') || img.src.includes('-loser.webp')) {
-                                                img.src = `/images/${avatarName}.webp`;
-                                            } else {
-                                                img.src = '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp';
+                                                img.src = `${THEME.assets.avatarDir}/${avatarName}.webp`;
+                                            } else if (!img.src.endsWith(THEME.assets.fallbackAvatar.red)) {
+                                                img.src = THEME.assets.fallbackAvatar.red;
                                             }
                                         }}
                                         className={`w-full h-full object-cover drop-shadow-md ${isNotStarted ? 'grayscale opacity-40' : ''}`}
@@ -332,7 +325,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                         <div
                                             key={i}
                                             className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider uppercase"
-                                            style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
+                                            style={{ color: isNotStarted ? '#aaa' : 'var(--team-red)', fontWeight: 700 }}
                                         >
                                             {p.playerName.split(' ')[0]}
                                         </div>
@@ -345,7 +338,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
                                 <div
                                     key={i}
                                     className="font-bangers text-[14px] sm:text-[16px] leading-tight text-center tracking-wider line-clamp-1 break-all w-full uppercase"
-                                    style={{ color: isNotStarted ? '#aaa' : '#E75480', fontWeight: 700 }}
+                                    style={{ color: isNotStarted ? '#aaa' : 'var(--team-red)', fontWeight: 700 }}
                                 >
                                     {p.playerName.split(' ')[0]}
                                     <span className="text-[11px] ml-0.5" style={{ color: isNotStarted ? '#bbb' : '#666' }}>({Math.round(p.hcp * 0.8)})</span>

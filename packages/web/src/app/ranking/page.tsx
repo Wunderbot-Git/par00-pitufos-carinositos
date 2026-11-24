@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useMyEvents } from '@/hooks/useEvents';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { PullToRefresh } from '@/components/PullToRefresh';
+import { THEME, normalizeName } from '@/lib/theme';
 
 interface PlayerRanking {
     playerId: string;
@@ -16,14 +17,6 @@ interface PlayerRanking {
     matchesTotal: number;
 }
 
-function normalizeName(name: string) {
-    return name
-        .split(' ')[0]
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]/g, '');
-}
 
 function getStrokesForHole(playingHandicap: number, strokeIndex: number): number {
     if (playingHandicap >= strokeIndex + 18) return 2;
@@ -152,7 +145,7 @@ export default function RankingPage() {
                     >
                         {rankings.map((player, idx) => {
                             const avatarName = normalizeName(player.playerName);
-                            const teamColor = player.team === 'red' ? '#E75480' : '#4A90D9';
+                            const teamColor = player.team === 'red' ? 'var(--team-red)' : 'var(--team-blue)';
                             const isFirst = idx === 0;
                             const isLast = idx === rankings.length - 1;
 
@@ -170,13 +163,13 @@ export default function RankingPage() {
 
                                     <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2" style={{ borderColor: teamColor }}>
                                         <img
-                                            src={`/images/${avatarName}.webp`}
+                                            src={`${THEME.assets.avatarDir}/${avatarName}.webp`}
                                             alt={player.playerName}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
-                                                (e.target as HTMLImageElement).src = player.team === 'red'
-                                                    ? '/images/Gemini_Generated_Image_exn7bfexn7bfexn7-removebg-preview.webp'
-                                                    : '/images/Gemini_Generated_Image_jonki9jonki9jonk__1_-removebg-preview.webp';
+                                                const img = e.target as HTMLImageElement;
+                                                const fallback = THEME.assets.fallbackAvatar[player.team === 'red' ? 'red' : 'blue'];
+                                                if (!img.src.endsWith(fallback)) img.src = fallback;
                                             }}
                                         />
                                     </div>

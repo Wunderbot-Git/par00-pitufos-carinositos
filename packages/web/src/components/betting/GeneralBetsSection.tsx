@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { GeneralBetPool, GeneralBet, usePlaceGeneralBet } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
 import { Toast } from '@/components/ui/Toast';
+import { TEAM_NAMES } from '@/lib/theme';
 
 const HONOR_KEY = 'betting_honor_shown';
 
@@ -31,8 +32,8 @@ const BET_TYPE_LABELS: Record<string, { title: string; description: string }> = 
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
-    red: 'Cariñositos',
-    blue: 'Pitufos',
+    red: TEAM_NAMES.red,
+    blue: TEAM_NAMES.blue,
     tie: 'Empate',
     yes: 'Sí',
     no: 'No',
@@ -79,13 +80,13 @@ function OutcomeButton({ outcome, label, isSelected, isMyPick, partes, onClick, 
 }
 
 function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) => void; disabled: boolean }) {
-    const [pitufos, setPitufos] = useState(12.5);
-    const cariniositos = 25 - pitufos;
+    const [blueScore, setBlueScore] = useState(12.5);
+    const redScore = 25 - blueScore;
 
     const adjust = (delta: number) => {
-        const next = pitufos + delta;
+        const next = blueScore + delta;
         if (next >= 0 && next <= 25 && next % 0.5 === 0) {
-            setPitufos(next);
+            setBlueScore(next);
             onSelect(`${next}-${25 - next}`);
         }
     };
@@ -94,18 +95,18 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
         <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-4 w-full justify-center">
                 <div className="flex flex-col items-center gap-1 flex-1">
-                    <span className="text-[10px] font-bangers text-team-blue uppercase tracking-wider">Pitufos</span>
+                    <span className="text-[10px] font-bangers text-team-blue uppercase tracking-wider">{TEAM_NAMES.blue}</span>
                     <div className="bg-team-blue/10 border-2 border-team-blue/30 rounded-xl px-4 py-2 min-w-[80px] text-center">
-                        <span className="text-3xl font-bangers text-team-blue">{pitufos}</span>
+                        <span className="text-3xl font-bangers text-team-blue">{blueScore}</span>
                     </div>
                 </div>
 
                 <span className="text-forest-deep/30 font-bangers text-lg mt-4">vs</span>
 
                 <div className="flex flex-col items-center gap-1 flex-1">
-                    <span className="text-[10px] font-bangers text-team-red uppercase tracking-wider">Cariñositos</span>
+                    <span className="text-[10px] font-bangers text-team-red uppercase tracking-wider">{TEAM_NAMES.red}</span>
                     <div className="bg-team-red/10 border-2 border-team-red/30 rounded-xl px-4 py-2 min-w-[80px] text-center">
-                        <span className="text-3xl font-bangers text-team-red">{cariniositos}</span>
+                        <span className="text-3xl font-bangers text-team-red">{redScore}</span>
                     </div>
                 </div>
             </div>
@@ -113,17 +114,17 @@ function ExactScorePicker({ onSelect, disabled }: { onSelect: (outcome: string) 
             <div className="flex items-center gap-3">
                 <button
                     onClick={() => adjust(0.5)}
-                    disabled={disabled || pitufos >= 25}
+                    disabled={disabled || blueScore >= 25}
                     className="w-10 h-10 rounded-full border-2 border-team-blue/40 bg-team-blue/10 text-team-blue font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-blue/20"
                 >
                     +
                 </button>
                 <span className="text-[10px] text-forest-deep/40 font-fredoka w-16 text-center">
-                    {pitufos === cariniositos ? 'Empate' : pitufos > cariniositos ? 'Pitufos' : 'Cariñositos'}
+                    {blueScore === redScore ? 'Empate' : blueScore > redScore ? TEAM_NAMES.blue : TEAM_NAMES.red}
                 </span>
                 <button
                     onClick={() => adjust(-0.5)}
-                    disabled={disabled || pitufos <= 0}
+                    disabled={disabled || blueScore <= 0}
                     className="w-10 h-10 rounded-full border-2 border-team-red/40 bg-team-red/10 text-team-red font-bangers text-lg disabled:opacity-30 transition-all hover:bg-team-red/20"
                 >
                     +
@@ -186,7 +187,7 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced, canChange = false }
 
     const formatExactScore = (outcome: string) => {
         const [p, c] = outcome.split('-');
-        return { pitufos: p, cariniositos: c };
+        return { blueScore: p, redScore: c };
     };
 
     return (
@@ -214,10 +215,10 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced, canChange = false }
                         }
                         {pool.isResolved && pool.winningOutcome && pool.winningOutcome !== '__none__' && (() => {
                             if (isExactScore) {
-                                const { pitufos, cariniositos } = formatExactScore(pool.winningOutcome);
+                                const { blueScore, redScore } = formatExactScore(pool.winningOutcome);
                                 return (
                                     <span className="text-[9px] font-bangers uppercase px-2 py-0.5 rounded bg-forest-mid/20 text-forest-deep/60">
-                                        {pitufos} - {cariniositos}
+                                        {blueScore} - {redScore}
                                     </span>
                                 );
                             }
@@ -238,10 +239,10 @@ function GeneralBetCard({ pool, myBet, eventId, onBetPlaced, canChange = false }
                 {hasBet && !expanded && (() => {
                     const betDisplay = (() => {
                         if (isExactScore) {
-                            const { pitufos, cariniositos } = formatExactScore(myBet.pickedOutcome);
+                            const { blueScore, redScore } = formatExactScore(myBet.pickedOutcome);
                             return (
                                 <div className="inline-flex items-center gap-1.5 text-[10px] font-bangers uppercase px-2 py-1 rounded bg-forest-mid/10 text-forest-deep/60">
-                                    Tu apuesta: <span className="text-team-blue">{pitufos}</span> - <span className="text-team-red">{cariniositos}</span>
+                                    Tu apuesta: <span className="text-team-blue">{blueScore}</span> - <span className="text-team-red">{redScore}</span>
                                 </div>
                             );
                         }

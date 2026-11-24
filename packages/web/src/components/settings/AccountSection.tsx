@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useUpdateName, useChangePassword } from '@/hooks/useProfile';
+import { TEAM_NAMES } from '@/lib/theme';
 
 interface PlayerInfo {
     playerName: string;
@@ -101,7 +102,7 @@ export function AccountSection({ player }: { player: PlayerInfo | null }) {
                             <div className="flex items-center gap-2">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bangers uppercase ${player.team === 'red' ? 'bg-team-red/15 text-team-red' : 'bg-team-blue/15 text-team-blue'
                                     }`}>
-                                    {player.team === 'red' ? 'Cariñositos' : 'Pitufos'}
+                                    {player.team === 'red' ? TEAM_NAMES.red : TEAM_NAMES.blue}
                                 </span>
                                 <span className="text-xs text-forest-deep/50 font-fredoka font-semibold">HCP {player.handicapIndex}</span>
                             </div>

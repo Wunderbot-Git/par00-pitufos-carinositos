@@ -2,6 +2,7 @@
 
 import { useUserStats, PersonalStats } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
+import { TEAM_NAMES } from '@/lib/theme';
 
 const SEGMENT_LABELS: Record<string, string> = {
     singles1: 'Individual 1',
@@ -11,8 +12,8 @@ const SEGMENT_LABELS: Record<string, string> = {
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
-    A: 'Cariñositos',
-    B: 'Pitufos',
+    A: TEAM_NAMES.red,
+    B: TEAM_NAMES.blue,
     AS: 'Empate',
 };
 
@@ -31,8 +32,8 @@ function outcomeColor(outcome: string) {
 
 function getGeneralOutcomeColor(betType: string, outcome: string): string {
     if (betType === 'tournament_winner') {
-        if (outcome === 'Cariñositos') return 'text-team-red';
-        if (outcome === 'Pitufos') return 'text-team-blue';
+        if (outcome === TEAM_NAMES.red) return 'text-team-red';
+        if (outcome === TEAM_NAMES.blue) return 'text-team-blue';
     }
     return 'text-forest-deep';
 }

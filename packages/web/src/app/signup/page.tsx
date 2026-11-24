@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
+import { THEME } from '@/lib/theme';
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');
@@ -47,8 +48,8 @@ export default function SignupPage() {
             {/* Header Image */}
             <div className="relative w-full h-[240px] sm:h-[300px] overflow-hidden rounded-b-[32px] thick-border border-t-0 border-l-0 border-r-0 mb-8 shadow-md">
                 <Image
-                    src="/images/hero_header.webp"
-                    alt="Pitufos vs Cariñositos"
+                    src={THEME.assets.heroHeader}
+                    alt={THEME.edition}
                     fill
                     className="object-cover object-top"
                     priority

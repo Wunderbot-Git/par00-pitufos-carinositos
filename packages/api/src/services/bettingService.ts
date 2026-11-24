@@ -3,6 +3,7 @@ import { createBet, getBetsForFlight, getBetsForEvent, getUserBetsForEvent, Bet 
 import { getFlightScoreboardData } from './scoreService';
 import { getGeneralBetSettlement, getGeneralBetDetailsForUser } from './generalBettingService';
 import { getUserGeneralBets } from '../repositories/generalBetRepository';
+import { TEAM_LABELS } from '../config/theme';
 
 interface PlaceBetInput {
     eventId: string;
@@ -479,7 +480,6 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
     const realizedNet = closedRecovered - closedWagered;
 
     // Resolve general bet outcomes to display labels
-    const TEAM_LABELS: Record<string, string> = { red: 'Cariñositos', blue: 'Pitufos' };
     const playerUuids = generalBetDetails
         .filter(b => b.betType === 'mvp' || b.betType === 'worst_player')
         .map(b => b.pickedOutcome);
@@ -495,7 +495,7 @@ export const getPersonalStats = async (eventId: string, bettorId: string): Promi
     const enrichedGeneralBets = generalBetDetails.map(b => {
         let displayOutcome = b.pickedOutcome;
         if (b.betType === 'tournament_winner') {
-            displayOutcome = TEAM_LABELS[b.pickedOutcome] || b.pickedOutcome;
+            displayOutcome = TEAM_LABELS[b.pickedOutcome as 'red' | 'blue'] || b.pickedOutcome;
         } else if (b.betType === 'mvp' || b.betType === 'worst_player') {
             displayOutcome = playerNames[b.pickedOutcome] || b.pickedOutcome;
         }
