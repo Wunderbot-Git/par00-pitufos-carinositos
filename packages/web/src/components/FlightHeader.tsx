@@ -1,5 +1,7 @@
 'use client';
 
+import { TEAM_NAMES } from '@/lib/theme';
+
 interface Player {
     playerId: string;
     playerName: string;
@@ -22,7 +24,7 @@ export function FlightHeader({ flightName, redPlayers, bluePlayers }: FlightHead
             <div className="flex justify-between items-start gap-4">
                 {/* Red Team */}
                 <div className="flex-1">
-                    <div className="text-team-red font-bangers text-xs mb-2 text-center">CARINOSITOS</div>
+                    <div className="text-team-red font-bangers text-xs mb-2 text-center">{TEAM_NAMES.red.toUpperCase()}</div>
                     <div className="space-y-1">
                         {redPlayers.map((player) => (
                             <div key={player.playerId} className="bg-team-red/10 rounded-lg px-3 py-2 text-center border border-team-red/20">
@@ -40,7 +42,7 @@ export function FlightHeader({ flightName, redPlayers, bluePlayers }: FlightHead
 
                 {/* Blue Team */}
                 <div className="flex-1">
-                    <div className="text-team-blue font-bangers text-xs mb-2 text-center">PITUFOS</div>
+                    <div className="text-team-blue font-bangers text-xs mb-2 text-center">{TEAM_NAMES.blue.toUpperCase()}</div>
                     <div className="space-y-1">
                         {bluePlayers.map((player) => (
                             <div key={player.playerId} className="bg-team-blue/10 rounded-lg px-3 py-2 text-center border border-team-blue/20">
