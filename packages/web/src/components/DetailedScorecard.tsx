@@ -30,7 +30,7 @@ function ScoreCell({
     isWinner?: boolean;
     strokes?: number;
 }) {
-    const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
+    const teamColor = team === 'red' ? 'var(--team-red)' : 'var(--team-blue)';
     const strokeCount = strokes ?? 0;
 
     const strokeLines = strokeCount > 0 && (
@@ -58,7 +58,7 @@ function ScoreCell({
                     <div
                         className="absolute w-6 h-6 rounded-md"
                         style={{
-                            backgroundColor: team === 'red' ? 'rgba(231,84,128,0.2)' : 'rgba(74,144,217,0.2)',
+                            backgroundColor: team === 'red' ? 'rgb(var(--team-red-rgb) / 0.2)' : 'rgb(var(--team-blue-rgb) / 0.2)',
                             border: `2px solid ${teamColor}`,
                         }}
                     />
@@ -142,7 +142,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                         const scrambleHcp = Math.round(match.redPlayers.reduce((a, b) => a + b.hcp, 0) * 0.3);
                                         return (
                                             <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: 'var(--team-red)' }}>
                                                     {match.redPlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
                                                 </td>
                                                 {match.redPlayers[0]?.scores.slice(start, end).map((score, i) => (
@@ -157,7 +157,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                         const scrambleHcp = Math.round(match.bluePlayers.reduce((a, b) => a + b.hcp, 0) * 0.3);
                                         return (
                                             <tr className={`border-b border-gray-100 ${rowIdx++ % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: 'var(--team-blue)' }}>
                                                     {match.bluePlayers.map(p => p.playerName.split(' ')[0]).join(' / ')}
                                                 </td>
                                                 {match.bluePlayers[0]?.scores.slice(start, end).map((score, i) => (
@@ -174,7 +174,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                         const playingHcp = Math.round(player.hcp * 0.8);
                                         return (
                                             <tr key={`red-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#E75480' }}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: 'var(--team-red)' }}>
                                                     {player.playerName.split(' ')[0]}
                                                 </td>
                                                 {player.scores.slice(start, end).map((score, i) => {
@@ -201,7 +201,7 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                         const playingHcp = Math.round(player.hcp * 0.8);
                                         return (
                                             <tr key={`blue-${pIdx}`} className={`border-b border-gray-100 ${(rowIdx + pIdx) % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: '#4A90D9' }}>
+                                                <td className="p-1.5 font-fredoka font-bold truncate max-w-[80px] sm:max-w-[100px] pl-2 text-xs" style={{ color: 'var(--team-blue)' }}>
                                                     {player.playerName.split(' ')[0]}
                                                 </td>
                                                 {player.scores.slice(start, end).map((score, i) => {
@@ -244,10 +244,10 @@ export function DetailedScorecard({ match, onClose }: DetailedScorecardProps) {
                                     let color = 'rgba(255,255,255,0.5)';
                                     if (scoreDiff > 0) {
                                         label = `${scoreDiff} UP`;
-                                        color = '#FF7BA6';
+                                        color = 'var(--team-red-light)';
                                     } else if (scoreDiff < 0) {
                                         label = `${Math.abs(scoreDiff)} UP`;
-                                        color = '#6BB5FF';
+                                        color = 'var(--team-blue-light)';
                                     }
 
                                     return (

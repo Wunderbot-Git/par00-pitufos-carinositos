@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { FlightScore } from '@/hooks/useScores';
+import { TEAM_NAMES } from '@/lib/theme';
 
 interface ScoreGridProps {
     flightScore: FlightScore;
@@ -47,7 +48,7 @@ function ScoreCell({
     const strokes = getStrokes(siValues, playingHcp, holeIdx);
     const net = score !== null ? score - strokes : null;
 
-    const teamColor = team === 'red' ? '#E75480' : '#4A90D9';
+    const teamColor = team === 'red' ? 'var(--team-red)' : 'var(--team-blue)';
 
     // Filled circle for winners: solid team color bg + white text
     let winnerClasses = '';
@@ -395,7 +396,7 @@ export function ScoreGrid({ flightScore, onHoleClick, pendingScores, scrollToHol
                 const l = flightScore.matchLeaders?.[hole - 1];
                 if (s) { lastStatus = s; lastLeader = l ?? null; }
             }
-            const teamName = lastLeader === 'red' ? 'Cariñositos' : lastLeader === 'blue' ? 'Pitufos' : '';
+            const teamName = lastLeader === 'red' ? TEAM_NAMES.red : lastLeader === 'blue' ? TEAM_NAMES.blue : '';
             const mejorBolaStatus = !lastStatus ? 'Not Started' : !lastLeader ? 'All Square' : `${teamName} ${lastStatus}`;
             summaries.push({
                 label: 'Mejor Bola',

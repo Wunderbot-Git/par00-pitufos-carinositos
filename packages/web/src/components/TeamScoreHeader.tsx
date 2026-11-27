@@ -35,13 +35,13 @@ export function TeamScoreHeader({
         return (
             <div className="pt-2 px-2 pb-2 transition-all duration-300">
                 <div className="bg-[#1a1a3e] border-[3px] border-[#4a4a8e] rounded-xl overflow-hidden mb-0 py-2 px-6 flex items-center justify-between h-[50px]">
-                    <div className="text-2xl font-bangers text-[#4A90D9]">
+                    <div className="text-2xl font-bangers text-team-blue">
                         {projectedBlue.toFixed(1).replace('.0', '')}
                     </div>
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-bangers text-[#F0C850] uppercase tracking-widest leading-none">PROYECTADO</span>
                     </div>
-                    <div className="text-2xl font-bangers text-[#E75480]">
+                    <div className="text-2xl font-bangers text-team-red">
                         {projectedRed.toFixed(1).replace('.0', '')}
                     </div>
                 </div>
@@ -81,10 +81,10 @@ export function TeamScoreHeader({
 
                             {/* Blue Score */}
                             <div className="flex flex-col items-center justify-center w-[40%] relative">
-                                <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgba(74,144,217,0.7))' }}>
+                                <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgb(var(--team-blue-rgb) / 0.7))' }}>
                                     <span
-                                        className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-[#173e6e]"
-                                        style={{ WebkitTextStroke: '16px #173e6e', transform: 'translateY(6px)' }}
+                                        className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-team-blue-deep"
+                                        style={{ WebkitTextStroke: '16px var(--team-blue-deep)', transform: 'translateY(6px)' }}
                                     >
                                         {blueScore}
                                     </span>
@@ -97,7 +97,7 @@ export function TeamScoreHeader({
                                     <span
                                         className="text-[80px] sm:text-[100px] leading-none font-bangers relative z-10"
                                         style={{
-                                            background: 'linear-gradient(180deg, #A8D1FF 0%, #4A90D9 100%)',
+                                            background: 'linear-gradient(180deg, var(--team-blue-light) 0%, var(--team-blue) 100%)',
                                             WebkitBackgroundClip: 'text',
                                             WebkitTextFillColor: 'transparent',
                                             color: 'transparent'
@@ -115,10 +115,10 @@ export function TeamScoreHeader({
 
                             {/* Pink Score */}
                             <div className="flex flex-col items-center justify-center w-[40%] relative">
-                                <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgba(231,84,128,0.7))' }}>
+                                <div className="relative" style={{ filter: 'drop-shadow(0px 0px 24px rgb(var(--team-red-rgb) / 0.7))' }}>
                                     <span
-                                        className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-[#8a1c3d]"
-                                        style={{ WebkitTextStroke: '16px #8a1c3d', transform: 'translateY(6px)' }}
+                                        className="text-[80px] sm:text-[100px] leading-none font-bangers absolute left-0 top-0 z-0 text-team-red-deep"
+                                        style={{ WebkitTextStroke: '16px var(--team-red-deep)', transform: 'translateY(6px)' }}
                                     >
                                         {redScore}
                                     </span>
@@ -131,7 +131,7 @@ export function TeamScoreHeader({
                                     <span
                                         className="text-[80px] sm:text-[100px] leading-none font-bangers relative z-10"
                                         style={{
-                                            background: 'linear-gradient(180deg, #FFB6C1 0%, #E75480 100%)',
+                                            background: 'linear-gradient(180deg, var(--team-red-light) 0%, var(--team-red) 100%)',
                                             WebkitBackgroundClip: 'text',
                                             WebkitTextFillColor: 'transparent',
                                             color: 'transparent'
@@ -147,7 +147,7 @@ export function TeamScoreHeader({
                         {showProjected && (
                             <div className="flex flex-col items-center mt-2 cursor-pointer w-full" onClick={onToggleCurrent}>
                                 <div className="bg-[#151532] border-[2px] border-[#31316b] shadow-inner rounded-full px-8 py-2 flex items-center justify-center gap-4">
-                                    <span className="text-[26px] sm:text-[30px] font-bangers text-[#4A90D9] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-none">
+                                    <span className="text-[26px] sm:text-[30px] font-bangers text-team-blue drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-none">
                                         {projectedBlue}
                                     </span>
 
@@ -155,7 +155,7 @@ export function TeamScoreHeader({
                                         PROYECTADO
                                     </span>
 
-                                    <span className="text-[26px] sm:text-[30px] font-bangers text-[#E75480] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-none">
+                                    <span className="text-[26px] sm:text-[30px] font-bangers text-team-red drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-none">
                                         {projectedRed}
                                     </span>
                                 </div>

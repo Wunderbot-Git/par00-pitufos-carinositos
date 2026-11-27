@@ -13,7 +13,7 @@ export function CompletedBreakdown({ segmentScores }: CompletedBreakdownProps) {
         <div className="flex items-center py-3 border-b border-[rgba(255,255,255,0.15)] last:border-0 relative px-4 sm:px-8">
             {/* BLUE (Left) */}
             <div className="flex-1 flex justify-center">
-                <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${blue > 0 ? 'text-[#4A90D9]' : 'text-[#4a4a8e]'}`} style={blue > 0 ? { filter: 'drop-shadow(0px 0px 4px rgba(74,144,217,0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
+                <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${blue > 0 ? 'text-team-blue' : 'text-[#4a4a8e]'}`} style={blue > 0 ? { filter: 'drop-shadow(0px 0px 4px rgb(var(--team-blue-rgb) / 0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
                     {blue}
                 </span>
             </div>
@@ -25,7 +25,7 @@ export function CompletedBreakdown({ segmentScores }: CompletedBreakdownProps) {
             </div>
             {/* RED (Right) */}
             <div className="flex-1 flex justify-center">
-                <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${red > 0 ? 'text-[#E75480]' : 'text-[#4a4a8e]'}`} style={red > 0 ? { filter: 'drop-shadow(0px 0px 4px rgba(231,84,128,0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
+                <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${red > 0 ? 'text-team-red' : 'text-[#4a4a8e]'}`} style={red > 0 ? { filter: 'drop-shadow(0px 0px 4px rgb(var(--team-red-rgb) / 0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
                     {red}
                 </span>
             </div>

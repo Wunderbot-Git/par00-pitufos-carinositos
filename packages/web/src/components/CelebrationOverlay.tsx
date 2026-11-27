@@ -1,13 +1,9 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import { THEME } from '@/lib/theme';
 
-const CELEBRATION_VIDEOS: Record<string, string> = {
-    red: '/videos/carinositos_win_hole.mp4',
-    blue: '/videos/pitufos_win_hole.mp4',
-    red_tournament: '/videos/carinositos_win_torneo.mp4',
-    blue_tournament: '/videos/pitufos_win_torneo.mp4',
-};
+const CELEBRATION_VIDEOS = THEME.assets.videos;
 
 interface CelebrationOverlayProps {
     team: 'red' | 'blue';
@@ -38,6 +34,7 @@ export function CelebrationOverlay({ team, variant = 'hole', onClose }: Celebrat
                 playsInline
                 muted
                 onEnded={onClose}
+                onError={onClose}
                 onClick={(e) => e.stopPropagation()}
             />
         </div>

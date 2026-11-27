@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { THEME } from '@/lib/theme';
 
 export const BattleHeader = () => {
     return (
@@ -7,8 +8,8 @@ export const BattleHeader = () => {
                 {/* Complete Title Graphic (Logo + Characters) */}
                 <div className="relative w-full aspect-[800/264]">
                     <Image
-                        src="/images/Gemini_Generated_Image_6e37hu6e37hu6e37_1.webp"
-                        alt="Pitufos vs Cariñositos"
+                        src={THEME.assets.battleHeader}
+                        alt={THEME.edition}
                         fill
                         className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]"
                         unoptimized

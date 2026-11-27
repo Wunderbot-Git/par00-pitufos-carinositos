@@ -1,5 +1,7 @@
 'use client';
 
+import { TEAM_NAMES } from '@/lib/theme';
+
 interface MomentumIndicatorProps {
     momentum: 'red' | 'blue' | 'neutral';
 }
@@ -17,7 +19,7 @@ export function MomentumIndicator({ momentum }: MomentumIndicatorProps) {
     const isRed = momentum === 'red';
     const color = isRed ? 'text-team-red' : 'text-team-blue';
     const arrow = isRed ? '←' : '→';
-    const label = isRed ? 'Cariñositos' : 'Pitufos';
+    const label = isRed ? TEAM_NAMES.red : TEAM_NAMES.blue;
 
     return (
         <div className={`flex items-center gap-1 ${color}`}>

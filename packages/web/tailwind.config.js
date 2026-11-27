@@ -8,8 +8,19 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'team-red': '#E75480',
-                'team-blue': '#4A90D9',
+                // Team colors come from CSS variables in globals.css (theme)
+                'team-red': {
+                    DEFAULT: 'rgb(var(--team-red-rgb) / <alpha-value>)',
+                    light: 'var(--team-red-light)',
+                    dark: 'var(--team-red-dark)',
+                    deep: 'var(--team-red-deep)',
+                },
+                'team-blue': {
+                    DEFAULT: 'rgb(var(--team-blue-rgb) / <alpha-value>)',
+                    light: 'var(--team-blue-light)',
+                    dark: 'var(--team-blue-dark)',
+                    deep: 'var(--team-blue-deep)',
+                },
                 'scorecard-navy': '#1a1a3e',
                 'forest-deep': '#0a4030',
                 'forest-mid': '#147255',

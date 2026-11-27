@@ -66,7 +66,7 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
 
                 <div className="flex items-center gap-2 sm:gap-6 px-2 sm:px-8 relative z-10">
                     {/* BLUE DELTA (Left) */}
-                    <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${segmentMatches.length > 0 ? 'text-[#4A90D9]' : 'text-[#4a4a8e]'}`} style={segmentMatches.length > 0 ? { filter: 'drop-shadow(0px 0px 4px rgba(74,144,217,0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
+                    <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${segmentMatches.length > 0 ? 'text-team-blue' : 'text-[#4a4a8e]'}`} style={segmentMatches.length > 0 ? { filter: 'drop-shadow(0px 0px 4px rgb(var(--team-blue-rgb) / 0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
                         {formatDelta(blueDelta)}
                     </span>
 
@@ -79,11 +79,11 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
                                 if (m.status === 'not_started') {
                                     dotStyle = 'bg-[#4a4a6e] border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]';
                                 } else if (m.currentLeader === 'red' || m.matchWinner === 'red') {
-                                    dotStyle = 'bg-[#E75480] border-[#1e293b]';
-                                    glowStyle = '0 0 8px rgba(231,84,128,0.6), inset 0 2px 2px rgba(255,255,255,0.4)';
+                                    dotStyle = 'bg-team-red border-[#1e293b]';
+                                    glowStyle = '0 0 8px rgb(var(--team-red-rgb) / 0.6), inset 0 2px 2px rgba(255,255,255,0.4)';
                                 } else if (m.currentLeader === 'blue' || m.matchWinner === 'blue') {
-                                    dotStyle = 'bg-[#4A90D9] border-[#1e293b]';
-                                    glowStyle = '0 0 8px rgba(74,144,217,0.6), inset 0 2px 2px rgba(255,255,255,0.4)';
+                                    dotStyle = 'bg-team-blue border-[#1e293b]';
+                                    glowStyle = '0 0 8px rgb(var(--team-blue-rgb) / 0.6), inset 0 2px 2px rgba(255,255,255,0.4)';
                                 } else {
                                     // Tied or in_progress without leader
                                     dotStyle = 'bg-[#F0C850] border-[#1e293b] relative z-10';
@@ -113,7 +113,7 @@ export function ScoreBreakdown({ segmentScores, matches, onMatchClick }: ScoreBr
                     </div>
 
                     {/* RED DELTA (Right) */}
-                    <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${segmentMatches.length > 0 ? 'text-[#E75480]' : 'text-[#4a4a8e]'}`} style={segmentMatches.length > 0 ? { filter: 'drop-shadow(0px 0px 4px rgba(231,84,128,0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
+                    <span className={`text-[28px] sm:text-[34px] font-bangers w-16 text-center ${segmentMatches.length > 0 ? 'text-team-red' : 'text-[#4a4a8e]'}`} style={segmentMatches.length > 0 ? { filter: 'drop-shadow(0px 0px 4px rgb(var(--team-red-rgb) / 0.8))', WebkitTextStroke: '2px #1e293b' } : {}}>
                         {formatDelta(redDelta)}
                     </span>
                 </div>

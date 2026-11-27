@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { TEAM_NAMES } from '@/lib/theme';
 
 const ADMIN_PASSWORD = 'Qayedc-1';
 const ADMIN_KEY = 'admin_authenticated';
@@ -333,7 +334,7 @@ export default function AdminPlayersPage() {
     const renderTeamSection = (team: 'red' | 'blue', teamPlayers: Player[]) => (
         <div className="mb-6">
             <h2 className={`text-sm font-bangers uppercase tracking-widest px-4 py-2 rounded-t-xl ${team === 'red' ? 'text-team-red bg-team-red/10 border border-team-red/20' : 'text-team-blue bg-team-blue/10 border border-team-blue/20'}`}>
-                {team === 'red' ? 'Cariñositos' : 'Pitufos'} ({teamPlayers.length})
+                {team === 'red' ? TEAM_NAMES.red : TEAM_NAMES.blue} ({teamPlayers.length})
             </h2>
             <div className="bg-cream rounded-b-xl gold-border overflow-hidden">
                 <table className="w-full text-left">

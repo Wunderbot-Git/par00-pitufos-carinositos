@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '@/lib/api';
 import { usePlaceBet, usePlaceGeneralBet } from '@/hooks/useBetting';
+import { TEAM_NAMES } from '@/lib/theme';
 
 interface MissingMatch {
   flightId: string;
@@ -79,11 +80,11 @@ function ExactScorePicker({
   onChange: (outcome: string) => void;
 }) {
   const parsed = value ? value.split('-').map(Number) : [12.5, 12.5];
-  const pitufos = parsed[0] ?? 12.5;
-  const cariniositos = 25 - pitufos;
+  const blueScore = parsed[0] ?? 12.5;
+  const redScore = 25 - blueScore;
 
   const adjust = (delta: number) => {
-    const next = pitufos + delta;
+    const next = blueScore + delta;
     if (next >= 0 && next <= 25 && next % 0.5 === 0) {
       onChange(`${next}-${25 - next}`);
     }
@@ -94,10 +95,10 @@ function ExactScorePicker({
       <div className="flex items-center gap-4 w-full justify-center">
         <div className="flex flex-col items-center gap-1 flex-1">
           <span className="text-[10px] font-bangers text-team-blue uppercase tracking-wider">
-            Pitufos
+            {TEAM_NAMES.blue}
           </span>
           <div className="bg-team-blue/10 border-2 border-team-blue/30 rounded-xl px-4 py-3 min-w-[80px] text-center">
-            <span className="text-4xl font-bangers text-team-blue">{pitufos}</span>
+            <span className="text-4xl font-bangers text-team-blue">{blueScore}</span>
           </div>
         </div>
 
@@ -105,10 +106,10 @@ function ExactScorePicker({
 
         <div className="flex flex-col items-center gap-1 flex-1">
           <span className="text-[10px] font-bangers text-team-red uppercase tracking-wider">
-            Cariñositos
+            {TEAM_NAMES.red}
           </span>
           <div className="bg-team-red/10 border-2 border-team-red/30 rounded-xl px-4 py-3 min-w-[80px] text-center">
-            <span className="text-4xl font-bangers text-team-red">{cariniositos}</span>
+            <span className="text-4xl font-bangers text-team-red">{redScore}</span>
           </div>
         </div>
       </div>
@@ -116,21 +117,21 @@ function ExactScorePicker({
       <div className="flex items-center gap-3">
         <button
           onClick={() => adjust(-0.5)}
-          disabled={pitufos <= 0}
+          disabled={blueScore <= 0}
           className="w-12 h-12 rounded-full border-2 border-team-red/40 bg-team-red/10 text-team-red font-bangers text-xl disabled:opacity-30 transition-all hover:bg-team-red/20 active:scale-95"
         >
           −
         </button>
         <span className="text-xs text-cream/50 font-fredoka w-20 text-center">
-          {pitufos === cariniositos
+          {blueScore === redScore
             ? 'Empate'
-            : pitufos > cariniositos
-              ? 'Ganan Pitufos'
-              : 'Ganan Cariñositos'}
+            : blueScore > redScore
+              ? `Ganan ${TEAM_NAMES.blue}`
+              : `Ganan ${TEAM_NAMES.red}`}
         </span>
         <button
           onClick={() => adjust(0.5)}
-          disabled={pitufos >= 25}
+          disabled={blueScore >= 25}
           className="w-12 h-12 rounded-full border-2 border-team-blue/40 bg-team-blue/10 text-team-blue font-bangers text-xl disabled:opacity-30 transition-all hover:bg-team-blue/20 active:scale-95"
         >
           +
@@ -398,7 +399,7 @@ export function MandatoryBetWizard({ eventId, onComplete, onDismiss }: Props) {
               className="h-full rounded-full transition-all duration-500 ease-out"
               style={{
                 width: `${(progressPlaced / totalBets) * 100}%`,
-                background: 'linear-gradient(90deg, #4A90D9, #E75480)',
+                background: 'linear-gradient(90deg, var(--team-blue), var(--team-red))',
               }}
             />
           </div>
@@ -502,7 +503,7 @@ function GeneralBetStep({
                 : 'border-team-blue/30 bg-team-blue/5 hover:border-team-blue/60'
             }`}
           >
-            <span className="text-xl font-bangers text-team-blue">Pitufos</span>
+            <span className="text-xl font-bangers text-team-blue">{TEAM_NAMES.blue}</span>
           </button>
           <button
             onClick={() => onSelect('red')}
@@ -512,7 +513,7 @@ function GeneralBetStep({
                 : 'border-team-red/30 bg-team-red/5 hover:border-team-red/60'
             }`}
           >
-            <span className="text-xl font-bangers text-team-red">Cariñositos</span>
+            <span className="text-xl font-bangers text-team-red">{TEAM_NAMES.red}</span>
           </button>
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PersonalStats } from '@/hooks/useBetting';
 import { formatCurrency } from '@/lib/currency';
+import { TEAM_NAMES } from '@/lib/theme';
 
 const SEGMENT_LABELS: Record<string, string> = {
     singles1: 'Individual 1',
@@ -12,8 +13,8 @@ const SEGMENT_LABELS: Record<string, string> = {
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
-    A: 'Cariñositos',
-    B: 'Pitufos',
+    A: TEAM_NAMES.red,
+    B: TEAM_NAMES.blue,
     AS: 'Empate',
 };
 
